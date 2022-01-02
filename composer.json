@@ -1,0 +1,45 @@
+{
+  "name"         : "prodemmi/lava" ,
+  "description"  : "Lava is a full customisable admin panel for laravel." ,
+  "type"         : "package" ,
+  "license"      : "MIT" ,
+  "keywords"     : [
+    "lava" , "admin" , "panel" , "dashboard" , "laravel"
+  ] ,
+  "authors"      : [
+    {
+      "name"  : "Emad Malekpour" ,
+      "email" : "prodemmi@gmail.com"
+    }
+  ] ,
+  "require"      : {
+    "brick/money"        : "^0.5.3",
+    "hekmatinasser/verta": "^1.12.4"
+  } ,
+  "autoload"     : {
+    "psr-4" : {
+      "Prodemmi\\Lava\\" : "./src"
+    }
+  } ,
+  "autoload-dev" : {
+    "psr-4" : {
+      "Prodemmi\\Lava\\Tests\\" : "tests"
+    }
+  } ,
+  "scripts"      : {
+    "test" : "vendor/bin/phpunit"
+  } ,
+  "extra"        : {
+    "laravel" : {
+      "providers" : [
+        "Prodemmi\\Lava\\LavaServiceProvider"
+      ] ,
+      "aliases"   : {
+        "Lava" : "Prodemmi\\Lava\\Facades\\Lava"
+      }
+    }
+  } ,
+  "require-dev"  : {
+    "orchestra/testbench" : "^6.0"
+  }
+}

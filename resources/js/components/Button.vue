@@ -1,0 +1,62 @@
+<template>
+    <div v-ripple>
+        <button
+                @click="$emit('click')"
+                :disabled="(disabled || loading)"
+                :class="[
+                  `button--normal bg-${color}`,
+                  disabled ? 'button--disabled' : '',
+                  loading  ? 'button--loading'  : '',
+                  block    ? 'button--block'    : '',
+                  small    ? 'button--small'    : '',
+                  rounded  ? 'button--rounded'  : '',
+                  !(disabled || loading) ? `button--hover`    : '',
+                  noPadding ? 'p-2 max-w-12 max-h-12': 'min-w-button py-2 px-4'
+                ]">
+            <lava-spinner v-if="loading"></lava-spinner>
+            <slot v-else></slot>
+        </button>
+    </div>
+</template>
+
+<script>
+    export default {
+        props: {
+            small: {
+                type: Boolean,
+                required: false,
+                default: false,
+            },
+            block: {
+                type: Boolean,
+                required: false,
+                default: false,
+            },
+            loading: {
+                type: Boolean,
+                required: false,
+                default: false,
+            },
+            color: {
+                type: String,
+                required: false,
+                default: "primary",
+            },
+            rounded: {
+                type: Boolean,
+                required: false,
+                default: false,
+            },
+            disabled: {
+                type: Boolean,
+                required: false,
+                default: false,
+            },
+            noPadding:{
+                type: Boolean,
+                default: false,
+            }
+        }
+    };
+</script>
+

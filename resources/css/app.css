@@ -1,0 +1,418 @@
+@tailwind components;
+
+@import "~sweetalert2/dist/sweetalert2.min.css";
+@import "~vuejs-dialog/dist/vuejs-dialog.min.css";
+@import '~vue-search-select/dist/VueSearchSelect.css';
+@import '~flatpickr/dist/flatpickr.css';
+
+:root {
+    --transparent         : transparent;
+    --white               : white;
+    --black               : #22292f;
+
+    --primary             : #232f3d;
+    --warning             : yellow;
+    --success             : green;
+    --danger              : red;
+    --info                : blue;
+
+    --primary-light       : #2d3d4f;
+    --warning-light       : yellow;
+    --success-light       : green;
+    --danger-light        : red;
+    --info-light          : blue;
+
+    --tooltip             : #5f6368;
+    --tooltip-text        : var(--white);
+
+    --logo                : var(--white);
+
+    --main                : rgb(240, 240, 240);
+
+    --sidebar             : var(--primary);
+    --sidebar-menu        : var(--primary);
+    --sidebar-menu-active : #151e2d;
+    --sidebar-icon        : var(--white);
+
+    --header              : var(--primary);
+}
+
+/*@formatter:off*/
+
+/* Base
+----------------------------------------------------------------------------
+*/
+
+.primary {
+    @apply bg-primary !important;
+}
+
+.info {
+    @apply bg-info !important;
+}
+
+.warning {
+    @apply bg-warning !important;
+}
+
+.danger {
+    @apply bg-danger !important;
+}
+
+/* Loading
+---------------------------------------------------------------------------
+*/
+
+.progress-back{
+    @apply fixed block left-sidebar top-0 bottom-0 right-0 bg-white overflow-hidden h-loading z-100;
+}
+
+.progress-back .determinate {
+    @apply absolute left-0 right-0 top-0 bottom-0 transition-all duration-500 bg-primary;
+}
+
+.progress-back .indeterminate {
+    @apply bg-primary;
+}
+
+.progress-back .indeterminate:before {
+    content: '';
+    position: absolute;
+    background-color: inherit;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    will-change: left, right;
+    animation: indeterminate 3.0s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+}
+
+.progress-back .indeterminate:after {
+    content: '';
+    position: absolute;
+    background-color: inherit;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    will-change: left, right;
+    animation: indeterminate-short 3.0s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+    animation-delay: 1.4s;
+}
+
+@keyframes indeterminate {
+  0% {left: -35%;right: 100%; }
+  60% {left: 100%;right: -90%; }
+  100% {left: 100%;right: -90%; }
+}
+
+@keyframes indeterminate-short {
+  0% {left: -200%;right: 100%; }
+  60% {left: 107%;right: -8%; }
+  100% {left: 107%;right: -8%; }
+}
+
+/* Header
+----------------------------------------------------------------------------
+*/
+
+.header {
+    @apply fixed left-sidebar right-0 top-0 flex items-center justify-start p-2 h-header bg-white shadow-lg;
+}
+
+/* Breadcrumbs
+----------------------------------------------------------------------------
+*/
+
+.breadcrumb {
+    @apply select-none inline-flex items-center list-none px-1;
+}
+
+.breadcrumb__item {
+    @apply inline-flex items-center cursor-pointer hover:text-black;
+}
+
+.breadcrumb__item--disabled {
+    @apply cursor-default no-underline pointer-events-none text-gray-400;
+}
+
+.breadcrumb__divider {
+    @apply px-2;
+}
+
+/* Header
+----------------------------------------------------------------------------
+*/
+
+.content {
+    @apply fixed overflow-y-auto overflow-x-hidden left-sidebar top-header right-0 bottom-0 bg-main p-2;
+}
+
+/* Sidebar
+----------------------------------------------------------------------------
+*/
+
+.side-bar {
+    @apply fixed left-0 top-0 bottom-0 flex flex-col place-content-between bg-primary w-sidebar transition-all duration-200 ease-in-out;
+}
+
+.side-bar__group {
+    @apply text-gray-300 font-bold m-1 p-2;
+}
+
+.side-bar__item {
+    @apply flex items-center justify-start rounded text-gray-100 cursor-pointer m-1 p-2 bg-sidebar-menu transition-all duration-200;
+}
+
+.side-bar__item:hover {
+    @apply text-white bg-sidebar-menu-active;
+}
+
+.side-bar__item--active {
+    @apply text-white bg-sidebar-menu-active !important;
+}
+
+.side-bar__text {
+    @apply pl-2;
+}
+
+.side-bar__logo {
+    @apply w-full bg-cover;
+}
+
+.side-bar__profile{
+    @apply flex justify-between items-start text-white bg-sidebar-menu-active rounded m-2 p-2;
+}
+
+.side-bar__profile--avatar{
+    @apply w-1/4 h-auto rounded-full;
+}
+
+/* Spinner
+----------------------------------------------------------------------------
+*/
+
+.card{
+
+    @apply flow-root m-0.5 shadow-lg rounded-lg bg-primary-light;
+
+}
+
+.card--header{
+
+    @apply text-gray-200 px-2;
+
+}
+
+.card--body{
+
+    @apply bg-white p-2 rounded-lg;
+
+}
+
+.card--footer{
+
+    @apply p-2 pt-4;
+
+}
+
+/* Button
+----------------------------------------------------------------------------
+*/
+
+.button {
+    @apply text-center transition-all duration-150 ease-in-out border-none cursor-pointer m-0.5 outline-none rounded;
+}
+
+.button--hover {
+    @apply hover:text-gray-200 hover:shadow-lg;
+}
+
+.button--normal {
+    @apply button shadow font-bold text-white;
+}
+
+.button--rounded {
+    @apply rounded-full !important;
+}
+
+.button--small {
+    @apply py-1 px-2 !important;
+}
+
+.button--block {
+    @apply mx-0 block w-full !important;
+}
+
+.button--disabled {
+    @apply cursor-not-allowed opacity-60 !important;
+}
+
+.button--loading {
+    @apply cursor-wait !important;
+}
+
+/* Spinner
+----------------------------------------------------------------------------
+*/
+
+.spinner {
+    margin: auto;
+    width: 100%;
+    text-align: center;
+}
+
+.spinner > div {
+    width: 8px;
+    height: 8px;
+    background-color: whitesmoke;
+    border-radius: 100%;
+    display: inline-block;
+    -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+    animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+
+.spinner .bounce1 {
+    -webkit-animation-delay: -0.32s;
+    animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+    -webkit-animation-delay: -0.16s;
+    animation-delay: -0.16s;
+}
+
+@-webkit-keyframes sk-bouncedelay {
+    0%,
+    80%,
+    100% {
+        -webkit-transform: scale(0);
+    }
+    40% {
+        -webkit-transform: scale(1);
+    }
+}
+
+@keyframes sk-bouncedelay {
+    0%,
+    80%,
+    100% {
+        -webkit-transform: scale(0);
+        transform: scale(0);
+    }
+    40% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+}
+
+/* Spinner
+----------------------------------------------------------------------------
+*/
+
+.tooltip {
+  @apply bg-tooltip text-tooltip-text m-0.5 px-2 py-1 rounded text-sm shadow-lg leading-normal;
+}
+
+.tooltip {
+  display: block !important;
+  z-index: 88888;
+}
+
+.tooltip .tooltip-inner {
+}
+
+.tooltip.popover .popover-inner {
+}
+
+.tooltip[aria-hidden='true'] {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.15s, visibility 0.15s;
+}
+
+.tooltip[aria-hidden='false'] {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.15s;
+}
+
+/* Fade Transition */
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to{
+  opacity: 0;
+}
+
+/* Resource Table */
+
+.resource-table{
+    @apply rounded-lg min-w-full border-collapse text-left;
+}
+
+.resource-table__th{
+    @apply text-sm font-medium text-white px-2 py-1;
+}
+
+.resource-table__td{
+    @apply px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900;
+}
+
+.resource-table__loading{
+    @apply absolute inset-0 bg-black opacity-50;
+}
+
+.resource-table__pagination{
+    @apply inline-flex list-none p-0 text-gray-600;
+}
+
+.resource-table__pagination li div{
+    @apply transition-all duration-200;
+}
+
+.resource-table__pagination--nav{
+    @apply text-sm py-1 px-3 bg-primary rounded text-white;
+}
+
+.resource-table__pagination--link{
+    @apply text-sm py-1 px-2 cursor-pointer mx-1 bg-gray-100 rounded hover:bg-gray-200;
+}
+
+/* Form */
+
+.form-element{
+    @apply transition ease-in-out w-full bg-white border-3 border-gray-300 text-gray-800 m-0.5 my-1 p-1 cursor-pointer rounded leading-tight focus:bg-gray-200 focus:border-primary focus:shadow;
+}
+
+.select{
+    @apply form-element block;
+}
+
+.select option{
+    @apply cursor-pointer;
+}
+
+.checkbox{
+    @apply form-element mr-2 leading-tight;
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar {
+  width  : 8px;
+  height : 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-200;
+}
+
+::-webkit-scrollbar-thumb {
+   @apply bg-primary;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary-light;
+}
+
+@tailwind utilities;

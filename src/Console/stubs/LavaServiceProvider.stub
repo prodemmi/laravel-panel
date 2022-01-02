@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Prodemmi\Lava\Facades\Lava;
+
+class LavaServiceProvider extends ServiceProvider
+{
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+
+        Lava::create( "Dashboard" )
+            ->route( 'dashboard' )
+            ->seeWhen( function ($request) {
+
+                return $request->user() && $request->user()->is_admin
+
+            } )->resources( [] );
+
+    }
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+
+}
