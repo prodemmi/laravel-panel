@@ -1,22 +1,13 @@
 <template>
 
-    <div>
+    <div v-if="activeTool()" class="inline">
 
-        <h2>{{ header }}</h2>
+        <h2>{{ activeTool().pluralLabel }}</h2>
 
-        <resource-table :resource="activeTool()"></resource-table>
+        <resource-table :resource="activeTool()" :key="$route.fullPath"></resource-table>
 
     </div>
 
 </template>
 
 <script>
-
-    export default {
-        computed: {
-            header() {
-                return this.activeTool().pluralLabel
-            }
-        }
-    }
-</script>

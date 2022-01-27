@@ -1,22 +1,20 @@
 <template>
-    <div v-ripple>
-        <button
-                @click="$emit('click')"
-                :disabled="(disabled || loading)"
-                :class="[
-                  `button--normal bg-${color}`,
-                  disabled ? 'button--disabled' : '',
-                  loading  ? 'button--loading'  : '',
-                  block    ? 'button--block'    : '',
-                  small    ? 'button--small'    : '',
-                  rounded  ? 'button--rounded'  : '',
-                  !(disabled || loading) ? `button--hover`    : '',
-                  noPadding ? 'p-2 max-w-12 max-h-12': 'min-w-button py-2 px-4'
-                ]">
-            <lava-spinner v-if="loading"></lava-spinner>
-            <slot v-else></slot>
-        </button>
-    </div>
+    <button
+            @click="$emit('click')"
+            :disabled="(disabled || loading)"
+            :class="[
+              `button--normal bg-${color}`,
+              disabled ? 'button--disabled' : '',
+              loading  ? 'button--loading'  : '',
+              block    ? 'button--block'    : '',
+              small    ? 'button--small'    : '',
+              rounded  ? 'button--rounded'  : '',
+              !(disabled || loading) ? `button--hover`    : '',
+              noPadding ? 'p-2 max-w-12 max-h-12': 'min-w-button py-2 px-4'
+            ]">
+        <lava-spinner v-if="loading"></lava-spinner>
+        <slot v-else></slot>
+    </button>
 </template>
 
 <script>

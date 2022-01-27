@@ -3,9 +3,16 @@
 namespace Prodemmi\Lava;
 
 
+use Prodemmi\Lava\Fields\Boolean;
+
 class DeleteAction extends Action
 {
+
+    use ActiveTool;
+
     public $name = 'Delete';
+
+    public $help = 'Do you sure to delete ?';
 
     public $icon = 'delete-bin';
 
@@ -15,6 +22,18 @@ class DeleteAction extends Action
 
     public function fields(): array
     {
+
+//        $model          = $this->activeTool()::getModelInstance();
+//        $useSoftDeletes = in_array( 'Illuminate\Database\Eloquent\SoftDeletes', class_uses( $model ) );
+//
+//        if ( $useSoftDeletes ) {
+//
+//            return [
+//            ];
+//
+//        }
+//
+
         return [];
     }
 

@@ -16,6 +16,21 @@ trait Fieldable
 
     public $hideDefault = FALSE;
 
+    public function showOnAll($showOnAll = TRUE)
+    {
+
+        if($showOnAll){
+
+            $this->showOnIndex = true;
+            $this->showOnDetail = true;
+            $this->showOnForm = true;
+
+        }
+
+        return $this;
+        
+    }
+
     public function setOnIndex($setOnIndex = TRUE)
     {
 
@@ -67,6 +82,16 @@ trait Fieldable
         $this->showOnIndex  = FALSE;
         $this->showOnDetail = FALSE;
         $this->showOnForm   = TRUE;
+
+        return $this;
+    }
+
+    public function exceptOnDetail()
+    {
+
+        $this->showOnIndex  = TRUE;
+        $this->showOnDetail = TRUE;
+        $this->showOnForm   = FALSE;
 
         return $this;
     }

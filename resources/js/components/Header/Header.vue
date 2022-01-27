@@ -2,7 +2,7 @@
 
     <div class="header">
 
-        <!--<Breadcrumb/>-->
+        <Breadcrumb/>
 
     </div>
 

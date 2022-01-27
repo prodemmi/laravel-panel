@@ -40,21 +40,28 @@ trait Table
         }
         else {
 
-            $this->records->orderBy( $this->resource()::getPrimaryKey(), 'DESC' );
+            $this->records->orderBy( ...$this->resource()::getSort() );
 
         }
+
+        return $this;
 
     }
 
     public function filter()
     {
 
-        foreach ( $this->filter as $filter ) {
+        $filters = $this->filter['filter'];
 
-            $f = new( $filter['filter'] )();
+        $newFilters = [];
 
-            $this->records = $f->handle( $this->records, $filter['fields'] ?? [] );
+        foreach ( $filters as $filter ) {
+
+            $newFilters[] = [ $filter['column'], 'like', $filter['value'] ];
+
         }
+
+        $this->records = $this->records->where( $newFilters );
 
     }
 
@@ -126,6 +133,7 @@ trait Table
             'current_page'    => $this->page,
             'per_page'        => $this->per_page,
             'total'           => $this->total,
+            'all'             => $this->all,
             'total_pages'     => $this->total_pages,
             'links'           => $links,
             'max_shows_pages' => $max_shows_pages
@@ -136,7 +144,7 @@ trait Table
     public function resolveValue($records, $display = TRUE, $value = TRUE)
     {
 
-        $fields = collect( $this->resource()->fields() );
+        $fields = $this->resource()::getFieldsOfForDesign();
 
         return $records->map( function ($row) use ($fields, $display, $value) {
 
@@ -153,7 +161,7 @@ trait Table
 
             foreach ( $fields as $field ) {
 
-                if ( $field->resolveCallbacks && $value ) {
+                if ( !empty( $field->resolveCallbacks ) && $value ) {
 
                     $field->value = data_get( $row, $field->column . ".value" );
 
@@ -161,7 +169,7 @@ trait Table
 
                         if ( !is_null( $resolveCallback ) ) {
 
-                            $field->value = call_user_func( $resolveCallback, $field->value, $rowToSent );
+                            $field->value = call_user_func( $resolveCallback, $field->value, $rowToSent, $this->env );
 
                         }
 
@@ -171,7 +179,7 @@ trait Table
 
                 }
 
-                if ( $field->displayCallbacks && $display ) {
+                if ( !empty( $field->displayCallbacks ) && $display ) {
 
                     $field->value = data_get( $row, $field->column . ".value" );
 
@@ -179,7 +187,7 @@ trait Table
 
                         if ( !is_null( $displayCallback ) ) {
 
-                            $field->value = call_user_func( $displayCallback, $field->value, $rowToSent );
+                            $field->value = call_user_func( $displayCallback, $field->value, $rowToSent, $this->env );
 
                         }
 

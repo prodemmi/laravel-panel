@@ -19,7 +19,7 @@ class EditAction extends Action
 
         $primaryKey = $collection->first()[$resource->getPrimaryKey()];
 
-        return ActionStatus::route( 'edit', [ 'id' => $primaryKey, 'resource' => $resource->route() ] );
+        return ActionStatus::route( 'edit', [ 'primaryKey' => $primaryKey, 'resource' => $resource->route() ] );
 
     }
 }

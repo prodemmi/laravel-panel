@@ -2,9 +2,7 @@
 
 namespace Prodemmi\Lava\Fields;
 
-
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
+use Illuminate\Contracts\Support\Arrayable;
 
 class Select extends Field
 {
@@ -13,54 +11,78 @@ class Select extends Field
 
     public $options = [];
 
-    public $searchable = FALSE;
-
     public $multiple = FALSE;
 
-    public $maxSelect = 1;
+    public $limit = 1;
+
+    public $searchable;
+
+    public $searchCallback;
 
     public function __construct($name, $column = NULL)
     {
-        parent::__construct( $name, $column );
+        parent::__construct($name, $column);
 
-        $this->displayValue( function ($value) {
+        $this->displayValue(function ($value) {
 
-            return $this->options[$value] ?? NULL;
-
-        } );
-
+            return $this->options[$value]['label'];
+        });
     }
 
-    public function options($options)
+    public function options($options, $searchable = FALSE)
     {
-        $this->options = $this->callableValue( $options );
+
+
+        if ($searchable) {
+
+            $this->searchable     = $searchable;
+            $this->searchCallback = $options;
+        } else {
+
+            $this->options = $this->optionResolve($this->callableValue($options));
+        }
 
         return $this;
     }
 
-    public function searchable($searchable)
+    protected function optionResolve($options)
     {
-        $this->searchable = $this->callableValue( $searchable );
+
+        return array_map(function ($label, $key) {
+
+            return [
+                'value' => $key,
+                'label' => $label
+            ];
+        }, $options, array_keys($options));
+    }
+
+    public function onSearch($closure)
+    {
+
+        $this->searchCallback = $closure;
 
         return $this;
     }
 
-    public function multiple($multiple, $length = 1)
+    public function multiple($limit = 1, $multiple = TRUE)
     {
-        $this->multiple  = $this->callableValue( $multiple );
-        $this->maxSelect = $length;
+
+        $this->attributes([
+            'multiple' => $this->callableValue($multiple)
+        ]);
+
+        $this->limit = $limit;
 
         return $this;
     }
 
     public function toArray()
     {
-        return array_merge( parent::toArray(), [
+        return array_merge(parent::toArray(), [
             'options'    => $this->options,
             'searchable' => $this->searchable,
-            'multiple'   => $this->multiple,
-            'maxSelect'  => $this->maxSelect
-        ] );
+            'limit'      => $this->limit
+        ]);
     }
-
 }

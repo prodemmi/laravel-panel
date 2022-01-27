@@ -12,24 +12,25 @@ instance.interceptors.response.use(
     error => {
         const {status} = error.response
 
-        // Show the user a 500 error
-        if (status >= 500) {
-            Lava.alert(error.response.data.message, 'error')
-        }
-
         // Handle Session Timeouts
         if (status === 401) {
             window.location.href = Lava.config.baseUrl
         }
 
         // Handle Forbidden
-        if (status === 403) {
+        else if (status === 403) {
             // router.push({ name: '403' })
         }
 
         // Handle Token Timeouts
-        if (status === 419) {
-            Lava.tokenExpired()
+        else if (status === 419) {
+
+            Lava.confirm("Sorry, your session has expired.", "error").then(() => {
+
+                window.location = '/auth/logout'
+
+            })
+
         }
 
         return Promise.reject(error)

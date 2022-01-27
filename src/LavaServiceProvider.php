@@ -50,6 +50,7 @@ class LavaServiceProvider extends ServiceProvider
 
         $this->registerRoutes();
         $this->registerViews();
+        $this->registerMigrations();
 
     }
 
@@ -91,6 +92,20 @@ class LavaServiceProvider extends ServiceProvider
     {
 
         $this->loadViewsFrom( __DIR__ . '/../resources/views', 'lava' );
+
+        $this->addMiddleware();
+
+    }
+
+    /**
+     * Register the package migrations.
+     *
+     * @return void
+     */
+    protected function registerMigrations()
+    {
+
+        $this->loadMigrationsFrom( __DIR__ . '/../database/migrations', 'lava' );
 
         $this->addMiddleware();
 

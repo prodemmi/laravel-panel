@@ -1,3 +1,4 @@
+import _ from "lodash"
 import Vue from "vue"
 import Router from "vue-router"
 import routes from "./routes"
@@ -19,23 +20,18 @@ function createRouter() {
     return router
 }
 
-let timeout
-
 async function beforeEach(to, from, next) {
 
-    clearTimeout(timeout)
-    Lava.showLoading(-1)
-    setTimeout(() => {
-
-        next()
-
-    }, 800)
+    if(_.isEmpty(to.matched)){
+        next('/')
+    }
+    
+    next()
 
 }
 
 async function afterEach(to, from) {
 
-    Lava.showLoading(false)
 
 }
 

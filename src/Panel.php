@@ -263,22 +263,13 @@ class Panel
      */
     public function getResources()
     {
-        $resources = [];
+       
+        return collect($this->resources)->unique()->map(function($resource){
 
-        if ( $this->showDashboard ) {
+            return new $resource();
 
-            array_unshift( $this->resources, DashboardTool::class );
-
-        }
-
-        foreach ( array_unique( $this->resources ) as $resource ) {
-
-            $resource    = new $resource();
-            $resources[] = $resource->toArray();
-
-        }
-
-        return $resources;
+        })->toArray();
+        
     }
 
     public function disableDashboard()
@@ -299,13 +290,14 @@ class Panel
     {
 
         return [
-            'name'         => $this->name,
-            'baseUrl'      => $this->route,
-            'resources'    => $this->getResources(),
-            'sidebarItems' => $this->sideBarItems(),
-            'tools'        => [],
-            'metrics'      => [],
-            'config'       => config( 'lava' )
+            'name'          => $this->name,
+            'baseUrl'       => $this->route,
+            'showDashboard' => $this->showDashboard,
+            'resources'     => $this->getResources(),
+            'sidebarItems'  => $this->sideBarItems(),
+            'tools'         => [],
+            'metrics'       => [],
+            'config'        => config( 'lava' )
 
         ];
     }

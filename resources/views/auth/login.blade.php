@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Authentication</title>
 
     <!-- Styles -->
     <link rel="stylesheet" href="{{ mix('app.css', 'lava') }}">
@@ -31,7 +31,7 @@
                 </div>
             @endif
     
-            <form method="POST" action="{{ route( Lava::getActivePanel()->route . '.login') }}">
+            <form method="POST" action="{{ route('auth.login') }}">
             @csrf
     
             <!-- Email Address -->
@@ -70,6 +70,7 @@
                 <div class="block mt-4">
                     <label for="remember_me" class="inline-flex items-center">
                         <input id="remember_me" type="checkbox"
+                               value="1"
                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                name="remember">
                         <span class="ml-2 text-sm text-gray-600">{{ __('Remember me') }}</span>

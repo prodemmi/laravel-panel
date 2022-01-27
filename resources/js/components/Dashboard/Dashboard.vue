@@ -1,41 +1,36 @@
 <template>
+  <div>
+    <transition name="fade">
+      <Loading
+        v-if="$store.getters.getLoading"
+        :percent="$store.getters.getLoading"
+      />
+    </transition>
 
-    <div>
+    <Header />
 
+    <main class="content">
+      <keep-alive>
         <transition name="fade">
-            <Loading v-if="$store.getters.getLoading" :percent="$store.getters.getLoading"/>
+          <router-view v-if="!$store.getLoading" :key="$route.fullPath" />
         </transition>
+      </keep-alive>
+    </main>
 
-        <Header/>
-
-        <main class="content">
-
-            <transition name="fade">
-
-                <keep-alive>
-                    <router-view v-if="!$store.getters.getChangingRoute" :key="$route.fullPath"/>
-                </keep-alive>
-
-            </transition>
-
-        </main>
-
-        <SideBar/>
-
-    </div>
-
+    <SideBar />
+  </div>
 </template>
 
 <script>
-    import Header from "../Header/Header"
-    import SideBar from "../SideBar/SideBar"
-    import Loading from "../Loading"
+import Header from "../Header/Header";
+import SideBar from "../SideBar/SideBar";
+import Loading from "../Loading";
 
-    export default {
-        components: {
-            SideBar,
-            Header,
-            Loading,
-        }
-    }
+export default {
+  components: {
+    SideBar,
+    Header,
+    Loading,
+  }
+};
 </script>

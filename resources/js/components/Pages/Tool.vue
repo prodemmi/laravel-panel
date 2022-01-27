@@ -2,7 +2,7 @@
 
     <div>
 
-        <h3>Tool</h3>
+        <h3>{{ $route.path }}</h3>
 
     </div>
 

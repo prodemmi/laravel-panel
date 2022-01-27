@@ -2,14 +2,16 @@
 
 namespace Prodemmi\Lava\Fields;
 
-use DateTimeInterface;
+use Carbon\Carbon;
 
 class DateTime extends Field
 {
 
     public $component = 'date-time';
 
-    public $local;
+    public $local = 'en';
+
+    public $jalali = FALSE;
 
     public function __construct($name, $column = NULL)
     {
@@ -18,15 +20,18 @@ class DateTime extends Field
 
         $this->displayValue( function ($value) {
 
-            if ( !is_null( $value ) && $value instanceof DateTimeInterface ) {
+            $value = Carbon::parse($value);
 
-                return $value->format( 'Y-m-d H:i:s' );
+            if($this->jalali){
+
+                return verta($value)->format('Y-m-d H:i:s');
 
             }
 
-            return $value;
+            return $value->format( 'Y-m-d H:i:s' );
 
         } )->sortable();
+
 
     }
 
@@ -34,9 +39,52 @@ class DateTime extends Field
     {
 
         $this->local = $this->callableValue( $local );
+        $this->jalali( $this->local === 'fa' );
 
         return $this;
 
+    }
+
+    public function jalali($jalali = TRUE)
+    {
+
+        $this->jalali = $this->callableValue( $jalali );
+
+        if ( $this->jalali ) {
+
+            $this->local = 'fa';
+
+        }
+
+        return $this;
+
+    }
+
+    public function min($min)
+    {
+
+        return $this->attributes( [
+            'min' => $this->callableValue( $min )
+        ] );
+
+    }
+
+    public function max($max)
+    {
+
+        return $this->attributes( [
+            'max' => $this->callableValue( $max )
+        ] );
+
+    }
+
+    public function toArray()
+    {
+        return array_merge( parent::toArray(), [
+            'format' => 'YYYY-MM-DD H:i:s',
+            'local'  => $this->local,
+            'jalali' => $this->jalali
+        ] );
     }
 
 }

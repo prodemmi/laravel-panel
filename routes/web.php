@@ -1,49 +1,31 @@
 <?php
 
+use App\Models\SmsTemplate;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Prodemmi\Lava\Http\Controllers\Auth\AuthenticatedSessionController;
-use Prodemmi\Lava\Http\Controllers\Auth\NewPasswordController;
 
-foreach ( \Prodemmi\Lava\Facades\Lava::getPanels() as $dashboard ) {
+Route::get("auth/login", "Prodemmi\Lava\Http\Controllers\AuthController@index")->middleware('web')->name("auth.index");
+Route::post("auth/login", "Prodemmi\Lava\Http\Controllers\AuthController@login")->middleware('web')->name("auth.login");
+Route::get("auth/logout", "Prodemmi\Lava\Http\Controllers\AuthController@logout")->middleware('web')->name("auth.logout");
 
-    if ( empty( $dashboard->route ) ) {
+foreach (\Prodemmi\Lava\Facades\Lava::getPanels() as $dashboard) {
 
-        throw new \Exception( "Panel $dashboard->name route is not defined." );
+    if (empty($dashboard->route)) {
+
+        throw new \Exception("Panel $dashboard->name routes are not defined.");
     }
 
-    Route::group( $dashboard->routeConfiguration(), function () {
-
-        Route::get( '/{path?}', 'DashboardController@index' )->where( 'path', '.*' )->middleware( 'admin' );
-
-        Route::get( '/login', [ AuthenticatedSessionController::class, 'create' ] )
-             ->withoutMiddleware( 'admin' )
-             ->name( 'login' );
-
-        Route::post( '/login', [ AuthenticatedSessionController::class, 'store' ] )->withoutMiddleware( 'admin' );
-
-        Route::get( '/reset-password/{token}', [ NewPasswordController::class, 'create' ] )
-             ->withoutMiddleware( 'admin' )
-             ->name( 'password.reset' );
-
-        Route::post( '/reset-password', [ NewPasswordController::class, 'store' ] )
-             ->withoutMiddleware( 'admin' )
-             ->name( 'password.update' );
-
-        Route::post( '/logout', [ AuthenticatedSessionController::class, 'destroy' ] )
-             ->withoutMiddleware( 'admin' )
-             ->name( 'logout' );
-
-    } );
-
+    Route::get("$dashboard->route/{path?}", 'Prodemmi\Lava\Http\Controllers\DashboardController@index')
+        ->where('path', '.*')
+        ->middleware(['web', 'admin'])
+        ->name("$dashboard->route.panel");
 }
 
-Route::get( 'test', function () {
+Route::get('test', function () {
 
-    return \Illuminate\Support\Str::of('Laravel')
-                 ->append(' Framework')
-                 ->tap(function ($string) {
-                     dump('String after append: ' . $string);
-                 })
-                 ->upper();
-
-} );
+    return SmsTemplate::first()->realText(User::find(1)->toArray(), [
+        'order_at' => \Carbon\Carbon::now(),
+        'reagent_id' => 12
+    ]);
+});

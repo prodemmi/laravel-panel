@@ -1,26 +1,16 @@
 <template>
 
-    <input type="text" v-bind="data.attributes" v-model.trim="model" @input="debounce"/>
+    <input class="text-input w-full" type="text" v-bind="data.attributes" v-model="model" @input="onChange"/>
 
 </template>
 
 <script>
+
+    import {FormMixin} from '../../../mixins'
+
     export default {
-        name: "text-detail",
+        name: "text-edit",
         props: ['data', 'value'],
-        data() {
-
-            return {
-                model: this.value
-            }
-
-        },
-        methods: {
-            debounce: _.debounce(function () {
-
-                this.$emit('on-change', this.model)
-
-            }, 400)
-        }
+        mixins: [FormMixin]
     }
 </script>

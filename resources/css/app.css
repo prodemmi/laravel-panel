@@ -1,9 +1,7 @@
 @tailwind components;
 
 @import "~sweetalert2/dist/sweetalert2.min.css";
-@import "~vuejs-dialog/dist/vuejs-dialog.min.css";
-@import '~vue-search-select/dist/VueSearchSelect.css';
-@import '~flatpickr/dist/flatpickr.css';
+@import "~vue-js-modal/dist/styles.css";
 
 :root {
     --transparent         : transparent;
@@ -179,7 +177,7 @@
 }
 
 .side-bar__profile{
-    @apply flex justify-between items-start text-white bg-sidebar-menu-active rounded m-2 p-2;
+    @apply flex justify-between items-start text-white bg-sidebar-menu-active rounded m-2 p-2 cursor-pointer;
 }
 
 .side-bar__profile--avatar{
@@ -192,13 +190,13 @@
 
 .card{
 
-    @apply flow-root m-0.5 shadow-lg rounded-lg bg-primary-light;
+    @apply flow-root mx-1 my-2 shadow-lg rounded-lg bg-primary-light;
 
 }
 
 .card--header{
 
-    @apply text-gray-200 px-2;
+    @apply text-gray-200 leading-3 px-2;
 
 }
 
@@ -248,6 +246,26 @@
 
 .button--loading {
     @apply cursor-wait !important;
+}
+
+/* Button
+----------------------------------------------------------------------------
+*/
+
+.dropdown{
+    @apply relative;
+}
+
+.dropdown--list{
+    @apply absolute py-1 px-2 bg-white w-full text-base list-none z-100 text-left rounded-lg shadow-lg mt-1 m-0 border-none;
+}
+
+.dropdown--list__item{
+    @apply cursor-pointer text-sm font-normal flex items-center justify-start w-full text-gray-700 ;
+}
+
+.dropdown--list__item:hover{
+    @apply bg-gray-100 text-gray-600;
 }
 
 /* Spinner
@@ -355,7 +373,7 @@
 }
 
 .resource-table__td{
-    @apply px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900;
+    @apply px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900;
 }
 
 .resource-table__loading{
@@ -381,19 +399,54 @@
 /* Form */
 
 .form-element{
-    @apply transition ease-in-out w-full bg-white border-3 border-gray-300 text-gray-800 m-0.5 my-1 p-1 cursor-pointer rounded leading-tight focus:bg-gray-200 focus:border-primary focus:shadow;
+    @apply transition ease-in-out shadow m-0 p-1 bg-white border-solid border-2 border-gray-300 text-gray-800 rounded leading-tight block focus:border-gray-800 focus:outline-none focus:bg-gray-100 focus:shadow-md;
 }
 
-.select{
-    @apply form-element block;
-}
-
-.select option{
-    @apply cursor-pointer;
+.select {
+    @apply form-element;
 }
 
 .checkbox{
     @apply form-element mr-2 leading-tight;
+}
+
+.text-input{
+    @apply form-element;
+}
+
+.text-area-input{
+    @apply form-element resize-none;
+}
+
+.number-input{
+    @apply form-element;
+}
+
+.date-picker input{
+    margin-left: -4px;
+    @apply form-element !important;
+}
+
+.ck-editor {
+    width: 100% !important;
+}
+
+/* Dialog */
+
+.swal2-popup > * {
+    @apply text-left !important;
+}
+
+.swal2-actions {
+    @apply w-full justify-end px-4 !important;
+}
+
+.swal2-input-label {
+    @apply text-left w-full !important;
+}
+
+.swal2-input {
+    @apply form-element !important;
 }
 
 /* Scrollbar */

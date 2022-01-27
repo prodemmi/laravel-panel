@@ -9,6 +9,8 @@ abstract class Action implements Arrayable
 
     public $name;
 
+    public $help;
+
     public $icon;
 
     public $danger = FALSE;
@@ -32,6 +34,7 @@ abstract class Action implements Arrayable
         return [
             'action' => static::class,
             'name'   => $this->name,
+            'help'   => $this->help,
             'icon'   => $this->iconTemplate(),
             'danger' => $this->danger,
             'onlyOnTable' => $this->onlyOnTable,

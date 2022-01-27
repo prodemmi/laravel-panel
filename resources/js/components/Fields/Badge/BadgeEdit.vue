@@ -1,12 +1,16 @@
 <template>
 
-    <input type="text" v-bind="data.attributes" v-model="value"/>
+    <select v-bind="data.attributes" v-model="model" class="select" @change="onChange">
+        <option v-for="(title, value) in data.options" :key="value" :value="value" v-text="title"></option>
+    </select>
 
 </template>
 
 <script>
-    export default {
-        name: "badge-detail",
-        props: ['data', 'value']
-    }
+import { FormMixin } from "../../../mixins";
+export default {
+  name: "badge-edit",
+  props: ["data", "value"],
+  mixins: [FormMixin]
+};
 </script>

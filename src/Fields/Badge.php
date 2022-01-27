@@ -10,7 +10,8 @@ class Badge extends Field
 {
 
     public $component = 'badge';
-    public $data      = [];
+    public $map      = [];
+    public $options      = [];
     public $types
                       = [
             'danger'  => 'bg-red-600',
@@ -24,15 +25,30 @@ class Badge extends Field
     {
         parent::__construct( $name, $column );
 
+        $this->displayValue( function ($value) {
+
+            return $this->options[$value] ?? null;
+
+        } );
+
         $this->setOnIndex();
         $this->setOnDetail();
 
     }
 
-    public function data(array $data)
+    public function map(array $map)
     {
 
-        $this->data = $data;
+        $this->map = $map;
+
+        return $this;
+
+    }
+
+    public function options(array $options)
+    {
+
+        $this->options = $options;
 
         return $this;
 
@@ -50,7 +66,8 @@ class Badge extends Field
     public function toArray()
     {
         return array_merge( parent::toArray(), [
-            'data'  => $this->data,
+            'data'  => $this->map,
+            'options'  => $this->options,
             'types' => $this->types
         ] );
     }

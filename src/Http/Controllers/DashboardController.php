@@ -2,20 +2,24 @@
 
 namespace Prodemmi\Lava\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Prodemmi\Lava\Facades\Lava;
 
 class DashboardController extends Controller
 {
 
-    public function index()
-    {
-        return view( 'lava::dashboard' );
+    public function __constructor(){
+
+        dd(session('auth_must_redirect'));
+
     }
 
-    public function logout(Request $request)
+    public function index()
     {
 
+        return view( 'lava::dashboard' );
+        
     }
 
 }

@@ -1,35 +1,75 @@
 <template>
 
-    <div>
-        <flat-pickr :model-value="model" :config="config" name="date"></flat-pickr>
+    <div class="flex items-center date-picker">
+
+        <DatePicker
+                v-bind="data.attributes"
+                class="w-full"
+                v-model="model"
+                popover
+                color="#212f3c"
+                type="datetime"
+                auto-submit
+                :format="data.format"
+                :display-format="data.jalali ? 'jYYYY/jMM/jDD HH:mm:ss' : 'YYYY-MM-DD HH:mm:ss'"
+                :locale="data.local"
+                @change="onChange"/>
+
+        <i class="ri-close-line cursor-pointer"
+           style="margin-left: -30px;"
+           v-if="data.nullable && model"
+           @click="setNull">
+        </i>
+
     </div>
 
 </template>
 
 <script>
 
-    import flatPickr from 'vue-flatpickr-component';
-    import {Persian} from 'flatpickr/dist/l10n/fa.js';
+    import DatePicker from 'vue-persian-datetime-picker'
 
     export default {
         name: "date-time-detail",
         props: ['data', 'value'],
         data() {
-
             return {
-                model: null,
-                config: {
-                    wrap: true, // set wrap to true only when using 'input-group'
-                    altFormat: 'M j, Y',
-                    altInput: true,
-                    dateFormat: 'Y-m-d',
-                    locale: Persian, // locale for this instance only
-                }
+                model: undefined
             }
-
         },
         components: {
-            flatPickr
+            DatePicker
+        },
+        mounted() {
+
+            this.$nextTick(() => {
+
+                $(".date-picker label").remove();
+                $(".date-picker .vpd-input-group").removeClass();
+                $(".date-picker input").addClass('date-picker w-full');
+                this.model = this.value
+
+            })
+
+        },
+        methods: {
+            onChange(event) {
+
+                if (_.isEmpty(event)) {
+
+                    this.$emit('on-change', null);
+                    return
+                }
+
+                this.$emit('on-change', event.format('YYYY-MM-DD HH:mm:ss'));
+
+            },
+            setNull() {
+
+                this.model = null
+                this.onChange(this.model)
+
+            }
         }
     }
 

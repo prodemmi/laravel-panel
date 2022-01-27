@@ -19,7 +19,10 @@ class ShowAction extends Action
 
         $primaryKey = $collection->first()[$resource->getPrimaryKey()];
 
-        return ActionStatus::route( 'detail', [ 'id' => urlencode( $primaryKey ), 'resource' => $resource->route() ] );
+        return ActionStatus::route( 'detail', [
+            'primaryKey' => urlencode( $primaryKey ),
+            'resource'   => $resource->route()
+        ] );
 
     }
 }

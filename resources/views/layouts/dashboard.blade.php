@@ -1,3 +1,9 @@
+<?php
+
+    session()->push('auth_must_redirect', Route::current()->getName());
+
+?>
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ Lava::getActivePanel()->getRTL() }}">
 <head>
@@ -27,7 +33,7 @@
 </head>
 <body>
 
-<div id="lava">
+<div id="app">
 
     <dashboard></dashboard>
 
@@ -53,7 +59,6 @@
 <script>
 
     console.log('config ===> ', window.config)
-    console.log('user ===> ', window.user)
     window.Lava.start();
 
 </script>

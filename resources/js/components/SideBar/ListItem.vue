@@ -2,6 +2,19 @@
 
     <div>
 
+        <div v-if="config.showDashboard"
+             class="side-bar__item"
+             :class="{ 'side-bar__item--active': activeSidebar === '/' }"
+             @click="goToRoute('dashboard')">
+
+            <div class="w-4" v-html="icon('dashboard')"></div>
+
+            <span>
+                   Dashboard
+            </span>
+
+        </div>
+
         <template v-for="(resource, group) in config.sidebarItems">
 
             <div v-if="group" class="side-bar__group">
@@ -49,14 +62,14 @@
 
                 }
 
+                return this.$route.path
+
             }
         },
         methods: {
             route(item) {
 
-                let data = {}
-
-                this.goToRoute(item.tool ? 'tool' : 'index', { name: item.tool ? item.route : item.route });
+                this.goToRoute(item.tool ? 'tool' : 'index', {name: item.route, resource: item.route});
 
             }
         }

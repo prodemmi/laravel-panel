@@ -18,21 +18,20 @@ class Element implements JsonSerializable, Arrayable
     public function authorized(Request $request)
     {
 
-        return $this->authenticated( $request );
-
+        return $this->authenticated($request);
     }
 
     public function attributes($attributes)
     {
 
-        $attributes = $this->callableValue( $attributes );
+        $attributes = $this->callableValue($attributes);
 
-        if ( is_array( $attributes ) ) {
+        if (is_array($attributes)) {
 
-            $this->attributes = array_merge( $this->attributes, $attributes );
-
+            $this->attributes = array_merge($this->attributes, $attributes);
         }
 
+        return $this;
     }
 
     public function jsonSerialize()
@@ -47,9 +46,11 @@ class Element implements JsonSerializable, Arrayable
      */
     public function toArray()
     {
+        
         return [
             'component'  => $this->component,
             'attributes' => $this->attributes
         ];
+        
     }
 }

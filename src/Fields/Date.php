@@ -11,7 +11,9 @@ class Date extends Field
 
     public $component = 'date';
 
-    public $local;
+    public $local = 'en';
+
+    public $jalali = FALSE;
 
     public function __construct($name, $column = NULL)
     {
@@ -20,13 +22,15 @@ class Date extends Field
 
         $this->displayValue( function ($value) {
 
-            if ( !is_null( $value ) && $value instanceof DateTimeInterface ) {
+            $value = Carbon::parse($value);
 
-                return $value->format( 'Y-m-d' );
+            if($this->jalali){
+
+                return verta($value)->format('Y-m-d');
 
             }
 
-            return $value;
+            return $value->format( 'Y-m-d' );
 
         } )->sortable();
 
@@ -36,9 +40,52 @@ class Date extends Field
     {
 
         $this->local = $this->callableValue( $local );
+        $this->jalali( $this->local === 'fa' );
 
         return $this;
 
+    }
+
+    public function jalali($jalali = TRUE)
+    {
+
+        $this->jalali = $this->callableValue( $jalali );
+
+        if ( $this->jalali ) {
+
+            $this->local = 'fa';
+
+        }
+
+        return $this;
+
+    }
+
+    public function min($min)
+    {
+
+        return $this->attributes( [
+            'min' => $this->callableValue( $min )
+        ] );
+
+    }
+
+    public function max($max)
+    {
+
+        return $this->attributes( [
+            'max' => $this->callableValue( $max )
+        ] );
+
+    }
+
+    public function toArray()
+    {
+        return array_merge( parent::toArray(), [
+            'format' => 'YYYY-MM-DD',
+            'local'  => $this->local,
+            'jalali' => $this->jalali
+        ] );
     }
 
 }

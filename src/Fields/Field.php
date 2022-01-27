@@ -22,6 +22,8 @@ class Field extends Element
 
     public $nullable = FALSE;
 
+    public $readonly = FALSE;
+
     public $link = FALSE;
 
     public $attributes = [];
@@ -30,25 +32,27 @@ class Field extends Element
 
     public $displayCallbacks = [];
 
+    public $forDesign = false;
+
+    public $select = true;
+
     public function __construct($name, $column = NULL)
     {
 
         $this->name   = $name;
-        $this->column = $column ?? Str::of( $this->name )->title()->snake();
-
+        $this->column = $column ?? Str::of($this->name)->title()->snake();
     }
 
     public static function create($name, $column = NULL)
     {
 
-        return new static( $name, $column );
-
+        return new static($name, $column);
     }
 
     public function rules($rules)
     {
 
-        $this->rules = array_merge( $this->rules, $rules );
+        $this->rules = array_merge($this->rules, (array)$rules);
 
         return $this;
     }
@@ -56,86 +60,105 @@ class Field extends Element
     public function sortable($sortable = TRUE)
     {
 
-        $this->sortable = $this->callableValue( $sortable );
+        $this->sortable = $this->callableValue($sortable);
 
         return $this;
-
     }
 
-    public function nullable($nullable)
+    public function nullable($nullable = TRUE)
     {
 
-        $this->nullable = $this->callableValue( $nullable );
+        $this->nullable = $this->callableValue($nullable);
 
         return $this;
     }
 
     public function required($required = TRUE)
     {
-        return $this->rules( [ 'required' => $this->callableValue( $required ) ] );
+
+        if ($this->callableValue($required)) {
+
+            $this->rules('required');
+        }
+        return $this;
+    }
+
+    public function readonly($readonly = TRUE)
+    {
+
+        $this->readonly = $this->callableValue($readonly);
+
+        return $this;
     }
 
     public function resolveValue($callback)
     {
 
-        array_unshift( $this->resolveCallbacks, $callback );
+        array_unshift($this->resolveCallbacks, $callback);
 
         return $this;
-
     }
 
     public function displayValue($callback)
     {
 
-        array_unshift( $this->displayCallbacks, $callback );
+        array_unshift($this->displayCallbacks, $callback);
 
         return $this;
-
     }
 
     public function styles($styles)
     {
 
-        $styles = $this->callableValue( $styles );
+        $styles = $this->callableValue($styles);
 
-        $styles = is_array( $styles ) ? implode( ';', $styles ) : $styles;
+        $styles = is_array($styles) ? implode(';', $styles) : $styles;
 
-        $this->attributes( [
+        
+
+        return $this->attributes([
             'style' => $styles
-        ] );
-
-        return $this;
-
+        ]);
     }
 
     public function classes($classes)
     {
 
-        $classes = $this->callableValue( $classes );
+        $classes = $this->callableValue($classes);
 
-        $classes = is_array( $classes ) ? trim( implode( ' ', $classes ), ' ' ) : $classes;
+        $classes = is_array($classes) ? trim(implode(' ', $classes), ' ') : $classes;
 
-        $this->attributes( [
+        $this->attributes([
             'class' => $classes
-        ] );
+        ]);
 
         return $this;
+    }
 
+    public function noSqlSelect()
+    {
+
+        $this->select = false;
+
+        return $this;
     }
 
     public function toArray()
     {
-        return array_merge( parent::toArray(), [
+        return array_merge(parent::toArray(), [
             'column'       => $this->column,
             'name'         => $this->name,
             'sortable'     => $this->sortable,
             'nullable'     => $this->nullable,
+            'readonly'     => $this->readonly,
             'rules'        => $this->rules,
+            'link'         => $this->link,
+            'attributes'   => $this->attributes,
             'showOnIndex'  => $this->showOnIndex,
             'showOnDetail' => $this->showOnDetail,
             'showOnForm'   => $this->showOnForm,
-            'hideDefault'  => $this->hideDefault
-        ] );
+            'hideDefault'  => $this->hideDefault,
+            'forDesign'    => $this->forDesign
+        ]);
     }
-
 }

@@ -29,7 +29,7 @@ abstract class Tools implements JsonSerializable, Arrayable
 
     public static function route()
     {
-        return static::$route ?? Str::of( static::label() )->lower()->plural();
+        return static::$route ?? Str::of( static::label() )->lower()->plural()->slug();
     }
 
     public static function pluralLabel()

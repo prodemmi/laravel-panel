@@ -2,6 +2,7 @@
 
 namespace Prodemmi\Lava\Http\Middleware;
 
+use Illuminate\Support\Facades\Session;
 use Prodemmi\Lava\Facades\Lava;
 
 class Authenticated
@@ -16,15 +17,19 @@ class Authenticated
     public function handle($request, $next)
     {
 
-        $seeWhen = Lava::getActivePanel()->authenticated($request);
-        
-        if ( !$seeWhen ) {
-            
-            return redirect( Lava::getActivePanel()->route . "/login" );
+        $panel = Lava::getActivePanel($request->url());
 
+        $seeWhen = $panel->authenticated($request) ?? false;
+
+        if (!$seeWhen) {
+
+            session()->put('auth_must_redirect', $panel->route . ".panel");
+
+            return redirect()->route("auth.index");
+            
         }
 
-        return $next( $request );
+        return $next($request);
 
     }
 }

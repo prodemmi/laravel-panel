@@ -28,7 +28,7 @@ class Lava
      */
     public static function create($name)
     {
-        $dashboard = new Panel( $name );
+        $dashboard = new Panel($name);
 
         static::$dashboards[] = $dashboard;
 
@@ -39,24 +39,19 @@ class Lava
     {
 
         return static::$dashboards;
-
     }
 
-    public static function getActivePanel()
+    public static function getActivePanel($route = null)
     {
 
-        foreach ( static::$dashboards as $dashboard ) {
+        foreach (static::$dashboards as $dashboard) {
 
-            if ( str_contains( url()->current(), $dashboard->route ) || str_contains( url()->previous(), $dashboard->route ) ) {
+            if (str_contains($route ?? url()->current(), $dashboard->route)) {
 
                 return $dashboard;
-
             }
-
         }
 
         return NULL;
-
     }
-
 }

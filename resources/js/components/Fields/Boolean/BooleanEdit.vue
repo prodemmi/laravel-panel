@@ -1,28 +1,22 @@
 <template>
-
-    <input type="checkbox" class="checkbox" v-model="model" @change="change">
-
+  <div>
+    <input
+      type="checkbox"
+      class="checkbox"
+      v-model="model"
+      value="true"
+      @change="onChange"
+      :true-value="true"
+      :false-value="false"
+    />
+  </div>
 </template>
 
 <script>
-    export default {
-        name: "boolean-detail",
-        props: ['data', 'value'],
-        data() {
-
-            return {
-                model: this.value
-            }
-
-        },
-        methods: {
-
-            change(){
-
-                this.$emit('on-change', this.model)
-
-            }
-
-        }
-    }
+import { FormMixin } from "../../../mixins";
+export default {
+  name: "boolean-detail",
+  props: ["data", "value"],
+  mixins: [FormMixin],
+};
 </script>

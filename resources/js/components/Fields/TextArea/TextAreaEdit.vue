@@ -1,12 +1,20 @@
 <template>
 
-    <textarea v-bind="data.attributes" v-model="value" class="resize-none" style="height: 200px;"></textarea>
+    <textarea v-bind="data.attributes"
+              v-model.trim="model"
+              @input="onChange"
+              class="text-area-input"
+              style="min-height: 200px;"></textarea>
 
 </template>
 
 <script>
+
+    import {FormMixin} from '../../../mixins'
+
     export default {
         name: "text-area-detail",
-        props: ['data', 'value']
+        props: ['data', 'value'],
+        mixins: [FormMixin]
     }
 </script>

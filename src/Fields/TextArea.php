@@ -15,9 +15,8 @@ class TextArea extends Field
 
     public function __construct($name, $column = NULL)
     {
+        
         parent::__construct( $name, $column );
-
-        $this->exceptOnIndex();
 
     }
 

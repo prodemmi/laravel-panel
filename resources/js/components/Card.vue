@@ -1,12 +1,12 @@
 <template>
 
-  <div class="card">
+  <div v-bind="data.attributes" class="card">
 
-    <h3 class="card--header" v-if="!!$slots.header">
+    <h4 class="card--header" v-if="!!$slots.header">
 
       <slot name="header"></slot>
 
-    </h3>
+    </h4>
 
     <div class="card--body">
 
@@ -23,3 +23,9 @@
   </div>
 
 </template>
+
+<script>
+export default {
+  props: ['data']
+}
+</script>
