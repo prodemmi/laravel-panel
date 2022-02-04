@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^31.1.0",
+    "@ckeditor/ckeditor5-build-decoupled-document": "^31.1.0",
     "@ckeditor/ckeditor5-html-support": "^31.1.0",
     "@ckeditor/ckeditor5-vue2": "^1.0.5",
     "@tailwindcss/forms": "^0.3.4",

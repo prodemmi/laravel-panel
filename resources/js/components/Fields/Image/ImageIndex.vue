@@ -1,7 +1,8 @@
 <template>
 
     <div v-bind="data.attributes">
-        <img class="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+        <img class="inline-block shadow h-6 w-6 ring-2 ring-white"
+             :class="{ 'rounded-md': data.rounded, 'rounded-full': data.fullRounded }"
              v-lazy="value" alt="">
     </div>
 
@@ -9,7 +10,7 @@
 
 <script>
     export default {
-        name: "avatar-index",
+        name: "image-index",
         props: ['data', 'value']
     }
 </script>

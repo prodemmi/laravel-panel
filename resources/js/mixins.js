@@ -32,6 +32,16 @@ const RouteMixin = {
 
       return _.find(config.resources, { route: name });
     },
+    getResource(resource) {
+
+      return _.find(config.resources, { resource });
+
+    },
+    activePanel() {
+
+      return window.location.pathname.replace("/", "").split("/")[0];
+
+    },
     copyToClipboard(text) {
       navigator.clipboard.writeText(text).then(
         function () {
@@ -40,16 +50,19 @@ const RouteMixin = {
         function (err) {}
       );
     },
-    resourceValue(data, column, value = false) {
+    resourceValue(data, field, value = false) {
       value = value ? "value" : "display";
 
-      if (column.includes(".")) {
-        const split = _.split(column, ".").splice(1, 0, value).join(".");
+      if (field.column.includes(".")) {
+
+        const split = _.split(field.column, ".").splice(1, 0, value).join(".");
 
         return _.get(data, split);
+
       }
 
-      return _.get(data, column + "." + value);
+      return _.get(data, field.column + "." + value);
+
     },
     getField(resource, column) {
 
@@ -108,7 +121,7 @@ const RouteMixin = {
             action: this.selected_action.action,
             values: this.selected_action.values,
             rows: this.temp_selected,
-            resource: this.resource.resource,
+            resource: !!this.relation ? this.relationResource.resource : this.resource.resource
           })
           .then((res) => {
 
@@ -124,7 +137,8 @@ const RouteMixin = {
             if (res.data.type === "dialog") {
               Lava.confirm(res.data.title, res.data.view, false, {
                 showCancelButton: false,
-                confirmButtonText: 'Ok'
+                confirmButtonText: 'Ok',
+                ...res.data.options
               })
               return;
             }

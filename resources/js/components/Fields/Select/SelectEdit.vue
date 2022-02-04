@@ -23,8 +23,8 @@ import VueSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import { FormMixin } from "../../../mixins";
 export default {
-  name: "select-detail",
-  props: ["data", "value"],
+  name: "select-edit",
+  props: ["data", "value", 'url'],
   mixins: [FormMixin],
   components: {
     VueSelect,
@@ -38,6 +38,7 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
+
       if (this.data.searchable) {
         this.fetchOptions(this.model);
       } else {
@@ -66,7 +67,7 @@ export default {
     fetchOptions: _.debounce(function (search, loading) {
       if (this.data.searchable) {
         this.$http
-          .post("/api/select", {
+          .post(this.url ? this.url : "/api/select" , {
             resource: this.activeTool().resource,
             field: this.data.column,
             search,

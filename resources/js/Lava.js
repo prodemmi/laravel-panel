@@ -61,6 +61,8 @@ export default class Lava {
      */
     confirm(title = "", body = "", danger = false, options = {}) {
 
+        danger = danger || options?.danger || false
+
         const swalWithBootstrapButtons = swal.mixin({
             customClass: {
                 confirmButton: 'button--normal min-w-button py-2 px-4 ' + (danger ? 'bg-danger' : 'bg-primary'),
@@ -72,7 +74,7 @@ export default class Lava {
         return swalWithBootstrapButtons.fire({
             title: title,
             html: body,
-            icon: false,
+            icon: options?.icon || false,
             showCancelButton: true,
             confirmButtonText: 'Do',
             cancelButtonText: 'Cancel',

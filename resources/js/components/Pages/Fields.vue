@@ -4,64 +4,66 @@
 
         <template v-for="(field, index) in fields">
 
-            <div v-if="field.showOnForm" :key="field.name" class="w-full">
+            <template v-if="field.showOnForm">
 
-                <div v-if="field.forDesign">
+                <template v-if="field.forDesign">
 
-                    <component :data="field" :is="field.component">
+                    <component :data="field" :is="field.component" v-bind="field.attributes">
 
                         <template v-slot:header>{{ field.title }}</template>
 
                         <template v-slot:body>
 
-                                <fields data="data"
-                                class="w-full"
-                                        :class="{ 'flex justify-between': field.stack,
-                                                  'flex-col' : field.stack && field.direction == 'column' }"
-                                        :fields="field.fields"
-                                        :errors="errors"
-                                        env="create"
-                                        @on-change="$emit('on-change')"
-                                        :key="index"/>
+                            <fields :data="data"
+                                    class="w-full"
+                                    :class="{ 'flex justify-start items-stretch': field.stack,
+                                              'flex-col' : field.stack && field.direction === 'column' }"
+                                    :fields="field.fields"
+                                    :errors="errors"
+                                    :env="env"
+                                    @on-change="changed"
+                                    :key="index"/>
 
                         </template>
 
                     </component>
 
-                </div>
+                </template>
 
-                <div class="flex justify-start p-2 text-lg" v-else>
+                <div class="flex justify-start my-2 mx-1 text-lg" v-else>
 
-                    <div style="width: 18vw">{{ field.name }}
-                        <span v-if="field.rules.includes('required')" class="text-danger">*</span>
+                    <div style="width: 140px">
+
+                        <span>{{ field.name }}</span>
+
+                        <span v-if="field.rules.includes('required') && env !== 'detail'" class="text-danger">*</span>
+
                     </div>
 
-                    <div class="flex flex-col w-full">
+                    <div class="flex flex-col justify-start w-full">
 
-                        <component
-                            class="w-full"
-                            v-bind="field.attributes"
-                            :key="index"
-                            v-if="field.showOnForm"
-                            :is="field.component + component"
-                            :data="field"
-                            :value="resourceValue(data, field.column)"
-                            env="create"
-                            @on-change="changed"
-                        />
+                        <component v-bind="field.attributes"
+                                   :key="index"
+                                   v-if="field.showOnForm"
+                                   :is="field.component + component"
+                                   :data="field"
+                                   :value="resourceValue(data, field, env === 'edit')"
+                                   :env="env"
+                                   :resource="field.resource"
+                                   @on-change="changed"/>
 
                         <form-error v-if="errors[field.column]" :errors="errors[field.column]"></form-error>
-                        
+
                     </div>
 
                 </div>
 
-            </div>
+            </template>
 
         </template>
 
     </div>
-    
+
 </template>
 
 <script>
@@ -69,12 +71,17 @@
     export default {
         name: "fields",
         props: ['data', 'fields', 'errors', 'env'],
-        computed:{
+        computed: {
             component() {
-                return this.env == 'create' ? '-edit' : '-detail'
+
+                if (this.env === 'create') {
+                    return '-edit'
+                }
+
+                return '-' + this.env
             }
         },
-        methods:{
+        methods: {
             changed(value, column) {
                 this.$emit('on-change', value, column)
             }

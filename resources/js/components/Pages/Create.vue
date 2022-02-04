@@ -29,6 +29,17 @@
                 canCreated: false,
             };
         },
+        mounted() {
+
+            this.$nextTick(() => {
+
+                if (!this.resource.creatable) {
+                    this.goToBack()
+                }
+
+            })
+
+        },
         computed: {
             couldCreate() {
                 if (!this.canCreated) {

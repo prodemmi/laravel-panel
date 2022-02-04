@@ -24,12 +24,11 @@ trait ActiveTool
 
             $panel = Lava::getActivePanel();
             $res   = collect( $panel->resources )->first( function ($resource, $key) use ($route) {
-                $resource = new $resource();
-                return $resource::route() == $route;
+                return resolve($resource)::route() == $route;
 
             } );
 
-            return new $res() ?? FALSE;
+            return resolve($res) ?? FALSE;
 
         }
 

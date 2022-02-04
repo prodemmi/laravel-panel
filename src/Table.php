@@ -57,7 +57,10 @@ trait Table
 
         foreach ( $filters as $filter ) {
 
-            $newFilters[] = [ $filter['column'], 'like', $filter['value'] ];
+            $value = $filter['value'] ?? '';
+            $value = $filter['where']['where'] === 'like' ? "%$value%" : $value;
+
+            $newFilters[] = [ $filter['column'], $filter['where']['where'], $value ];
 
         }
 
@@ -70,8 +73,9 @@ trait Table
 
         $records = $this->records->offset( ( $this->page - 1 ) * $this->per_page )->limit( $this->per_page )->get();
 
-        $this->total       = $this->records->count();
-        $this->total_pages = round( $this->total / $this->per_page );
+        $this->total = $records->count();
+
+        $this->total_pages = (int)ceil( $this->total / $this->per_page );
 
         $max_shows_pages = 8;
 
@@ -83,19 +87,22 @@ trait Table
 
         }
 
-        $links = collect( range( 2, $this->total_pages - 1 ) )
-            ->slice( $offset, $max_shows_pages )
-            ->map( function ($link) {
+        $range = range( 1, $this->total_pages - 1 );
+        $range = collect( $range )->filter( function ($number) {
+            return $number >= 2;
+        } );
 
-                return [
-                    'link'   => $link,
-                    'label'  => $link,
-                    'active' => TRUE
-                ];
+        $links = $range->slice( $offset, $max_shows_pages )->map( function ($link) {
 
-            } );
+            return [
+                'link'   => $link,
+                'label'  => $link,
+                'active' => TRUE
+            ];
 
-        if ( $links->first()['link'] - 1 >= 2 ) {
+        } );
+
+        if ( ( $links->first()['link'] ?? PHP_INT_MIN ) - 1 >= 2 ) {
 
             $links->prepend( [
                 'link'   => NULL,
@@ -105,7 +112,7 @@ trait Table
 
         }
 
-        if ( $this->total_pages - $links->last()['link'] >= 2 ) {
+        if ( $this->total_pages - ( $links->last()['link'] ?? PHP_INT_MAX ) >= 2 ) {
 
             $links->push( [
                 'link'   => NULL,
@@ -141,10 +148,10 @@ trait Table
 
     }
 
-    public function resolveValue($records, $display = TRUE, $value = TRUE)
+    public function resolveValue($records, $display = TRUE, $value = TRUE, $resource = NULL)
     {
 
-        $fields = $this->resource()::getFieldsOfForDesign();
+        $fields = ( $resource ?? $this->resource() )::getFieldsOfForDesign();
 
         return $records->map( function ($row) use ($fields, $display, $value) {
 
@@ -161,7 +168,7 @@ trait Table
 
             foreach ( $fields as $field ) {
 
-                if ( !empty( $field->resolveCallbacks ) && $value ) {
+                if ( filled( $field->resolveCallbacks ) && $value ) {
 
                     $field->value = data_get( $row, $field->column . ".value" );
 
@@ -179,7 +186,7 @@ trait Table
 
                 }
 
-                if ( !empty( $field->displayCallbacks ) && $display ) {
+                if ( filled( $field->displayCallbacks ) && $display ) {
 
                     $field->value = data_get( $row, $field->column . ".value" );
 
@@ -208,14 +215,14 @@ trait Table
     public function resource()
     {
 
-        return new ( $this->resource )();
+        return resolve( $this->resource );
 
     }
 
     public function model()
     {
 
-        return new ( $this->model )();
+        return resolve( $this->model );
 
     }
 

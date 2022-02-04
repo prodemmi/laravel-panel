@@ -2,6 +2,7 @@
 
 namespace Prodemmi\Lava\Fields;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Prodemmi\Lava\Element;
 use Prodemmi\Lava\Fieldable;
@@ -28,31 +29,33 @@ class Field extends Element
 
     public $attributes = [];
 
+    public $with = [];
+
     public $rules = [];
 
     public $displayCallbacks = [];
 
-    public $forDesign = false;
+    public $forDesign = FALSE;
 
-    public $select = true;
+    public $select = TRUE;
 
     public function __construct($name, $column = NULL)
     {
 
         $this->name   = $name;
-        $this->column = $column ?? Str::of($this->name)->title()->snake();
+        $this->column = $column ?? Str::of( $this->name )->title()->snake();
     }
 
     public static function create($name, $column = NULL)
     {
 
-        return new static($name, $column);
+        return new static( $name, $column );
     }
 
     public function rules($rules)
     {
 
-        $this->rules = array_merge($this->rules, (array)$rules);
+        $this->rules = array_merge( $this->rules, (array)$rules );
 
         return $this;
     }
@@ -60,7 +63,7 @@ class Field extends Element
     public function sortable($sortable = TRUE)
     {
 
-        $this->sortable = $this->callableValue($sortable);
+        $this->sortable = $this->callableValue( $sortable );
 
         return $this;
     }
@@ -68,7 +71,7 @@ class Field extends Element
     public function nullable($nullable = TRUE)
     {
 
-        $this->nullable = $this->callableValue($nullable);
+        $this->nullable = $this->callableValue( $nullable );
 
         return $this;
     }
@@ -76,17 +79,18 @@ class Field extends Element
     public function required($required = TRUE)
     {
 
-        if ($this->callableValue($required)) {
+        if ( $this->callableValue( $required ) ) {
 
-            $this->rules('required');
+            $this->rules( 'required' );
         }
+
         return $this;
     }
 
     public function readonly($readonly = TRUE)
     {
 
-        $this->readonly = $this->callableValue($readonly);
+        $this->readonly = $this->callableValue( $readonly );
 
         return $this;
     }
@@ -94,7 +98,7 @@ class Field extends Element
     public function resolveValue($callback)
     {
 
-        array_unshift($this->resolveCallbacks, $callback);
+        array_unshift( $this->resolveCallbacks, $callback );
 
         return $this;
     }
@@ -102,35 +106,7 @@ class Field extends Element
     public function displayValue($callback)
     {
 
-        array_unshift($this->displayCallbacks, $callback);
-
-        return $this;
-    }
-
-    public function styles($styles)
-    {
-
-        $styles = $this->callableValue($styles);
-
-        $styles = is_array($styles) ? implode(';', $styles) : $styles;
-
-        
-
-        return $this->attributes([
-            'style' => $styles
-        ]);
-    }
-
-    public function classes($classes)
-    {
-
-        $classes = $this->callableValue($classes);
-
-        $classes = is_array($classes) ? trim(implode(' ', $classes), ' ') : $classes;
-
-        $this->attributes([
-            'class' => $classes
-        ]);
+        array_unshift( $this->displayCallbacks, $callback );
 
         return $this;
     }
@@ -138,14 +114,24 @@ class Field extends Element
     public function noSqlSelect()
     {
 
-        $this->select = false;
+        $this->select = FALSE;
 
         return $this;
     }
 
+    protected function with(...$with)
+    {
+
+        $this->with = array_merge( $this->with, $with );
+
+        return $this;
+
+    }
+
+
     public function toArray()
     {
-        return array_merge(parent::toArray(), [
+        return array_merge( parent::toArray(), [
             'column'       => $this->column,
             'name'         => $this->name,
             'sortable'     => $this->sortable,
@@ -159,6 +145,6 @@ class Field extends Element
             'showOnForm'   => $this->showOnForm,
             'hideDefault'  => $this->hideDefault,
             'forDesign'    => $this->forDesign
-        ]);
+        ] );
     }
 }

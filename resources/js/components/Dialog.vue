@@ -12,25 +12,28 @@
         <div v-if="show" class="fixed inset-0 flex items-center z-100 justify-center h-full w-full">
 
                 <div style="min-width: 440px;"
+                     :style="{ width: fullScreen ? '100%' : '440px' }"
                      class="overflow-y-auto overflow-x-hidden rounded-lg shadow-xl bg-white p-4">
 
                     <!-- Modal header -->
                     <div class="flex justify-between items-start mb-4">
-                        <h3 class="text-gray-900 m-0">
+                        <h2 class="text-gray-900 m-0">
                             <slot name="header"></slot>
-                        </h3>
+                        </h2>
                         <span v-html="icon('close')" @click="$emit('on-close')" class="cursor-pointer"></span>
                     </div>
 
                     <!-- Modal body -->
-                    <div class="w-full">
+                    <div class="w-full" style="z-index: 50000">
                         <slot name="body"></slot>
                     </div>
 
                     <!-- Modal footer -->
                     <div class="flex items-center justify-end mt-4">
-                        <lava-button @click="$emit('on-continue')" :disabled="disabled"
-                                     :color="danger ? 'danger' : 'primary' ">Do</lava-button>
+                        <lava-button @click="$emit('on-continue')"
+                                     :disabled="disabled"
+                                     :loading="loading"
+                                     :color="danger ? 'danger' : 'primary' ">{{ confirmLabel || 'Do' }}</lava-button>
                         <lava-button @click="$emit('on-cancel')">Cancel</lava-button>
                     </div>
 
@@ -46,8 +49,7 @@
 
 <script>
     export default {
-        props: ['show', 'disabled', 'danger'],
+        props: ['show', 'disabled', 'danger', 'confirmLabel', 'loading', 'full-screen'],
         methods: {}
-
     }
 </script>

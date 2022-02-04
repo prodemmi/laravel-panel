@@ -1,6 +1,6 @@
 <template>
 
-    <div class="flex w-full justify-between">
+    <div class="flex items-center justify-between w-full">
 
         <nav>
 
@@ -40,10 +40,15 @@
 
         </nav>
 
-        <select class="select leading-4" style="width: 120px" @click="$emit('change-per-page', $event)">
+        <select class="select"
+                v-if="data.all > _.first(activeTool().perPages)"
+                style="height: 32px;width: 120px;"
+                @click="$emit('change-per-page', $event)">
 
-            <option v-for="per_page in activeTool().perPages" :value="per_page"
-                    :selected="per_page == selected">{{ per_page }}</option>
+            <option v-for="per_page in activeTool().perPages"
+                    :value="per_page"
+                    :selected="per_page == selected">{{ per_page }}
+            </option>
 
         </select>
 

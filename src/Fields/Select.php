@@ -21,25 +21,27 @@ class Select extends Field
 
     public function __construct($name, $column = NULL)
     {
-        parent::__construct($name, $column);
+        parent::__construct( $name, $column );
 
-        $this->displayValue(function ($value) {
+        $this->displayValue( function ($value) {
 
-            return $this->options[$value]['label'];
-        });
+            return $this->options[$value]['label'] ?? $value;
+
+        } );
     }
 
     public function options($options, $searchable = FALSE)
     {
 
 
-        if ($searchable) {
+        if ( $searchable ) {
 
             $this->searchable     = $searchable;
             $this->searchCallback = $options;
-        } else {
+        }
+        else {
 
-            $this->options = $this->optionResolve($this->callableValue($options));
+            $this->options = $this->optionResolve( $this->callableValue( $options ) );
         }
 
         return $this;
@@ -48,13 +50,13 @@ class Select extends Field
     protected function optionResolve($options)
     {
 
-        return array_map(function ($label, $key) {
+        return array_map( function ($label, $key) {
 
             return [
                 'value' => $key,
                 'label' => $label
             ];
-        }, $options, array_keys($options));
+        }, $options, array_keys( $options ) );
     }
 
     public function onSearch($closure)
@@ -68,9 +70,9 @@ class Select extends Field
     public function multiple($limit = 1, $multiple = TRUE)
     {
 
-        $this->attributes([
-            'multiple' => $this->callableValue($multiple)
-        ]);
+        $this->attributes( [
+            'multiple' => $this->callableValue( $multiple )
+        ] );
 
         $this->limit = $limit;
 
@@ -79,10 +81,10 @@ class Select extends Field
 
     public function toArray()
     {
-        return array_merge(parent::toArray(), [
+        return array_merge( parent::toArray(), [
             'options'    => $this->options,
             'searchable' => $this->searchable,
             'limit'      => $this->limit
-        ]);
+        ] );
     }
 }

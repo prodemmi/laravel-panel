@@ -8,6 +8,8 @@
 
             <input class="hidden"
                    type="file"
+                   :accept="accept"
+                   :multiple="multiple"
                    @change="$emit('on-change', $event)">
 
         </label>
@@ -19,7 +21,7 @@
 <script>
 
     export default {
-        props: ['placeholder']
+        props: ['placeholder', 'accept', 'multiple']
     }
 
 </script>

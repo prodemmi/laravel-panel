@@ -24,7 +24,7 @@ let colors = {
 };
 
 module.exports = {
-    important: true,
+    // important: true,
     purge: [
         "./resources/**/*.blade.php",
         "./resources/**/*.js",

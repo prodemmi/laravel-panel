@@ -10,6 +10,7 @@ Vue.component("lava-tooltip", require("./components/Tooltip.vue").default);
 Vue.component("lava-stack", require("./components/Stack.vue").default);
 Vue.component("lava-header", require("./components/Header.vue").default);
 Vue.component("lava-dialog", require("./components/Dialog.vue").default);
+Vue.component("lava-search", require("./components/Search.vue").default);
 Vue.component("resource-table", require("./components/Table/ResourceTable.vue").default);
 
 Vue.component("form-error", require("./components/FormError.vue").default);

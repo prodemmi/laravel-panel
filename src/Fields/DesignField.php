@@ -2,14 +2,13 @@
 
 namespace Prodemmi\Lava\Fields;
 
-use Prodemmi\Lava\CallableValue;
 use Prodemmi\Lava\Element;
 use Prodemmi\Lava\Fieldable;
 
 class DesignField extends Element
 {
 
-    use CallableValue, Fieldable;
+    use Fieldable;
 
     public $title;
 
@@ -46,4 +45,5 @@ class DesignField extends Element
         ]);
         
     }
+
 }

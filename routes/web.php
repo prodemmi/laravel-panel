@@ -11,12 +11,9 @@ Route::get("auth/logout", "Prodemmi\Lava\Http\Controllers\AuthController@logout"
 
 foreach (\Prodemmi\Lava\Facades\Lava::getPanels() as $dashboard) {
 
-    if (empty($dashboard->route)) {
+    throw_if( blank($dashboard->route), \Exception::class, "Panel $dashboard->name routes are not defined.");
 
-        throw new \Exception("Panel $dashboard->name routes are not defined.");
-    }
-
-    Route::get("$dashboard->route/{path?}", 'Prodemmi\Lava\Http\Controllers\DashboardController@index')
+    Route::get("$dashboard->route/{path}", 'Prodemmi\Lava\Http\Controllers\DashboardController@index')
         ->where('path', '.*')
         ->middleware(['web', 'admin'])
         ->name("$dashboard->route.panel");

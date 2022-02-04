@@ -190,7 +190,7 @@
 
 .card{
 
-    @apply flow-root mx-1 my-2 shadow-lg rounded-lg bg-primary-light;
+    @apply flow-root my-2 shadow-lg rounded-lg bg-primary-light;
 
 }
 
@@ -369,11 +369,11 @@
 }
 
 .resource-table__th{
-    @apply text-sm font-medium text-white px-2 py-1;
+    @apply text-sm font-medium text-white p-1;
 }
 
 .resource-table__td{
-    @apply px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900;
+    @apply p-1 whitespace-nowrap text-sm font-medium text-gray-900;
 }
 
 .resource-table__loading{
@@ -406,6 +406,16 @@
     @apply form-element;
 }
 
+.vs__selected-options {
+    display: block !important;
+    max-width: 100% !important;
+    z-index: 200 !important;
+}
+
+.vs__search {
+    display: none !important;
+}
+
 .checkbox{
     @apply form-element mr-2 leading-tight;
 }
@@ -428,7 +438,11 @@
 }
 
 .ck-editor {
-    width: 100% !important;
+    /*width: 100% !important;*/
+}
+
+.ck-content {
+    @apply form-element !important;
 }
 
 /* Dialog */

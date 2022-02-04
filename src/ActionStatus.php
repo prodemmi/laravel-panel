@@ -38,12 +38,13 @@ class ActionStatus
         ];
     }
 
-    public static function dialog($title, $view): array
+    public static function dialog($title, $view, $options = []): array
     {
         return [
-            'type'  => __FUNCTION__,
-            'title' => $title,
-            'view'  => $view
+            'type'    => __FUNCTION__,
+            'title'   => $title,
+            'view'    => $view,
+            'options' => $options
         ];
     }
 
@@ -59,8 +60,8 @@ class ActionStatus
     public static function route($name, $params): array
     {
         return [
-            'type'    => __FUNCTION__,
-            'name'    => $name,
+            'type'   => __FUNCTION__,
+            'name'   => $name,
             'params' => $params
         ];
     }

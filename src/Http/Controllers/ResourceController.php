@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use function PHPSTORM_META\type;
 use Prodemmi\Lava\Table;
+use Ramsey\Uuid\Builder\BuilderCollection;
 
 class ResourceController extends Controller
 {
@@ -16,11 +17,6 @@ class ResourceController extends Controller
     use Table;
 
     protected $resource, $model, $search, $filter, $sort, $page, $per_page, $records, $env;
-
-    public function __construct()
-    {
-        $this->middleware( 'api' );
-    }
 
     public function table(Request $request)
     {
@@ -43,9 +39,9 @@ class ResourceController extends Controller
 
         $with = $resource->getWith();
 
-        if ( !empty( $with ) ) {
+        if ( filled( $with ) ) {
 
-            //            $this->records->with( $with );
+            $this->records->with( $with );
 
         }
 
@@ -55,7 +51,7 @@ class ResourceController extends Controller
 
         }
 
-        if ( !empty( $this->filter ) ) {
+        if ( filled( $this->filter ) ) {
 
             $this->filter();
 
@@ -64,6 +60,121 @@ class ResourceController extends Controller
         $this->sort();
 
         return response()->json( $this->sort()->pagination( $this->records ) );
+    }
+
+    public function relation(Request $request)
+    {
+
+        $this->resource   = $request->input( 'resource.resource' );
+        $this->model      = $request->input( 'resource.model' );
+        $this->search     = $request->input( 'search' );
+        $relation         = $request->input( 'relation' );
+        $column           = $request->input( 'column' );
+        $relationResource = resolve( $request->input( 'relationResource' ) );
+
+        $resource   = $this->resource();
+        $primaryKey = $resource->getPrimaryKey();
+
+
+        $with = $resource->getWith();
+
+        $this->records = $this->model()->with( $with )->where( $primaryKey, $this->search )->get();
+
+        $pluck = $resource->findField( $column )->column;
+
+        switch ( $relation ?? '' ) {
+            case 'hasOne':
+                $pluck = str_replace( '_id', '', $pluck );
+                break;
+            case 'belongsTo':
+                $pluck = str_replace( '_id', '', $pluck );
+                break;
+        }
+
+        $records = $this->records->pluck( (string)$pluck )->flatten();
+
+        $this->all = $records->filter()->count();
+
+        return response()->json( [
+            'rows'    => $this->all ? $this->resolveValue( $records, TRUE, FALSE, $relationResource ) : [],
+            'headers' => $relationResource->headers(),
+            'all'     => $this->all
+        ] );
+
+    }
+
+    public function updateHasOne(Request $request)
+    {
+
+        $resource      = $request->input( 'resource' );
+        $search        = $request->input( 'search' );
+        $update_column = $request->input( 'update_column' );
+        $value         = $request->input( 'value' );
+
+        if ( blank( $value ) ) {
+
+            $value = NULL;
+
+        }
+
+        resolve( $resource['model'] )->where( $resource['primaryKey'], $search )->update( [
+            $update_column => $value
+        ] );
+
+        return response()->json( TRUE );
+
+    }
+
+    public function updateHasMany(Request $request)
+    {
+
+        $model         = $request->input( 'model' );
+        $primaryKey    = $request->input( 'primaryKey' );
+        $search        = $request->input( 'search' );
+        $relation      = $request->input( 'relation' );
+        $values        = $request->input( 'values' );
+        $relationModel = $request->input( 'relationModel' );
+
+        $model = resolve( $model )->where( $primaryKey, $search )->first();
+
+        $relationModel = resolve( $relationModel );
+        $toSave        = $relationModel->whereIn( $relationModel->getKeyName(), $values )->get();
+
+        $before = $model->{$relation}()->get();
+
+        $toDelete = $before->filter( function ($record) use ($toSave) {
+
+            return !in_array( $record->id, $toSave->pluck( 'id' )->toArray() );
+
+        } )->first();
+
+
+        $model->{$relation}()->saveMany( $toSave );
+        optional( $toDelete )->delete();
+
+        return response()->json( TRUE );
+
+    }
+
+    public function updateMorph(Request $request)
+    {
+
+        $model         = $request->input( 'model' );
+        $primaryKey    = $request->input( 'primaryKey' );
+        $search        = $request->input( 'search' );
+        $relation      = $request->input( 'relation' );
+        $values        = $request->input( 'values' );
+        $relationModel = $request->input( 'relationModel' );
+
+
+        $relationModel = resolve( $relationModel );
+        $toSave        = $relationModel->whereIn( $relationModel->getKeyName(), $values )->get();
+
+        $module = resolve( $model )->where( $primaryKey, $search )->first();
+        $module->{$relation}()->sync( $toSave );
+
+        return response()->json( TRUE );
+
     }
 
     public function action(Request $request)
@@ -80,7 +191,7 @@ class ResourceController extends Controller
 
         }
 
-        $action = new( $action )();
+        $action = resolve( $action );
 
         $newValue = [];
         foreach ( $values as $value ) {
@@ -106,7 +217,17 @@ class ResourceController extends Controller
 
         $model = $resource::getModelInstance();
 
-        $record = $model->where( $primaryKey, $search )->get( $resource->selects() );
+        $record = $model->where( $primaryKey, $search );
+
+        $with = $resource->getWith();
+
+        if ( filled( $with ) ) {
+
+            $record = $record->with( $with );
+
+        }
+
+        $record = $record->get( $resource->selects() );
 
         $record = $this->resolveValue( $record, TRUE, FALSE );
 
@@ -122,12 +243,20 @@ class ResourceController extends Controller
         $this->resource = $request->input( 'resource' );
         $search         = $request->input( 'search' );
         $primaryKey     = $request->input( 'primary_key' );
+        $resource       = $this->resource();
+        $model          = $resource::getModelInstance();
 
-        $model = $this->resource()::getModelInstance();
+        $with = $resource->getWith();
 
-        $record = $model->where( $primaryKey, $search )->get();
+        $record = $model->where( $primaryKey, $search );
 
-        $record = $this->resolveValue( $record, FALSE );
+        if ( filled( $with ) ) {
+
+            $record = $record->with( $with );
+
+        }
+
+        $record = $this->resolveValue( $record->get(), FALSE );
 
         return response()->json( $record->first() );
 
@@ -137,7 +266,7 @@ class ResourceController extends Controller
     public function select(Request $request)
     {
 
-        $resource = new ( $request->input( 'resource' ) )();
+        $resource = resolve( $request->input( 'resource' ) );
 
         $field = $resource->findField( $request->input( 'field' ) );
         $init  = $request->input( 'init', FALSE );
@@ -145,6 +274,66 @@ class ResourceController extends Controller
         $options = call_user_func( $field->searchCallback, $request->input( 'search' ), $init );
 
         return response()->json( $options );
+
+    }
+
+    public function searchSelect(Request $request)
+    {
+
+        $resource   = $request->input( 'resource' );
+        $search     = $request->input( 'search' );
+        $init       = $request->input( 'init', FALSE );
+        $primaryKey = $resource['primaryKey'];
+
+        $model = resolve( $resource['model'] );
+
+        $modelKey = $model->getKeyName();
+
+        if ( $init ) {
+
+            if ( blank( $search ) ) {
+
+                $options = $model->take(20)->orderByDesc($modelKey);
+
+            }
+            elseif ( is_array( $search ) && filled( $search ) ) {
+
+                $options = $model->whereIn( $modelKey, $search );
+
+            }
+            else {
+
+                $options = $model->where( $modelKey, '=', $search );
+
+            }
+
+        }
+        else {
+
+            $options = $model->where( $primaryKey, 'like', "%$search%" )
+                             ->when( isset( $resource['subtitle'] ), function ($query, $has) use ($resource, $search) {
+                                 return $query->orWhere( $resource['subtitle'], 'like', "%$search%" );
+                             } )
+                             ->take( 15 );
+
+        }
+
+        if ( isset( $resource['subtitle'] ) ) {
+
+            $subtitle = $resource['subtitle'];
+            $label    = DB::raw( "CONCAT($primaryKey, ' - ', $subtitle) as label" );
+
+        }
+        else {
+
+            $label = "$primaryKey as label";
+
+        }
+
+        return response()->json( $options->get( [
+            "$modelKey as value",
+            $label
+        ] ) );
 
 
     }
@@ -155,7 +344,7 @@ class ResourceController extends Controller
         $data       = $request->data ?? [];
         $primaryKey = $request->primary_key;
         $search     = $request->search;
-        $resource   = new ( $request->input( 'resource' ) )();
+        $resource   = resolve( $request->input( 'resource' ) );
         $rules      = $resource->getRules();
 
         $validator = Validator::make( $data, array_intersect_key( $rules, $data ) );
@@ -187,7 +376,7 @@ class ResourceController extends Controller
     {
 
         $data     = $request->data ?? [];
-        $resource = new ( $request->input( 'resource' ) )();
+        $resource = resolve( $request->input( 'resource' ) );
         $rules    = $resource->getRules();
 
         $validator = Validator::make( $data, array_filter( $rules ) );
@@ -218,20 +407,34 @@ class ResourceController extends Controller
     public function storeFilter(Request $request)
     {
 
-        $resource = $request->input( 'resource' );
-        $title    = $request->input( 'title' );
-        $filters  = $request->input( 'filters' );
+        $resource   = $request->input( 'resource' );
+        $title      = $request->input( 'title' );
+        $filters    = $request->input( 'filters' );
+        $edit_model = $request->input( 'edit' );
+        $id         = $request->input( 'id' );
 
         try {
 
-            DB::table( 'lava_filters' )->insert( [
-                'title'    => $title,
-                'filter'   => json_encode( $filters ),
-                'resource' => $resource
-            ] );
+            if ( $edit_model ) {
+
+                DB::table( 'lava_filters' )->where( 'id', $id )->update( [
+                    'title'  => $title,
+                    'filter' => json_encode( $filters )
+                ] );
+
+            }
+            else {
+
+                DB::table( 'lava_filters' )->insert( [
+                    'title'    => $title,
+                    'filter'   => json_encode( $filters ),
+                    'resource' => $resource
+                ] );
+
+            }
 
             return response()->json( [
-                'message' => "Filter " . strtolower( $title ) . " successfully created.",
+                'message' => "Filter " . strtolower( $title ) . " successfully " . ( $edit_model ? 'edited.' : 'created.' ),
                 'result'  => TRUE
             ] );
 
@@ -247,12 +450,12 @@ class ResourceController extends Controller
     public function deleteFilter(Request $request)
     {
 
-        $id = $request->input( 'filter_id' );
+        $id    = $request->input( 'filter_id' );
         $title = $request->input( 'title' );
 
         try {
 
-            $filter = DB::table( 'lava_filters' )->where('id', $id )->delete();
+            $filter = DB::table( 'lava_filters' )->where( 'id', $id )->delete();
 
             return response()->json( [
                 'message' => "Filter " . strtolower( $title ) . " successfully deleted.",

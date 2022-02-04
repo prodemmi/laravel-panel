@@ -17,11 +17,20 @@ abstract class Action implements Arrayable
 
     public $onlyOnTable = TRUE;
 
+    public $color = 'gray-700';
+
     protected $fields = [];
 
     protected function iconTemplate()
     {
-        return "<i class='ri-" . $this->icon . "-line'></i>";
+
+        if ( $this->danger ) {
+
+            $this->color = 'red-700';
+
+        }
+
+        return "<i class='ri-$this->icon-line text-$this->color'></i>";
     }
 
     abstract public function fields(): array;
@@ -32,13 +41,13 @@ abstract class Action implements Arrayable
     {
 
         return [
-            'action' => static::class,
-            'name'   => $this->name,
-            'help'   => $this->help,
-            'icon'   => $this->iconTemplate(),
-            'danger' => $this->danger,
+            'action'      => static::class,
+            'name'        => $this->name,
+            'help'        => $this->help,
+            'icon'        => $this->iconTemplate(),
+            'danger'      => $this->danger,
             'onlyOnTable' => $this->onlyOnTable,
-            'fields' => $this->fields() ?? []
+            'fields'      => $this->fields() ?? []
         ];
 
     }

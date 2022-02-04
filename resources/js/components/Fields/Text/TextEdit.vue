@@ -1,6 +1,6 @@
 <template>
 
-    <input class="text-input w-full" type="text" v-bind="data.attributes" v-model="model" @input="onChange"/>
+    <input class="text-input" type="text" v-bind="data.attributes" v-model="model" @input="onChange"/>
 
 </template>
 

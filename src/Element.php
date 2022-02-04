@@ -34,6 +34,41 @@ class Element implements JsonSerializable, Arrayable
         return $this;
     }
 
+
+    public function styles($styles)
+    {
+
+        $styles = $this->callableValue( $styles );
+
+        if ( is_array( $styles ) ) {
+
+            $styles = implode( ';', $styles );
+
+        }
+
+        return $this->attributes( [
+            'style' => $styles
+        ] );
+    }
+
+    public function classes($classes)
+    {
+
+        $classes = $this->callableValue( $classes );
+
+        if ( is_array( $classes ) ) {
+
+            $classes = Arr::toCssClasses( $classes );
+
+        }
+
+        $this->attributes( [
+            'class' => $classes
+        ] );
+
+        return $this;
+    }
+
     public function jsonSerialize()
     {
         return $this->toArray();

@@ -55,13 +55,14 @@
         methods: {
             onChange(event) {
 
+
                 if (_.isEmpty(event)) {
 
-                    this.$emit('on-change', null);
+                    this.$emit('on-change', null, this.data.column);
                     return
                 }
 
-                this.$emit('on-change', event.format('YYYY-MM-DD HH:mm:ss'));
+                this.$emit('on-change', event.format('YYYY-MM-DD HH:mm:ss'), this.data.column);
 
             },
             setNull() {

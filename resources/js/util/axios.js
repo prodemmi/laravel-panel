@@ -31,6 +31,10 @@ instance.interceptors.response.use(
 
             })
 
+        }else{
+
+            Lava.toast(error.response.data.message,'error')
+
         }
 
         return Promise.reject(error)

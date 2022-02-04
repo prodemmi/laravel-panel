@@ -1,6 +1,6 @@
 <template>
 
-    <div class="flex justify-between w-full" :style="{ 'flex-direction': data.direction }">
+    <div>
 
         <slot v-if="$slots['body']" name="body"></slot>
         <slot v-else ></slot>
