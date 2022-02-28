@@ -2,9 +2,9 @@
 
     <div v-if="relation && data.all === 0 && env !== 'edit'">None</div>
 
-    <div class="flex flex-col items-start justify-start wrapper" v-else-if="data.all > 0">
+    <div class="flex flex-col items-start justify-start" v-else-if="data.all > 0">
 
-        <lava-dialog :show="(selected_action && selected_action.fields.length)"
+        <lava-dialog :show="selected_action && selected_action.fields.length > 0"
                      :disabled="canDoAction"
                      :danger="selected_action && selected_action.danger"
                      @on-continue="doAction(selected_action)"
@@ -34,11 +34,8 @@
 
         </lava-dialog>
 
-        <ActionBar v-if="selected.length && !selected_action"
-                   :actions="resource.actions"
-                   :selected="selected"
-                   @on-close="selected = []"
-                   @handle-action="handleAction"/>
+        <div>Total: {{data.all || _.size(data.rows)}}</div>
+        <div v-show="!relation" >News: {{data.news}}</div>
 
         <div v-if="!relation" class="flex justify-between items-center w-full my-1">
 
@@ -50,7 +47,7 @@
                 <lava-button @click="getData(true)"
                              :no-padding="true">
 
-                    <span v-html="icon('refresh')"></span>
+                    <i class="ri-refresh-line"></i>
 
                 </lava-button>
 
@@ -58,7 +55,7 @@
 
                     <lava-button @click="show_visibility = true" :no-padding="true">
 
-                        <span v-html="icon('eye')"></span>
+                        <i class="ri-eye-line"></i>
 
                     </lava-button>
 
@@ -70,12 +67,12 @@
                              :key="index"
                              class="flex flex-wrap">
 
-                            <span>{{ column.name }}</span>
+                            <span style="min-width: 120px">{{ column.name }}</span>
 
                             <input v-model="shows[index].show"
                                    type="checkbox"
                                    class="my-0.5"
-                                   :disabled="index <= 2 || column.column === resource.primaryKey"/>
+                                   :disabled="(shows[index].show && index <= 2) || column.column === resource.primaryKey"/>
 
                         </div>
 
@@ -84,6 +81,54 @@
                 </div>
 
                 <filters :resource="resource" @set-filter="doFilter"/>
+
+                <div class="relative" v-click-outside="hideExport">
+
+                    <lava-button @click="show_export = true" :no-padding="true">
+
+                        <i class="ri-download-2-line"></i>
+
+                    </lava-button>
+
+                    <div v-show="show_export"
+                         class="absolute z-100 rounded bg-white shadow-md p-2"
+                         style="width: max-content">
+
+                        <div v-for="type in ['EXCEL', 'JSON', 'PRINT']" :key="type">
+                            <lava-button @click="exportData(type)">{{ type }}</lava-button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div v-show="!selected.length" class="relative" v-click-outside="hideActions">
+
+                    <lava-button @click="show_actions = true" :no-padding="true">
+
+                        <i class="ri-router-line"></i>
+
+                    </lava-button>
+
+                    <div v-show="show_actions"
+                         class="absolute z-100 rounded bg-white shadow-md p-2"
+                         style="width: max-content">
+
+                        <ActionBar
+                            :actions="resource.actions"
+                            :selected="null"
+                            :showClose="false"
+                            @handle-action="handleAction"/>
+
+                    </div>
+
+                </div>
+
+                <ActionBar  v-if="selected.length"
+                            :actions="resource.actions"
+                            :selected="selected"
+                            :showClose="false"
+                            @handle-action="handleAction"/>
 
             </div>
 
@@ -94,7 +139,7 @@
 
         </div>
 
-        <div class="w-full">
+        <div class="w-full" v-show="data">
 
             <div class="rounded-lg overflow-x-auto whitespace-nowrap"
                  style="width: 100%"
@@ -121,42 +166,46 @@
                                        type="checkbox"
                                        class="checkbox"
                                        v-model="selectAll"/>
-                            </th>
-
-                            <th v-for="(header, index) in data.headers"
-                                :key="index"
-                                v-if="shows[index].show"
-                                class="resource-table__th">
-
-                                <div class="flex items-center">
-
-                                    <span>{{ header.name }}</span>
-
-                                    <span v-if="header.sortable"
-                                          @click="setSort(header.column)"
-                                          class="cursor-pointer ml-2">
-
-                                          <template v-if="query.sort.column === header.column">
-
-                                            <span v-if="query.sort.direction === 'DESC'"
-                                                  v-html="icon('arrow-up')">
-                                            </span>
-
-                                            <span v-else-if="query.sort.direction === 'ASC'"
-                                                  v-html="icon('arrow-down')">
-                                            </span>
-
-                                          </template>
-
-                                        <span v-else v-html="icon('arrow-drop-down')"></span>
-
-                                    </span>
-
-                                </div>
 
                             </th>
 
-                            <th v-if="resource.actions.length" class="resource-table__th">
+                            <template v-for="(header, index) in data.headers">
+
+                                <th :key="index"
+                                    v-if="shows[index].show"
+                                    class="resource-table__th">
+
+                                    <div class="flex items-center" >
+
+                                        <span>{{ header.name }}</span>
+
+                                        <span v-if="header.sortable"
+                                            @click="setSort(header.column)"
+                                            class="cursor-pointer ml-2">
+
+                                            <template v-if="query.sort.column === header.column">
+
+                                                <i v-if="query.sort.direction === 'DESC'"
+                                                    class="ri-arrow-up-line">
+                                                </i>
+
+                                                <i v-else-if="query.sort.direction === 'ASC'"
+                                                      class="ri-arrow-down-line">
+                                                </i>
+
+                                            </template>
+
+                                            <i v-else class="ri-arrow-drop-down-line"></i>
+
+                                        </span>
+
+                                    </div>
+
+                                </th>
+
+                            </template>
+
+                            <th v-if="resource.actions.length > 0 && showActions" class="resource-table__th">
                                 Actions
                             </th>
 
@@ -166,7 +215,7 @@
 
                         <tbody class="border-solid border-1 border-gray-300">
 
-                        <tr v-for="(row, index) in data.rows"
+                        <tr v-for="(row, index) in _.map(data.rows, 'rows')"
                             :key="index"
                             class="border-solid border-b-1 border-gray-200"
                             :class="_.includes(selected, row) ? 'bg-white' : ''">
@@ -181,10 +230,10 @@
 
                             </td>
 
-                            <template v-for="(header, index) in data.headers">
+                            <template v-for="(header, i) in data.headers">
 
-                                <td v-if="shows[index].show"
-                                    :key="index"
+                                <td v-if="shows[i].show"
+                                    :key="i"
                                     class="resource-table__td">
 
                                     <component v-if="getField(!!relation ? relationResource : resource, header.column)"
@@ -197,21 +246,21 @@
 
                             </template>
 
-                            <th v-if="(!!relation ? relationResource : resource).actions.length"
+                            <th v-if="(!!relation ? relationResource : resource).actions.length && showActions"
                                 :class="selected.length > 0 ? 'pointer-events-none opacity-20' : ''"
                                 class="resource-table__td">
 
                                 <div class="flex items-center justify-start text-lg">
 
                                     <lava-tooltip
-                                            v-for="(action, index) in (!!relation ? relationResource : resource).actions"
-                                            :text="action.name"
-                                            :key="index">
+                                            v-for="action in (!!relation ? relationResource : resource).actions"
+                                            :text="_.find(data.rows[index].actions, {name: action.action}).show ? action.name : null"
+                                            :key="action.name">
 
-                                        <div v-html="action.icon"
+                                        <div v-html="icon(action.icon)"
                                              @click="handleAction(action, [row])"
                                              style="height: 100%"
-                                             :class="action.danger ? 'text-red-600' : 'text-gray-800'"
+                                             :class="[`text-${action.color}` , _.find(data.rows[index].actions, {name: action.action}).show ? '' : 'pointer-events-none opacity-30']"
                                              class="cursor-pointer pr-1 hover:text-gray-400">
                                         </div>
 
@@ -263,7 +312,37 @@
             NoData,
             Fields
         },
-        props: ['resource', 'relationResource', 'relation', 'disable-pagination', 'column', 'env'],
+        props: {
+            resource: {
+                type: Object,
+                required: true
+            },
+            relationResource: {
+                type: Object,
+                required: false
+            },
+            relation: {
+                type: String,
+                required: false
+            },
+            disablePagination: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+            column: {
+                type: String,
+                required: false
+            },
+            env: {
+                type: String,
+                required: false
+            },
+            showActions: {
+                type: Boolean,
+                default: true
+            }
+        },
         data() {
             return {
                 data: [],
@@ -278,6 +357,8 @@
                     }
                 },
                 show_visibility: false,
+                show_export: false,
+                show_actions: false,
                 loading: false,
                 selected_action: undefined,
                 primaryKey: this.resource.primaryKey,
@@ -297,13 +378,12 @@
         computed: {
             selectAll: {
                 get: function () {
-                    return _.intersectionBy(this.data.rows, this.selected, this.primaryKey)
-                        .length;
+                    return _.intersectionBy(_.map(this.data.rows, 'rows'), this.selected, this.primaryKey).length;
                 },
                 set: function (value) {
                     if (value) {
                         this.selected = _.uniqBy(
-                            _.concat(this.selected, this.data.rows),
+                            _.concat(this.selected, _.map(this.data.rows, 'rows')),
                             this.primaryKey
                         );
                         return;
@@ -311,7 +391,7 @@
 
                     this.selected = _.differenceBy(
                         this.selected,
-                        this.data.rows,
+                        _.map(this.data.rows, 'rows'),
                         this.primaryKey
                     );
                 }
@@ -353,41 +433,56 @@
             },
             getData(reset = false) {
 
-                if (reset) {
-                    this.query.filter = null;
-                }
+                    if (reset) {
+                        this.query.filter = null;
+                    }
 
-                this.setLoading(true);
-                this.$http
-                    .post("/api/" + (this.relation ? 'relation' : 'table'), {
-                        resource: this.resource,
-                        relation: this.relation,
-                        relationResource: this.relationResource?.resource,
-                        query: this.query,
-                        column: this.column,
-                        search: decodeURIComponent(this.$route.params.primaryKey)
+                    this.setLoading(true);
+
+                    this.$store.commit('addLastCounts', {
+                        resource: this.resource.resource,
+                        new_count: 0
                     })
-                    .then((res) => {
-                        this.$nextTick(() => {
-                            this.data = res.data;
-                            this.setLoading(false);
-                            this.checkIndeterminate();
 
-                            if (!this.shows) {
-                                this.shows = this.data.headers;
-                            }
-                        });
-                    }).catch((res) => {
+                    this.updateConfig( () => {
 
-                    this.setLoading(false);
+                        this.$http
+                            .post("/api/" + (this.relation ? 'relation-table' : 'table'), {
+                                resource: this.resource,
+                                relation: this.relation,
+                                relationResource: this.relationResource?.resource,
+                                query: this.query,
+                                column: this.column,
+                                search: decodeURIComponent(this.$route.params.primaryKey)
+                            })
+                            .then( (res) =>  {
+                                
+                                if (!this.shows) {
+                                    this.shows = res.data.headers;
+                                }
 
-                });
+                                this.data = res.data
+
+                                this.checkIndeterminate();
+
+                                this.setLoading(false);
+
+                                if(!this.relation){
+                                
+                                    this.$store.commit('addLastCounts', res.data.last)
+
+                                }
+
+                            })
+
+                    }, this.relation)
+                
             },
             checkIndeterminate() {
                 if (this.$refs.selectAllCheckbox) {
                     if (
-                        this.selected < this.data.rows &&
-                        _.intersectionBy(this.selected, this.data.rows, this.primaryKey)
+                        this.selected < _.map(this.data.rows, 'rows') &&
+                        _.intersectionBy(this.selected, _.map(this.data.rows, 'rows'), this.primaryKey)
                             .length
                     ) {
                         this.$refs.selectAllCheckbox.indeterminate = true;
@@ -398,8 +493,13 @@
                 }
             },
             setLoading(status) {
+
                 this.loading = status;
-                Lava.showLoading(status ? -1 : false);
+
+                if(!this.relation){
+                    Lava.showLoading(status ? -1 : false);
+                }
+
             },
             setSort(column = null) {
                 this.query.sort = {
@@ -420,7 +520,7 @@
                 this.getData();
                 this.checkIndeterminate();
             },
-            changeActionField(value, column) {
+            changeActionField(val) {
 
                 let data = _.cloneDeep(this.selected_action)
 
@@ -428,20 +528,18 @@
                     data.values = []
                 }
 
-                let f = _.find(data.values, {column})
+                let f = _.find(data.values, {column: val.column})
 
                 if (f) {
-                    f.value = value
+                    f.value = val.value
                 } else {
                     data.values.push({
-                        column,
-                        value
+                        column: val.column,
+                        value: val.value
                     })
                 }
 
                 this.selected_action = data
-
-                console.log(this.selected_action.values)
 
             },
             doFilter(filter) {
@@ -458,7 +556,179 @@
             },
             hideVisibility() {
                 this.show_visibility = false;
+            },
+            hideExport() {
+                this.show_export = false;
+            },
+            hideActions() {
+                this.show_actions = false;
+            },
+            exportData(type) {
+
+                this.hideExport()
+                this.loading = true;
+
+                this.$http
+                    .post("/api/export", {
+                        resource: this.resource,
+                        selected: this.selected,
+                        headers: _.filter(this.shows, {show: true}),
+                        query: this.query
+                    })
+                    .then((res) => {
+
+                        this.$nextTick(() => {
+
+                            this.createExport(res.data, type)
+
+                        });
+
+                    }).catch(error => {
+
+                    this.loading = false;
+
+                });
+
+            },
+            createExport(data, type) {
+
+                try {
+
+                    var filename = moment().utc().format('MMMM Do YYYY, h:mm:ss a');
+                    
+                    switch (type) {
+                        case 'EXCEL':
+                            this.exportExcel(filename, data)
+                            break
+                        case 'JSON':
+                            this.exportJson(filename, data)
+                            break
+                        case 'PRINT':
+                            this.exportPrint(filename, data)
+                            break
+                    }
+                    
+                    this.loading = false;
+
+                } catch (e) {
+
+                    console.error(e);
+                    Lava.toast(e, 'error', {
+                        timer: 10000
+                    })
+                    this.loading = false
+
+                }
+
+            },
+            exportExcel(filename, data) {
+
+                let xlsx = require('json-as-xlsx')
+
+                let exportData = [
+                    {
+                        sheet: this.resource.pluralLabel,
+                        columns: _.map(data.headers, (header, i) => {
+
+                            return {
+                                label: header,
+                                value: _.find(this.shows, {name: header}).column
+                            }
+
+                        }),
+                        content: data.data
+                    }
+                ]
+
+                let settings = {
+                    fileName: filename, // Name of the resulting spreadsheet
+                    extraLength: 3, // A bigger number means that columns will be wider
+                    writeOptions: {} // Style options from https://github.com/SheetJS/sheetjs#writing-options
+                }
+
+                xlsx(exportData, settings) // Will download the excel file
+
+            },
+            exportJson(filename, data) {
+                
+                var download = document.createElement('a');
+
+                var file = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data.data));
+
+                download.setAttribute("href", file);
+                download.setAttribute("download", `${filename}.json`);
+                download.click();
+
+            },
+            exportPrint(filename, data) {
+
+                var root = document.createElement('div');
+
+                var header = document.createElement('h3');
+                header.innerHTML = this.resource.pluralLabel
+
+                root.appendChild(header)
+                
+                var date = document.createElement('h4')
+                date.innerHTML = filename
+
+                root.appendChild(date)
+                
+                const tbl = document.createElement('table');
+
+                tbl.style.width = '100%'
+                tbl.style.textAlign = 'left'
+                tbl.style.borderCollapse = 'collapse'
+                var tr = document.createElement('tr');
+
+                // Create Header
+                var thead = document.createElement('thead');
+                for (var i = 0; i < data.headers.length; i++) {
+
+                    var th = document.createElement('th');
+                    th.style.padding = '8px 4px 8px 4px';
+                    th.style.border = '1px solid black';
+                    var text = document.createTextNode(data.headers[i]);
+                    th.appendChild(text);
+                    tr.appendChild(th);
+
+                }
+                thead.appendChild(tr)
+
+                tbl.appendChild(thead);
+
+                // Create Rows
+                var tbody = document.createElement('tbody');
+                for (var i = 0; i < data.data.length; i++) {
+
+                    var tr = document.createElement('tr');
+
+                    for (let j = 0; j < _.values(data.headers).length; j++) {
+                        
+                        var td = document.createElement('td');
+                        td.style.padding = '8px 4px 8px 4px';
+                        td.style.border = '1px solid black';
+                        var text = document.createTextNode(_.values(data.data[i])[j]);
+                        td.appendChild(text);
+                        tr.appendChild(td);
+                        
+                    }
+
+                    tbody.appendChild(tr)
+
+                }
+
+                tbl.appendChild(tbody);
+
+                root.appendChild(tbl)
+
+                var x=window.open();
+                    x.document.open();
+                    x.document.write(root.outerHTML);
+                    x.document.close();
+
             }
+
         },
     };
 

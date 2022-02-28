@@ -8,7 +8,7 @@
             v-model="model" @input="onChange"
             :disabled="!canEdit"/>
             <i v-if="canEdit && _.size(model) > 0" :class="['absolute right-0 top-1', show ? 'ri-eye-line' : 'ri-eye-off-line' ]" @click="show = !show"></i>
-            <i v-else-if="!canEdit" class="absolute right-0 top-1 cursor-pointer ri-edit-line" @click="canEdit = true;show = true"></i>
+            <i v-else-if="!canEdit" class="absolute right-0 top-1 cursor-pointer ri-edit-line" @click="edit()"></i>
         </div>
         <lava-button v-if="canEdit" @click="generate" small>Generate</lava-button>
     </div>
@@ -32,6 +32,11 @@
         methods:{
             generate(){
                 this.onChange(this.model = Math.random().toString(36).slice(2))
+            },
+            edit(){
+                this.canEdit = true
+                this.show = true
+                this.model = null
             }
         }
     }

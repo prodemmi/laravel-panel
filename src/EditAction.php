@@ -14,6 +14,13 @@ class EditAction extends Action
         return [];
     }
 
+    public function showOn($row, $resource): bool
+    {
+
+        return $resource->editableWhen() ?? false;
+        
+    }
+
     public function handle($collection, $values, $resource): array
     {
 
@@ -22,4 +29,11 @@ class EditAction extends Action
         return ActionStatus::route( 'edit', [ 'primaryKey' => $primaryKey, 'resource' => $resource->route() ] );
 
     }
+    
+    public function getIcon(){
+
+        return 'edit';
+
+    }
+
 }

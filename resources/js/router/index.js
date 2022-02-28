@@ -10,7 +10,7 @@ const router = createRouter()
 function createRouter() {
     const router = new Router({
         mode: "history",
-        base: `/${config.baseUrl}/`,
+        base: `/${window.baseUrl}/`,
         routes
     })
 

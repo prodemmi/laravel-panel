@@ -96,18 +96,14 @@ module.exports = {
                 '0.5': '0.125rem'
             },
             width: {
-                sidebar: "280px",
+                sidebar: "300px",
             },
             minWidth: {
                 button: "120px",
             },
             height: {
-                loading: "4px",
-                header: "34px",
-            },
-            inset: {
-                sidebar: "280px",
-                header: "58px",
+                loading: "8px",
+                header: "46px",
             },
             zIndex: {
                 100: 100,

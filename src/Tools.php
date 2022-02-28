@@ -13,33 +13,23 @@ abstract class Tools implements JsonSerializable, Arrayable
 
     use AuthorizedToSee;
 
-    public static $group = 'Tools';
-    public static $route;
-    public static $icon;
+    public $group = 'Tools';
+    public $route;
+    public $icon;
 
-    protected static function label()
+    protected function label()
     {
         return Str::of( class_basename( get_called_class() ), ' ' )->replace( 'Resource', '' )->headline();
     }
 
-    public static function iconTemplate()
+    public function pluralLabel()
     {
-        return "<i class='ri-" . static::$icon . "-line'></i>";
+        return Str::of($this->label() )->plural()->ucfirst();
     }
 
-    public static function route()
+    public function singularLabel()
     {
-        return static::$route ?? Str::of( static::label() )->lower()->plural()->slug();
-    }
-
-    public static function pluralLabel()
-    {
-        return Str::of( static::label() )->plural()->ucfirst();
-    }
-
-    public static function singularLabel()
-    {
-        return Str::of( static::label() )->singular()->ucfirst();
+        return Str::of($this->label() )->singular()->ucfirst();
     }
 
     public function authorized(Request $request)
@@ -54,16 +44,26 @@ abstract class Tools implements JsonSerializable, Arrayable
         return $this->toArray();
     }
 
+    public function route()
+    {
+        return $this->route ?? Str::of($this->label() )->lower()->plural()->slug();
+    }
+
     public function toArray()
     {
-        return [
+        $toArray = [
             'tool'          => TRUE,
-            'group'         => static::$group,
-            'icon'          => static::$icon,
-            'iconTemplate'  => static::iconTemplate(),
-            'route'         => static::route(),
-            'singularLabel' => static::singularLabel(),
-            'pluralLabel'   => static::pluralLabel()
+            'group'         => $this->group,
+            'icon'          => $this->icon,
+            'route'         => $this->route(),
+            'singularLabel' => $this->singularLabel(),
+            'pluralLabel'   => $this->pluralLabel()
         ];
+
+        if(method_exists(get_class($this), 'view')){
+            $toArray['view'] = $this->view()->render();
+        }
+
+        return $toArray;
     }
 }

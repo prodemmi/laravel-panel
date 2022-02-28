@@ -21,7 +21,7 @@ class Image extends File
     {
         parent::__construct( $name, $column );
 
-        $this->acceptTypes( 'image/*' );
+        $this->acceptTypes( 'image/*' )->hideFromExport();
 
     }
 

@@ -1,36 +1,74 @@
 <template>
-  <div>
-    <transition name="fade">
-      <Loading
-        v-if="$store.getters.getLoading"
-        :percent="$store.getters.getLoading"
-      />
-    </transition>
 
-    <Header />
+  <div v-if="checkLicense">Checking license ... <lava-spinner></lava-spinner></div>
 
-    <main class="content">
-      <keep-alive>
-        <transition name="fade">
-          <router-view v-if="!$store.getLoading" :key="$route.fullPath" />
-        </transition>
-      </keep-alive>
-    </main>
+  <div v-else-if="noLicense">
+
+    Your License has been expired.
+    Try to buy at <a href="https://google.com">here</a>.
+
+  </div>
+
+  <div class="flex overflow-hidden" style="width: 100vw;height: 100vh;" v-else>
 
     <SideBar />
+
+    <div class="flex flex-col overflow-auto w-full h-full">
+
+      <Header />
+
+      <main class="content w-auto h-full">
+        <router-view :key="$route.fullPath" />
+      </main>
+
+    </div>
+    
   </div>
+
 </template>
 
 <script>
 import Header from "../Header/Header";
 import SideBar from "../SideBar/SideBar";
-import Loading from "../Loading";
 
 export default {
   components: {
     SideBar,
-    Header,
-    Loading,
+    Header
+  },
+  data(){
+    return {
+      checkLicense: true,
+      noLicense: false
+    }
+  },
+  mounted(){
+
+    this.$http.post("/api/check-license", {
+      key: license.key,
+      username: license.username,
+      password:license.password
+    }).then((res) => {
+        
+        if(!res.data){
+
+          setTimeout(() => {
+            this.checkLicense = false
+            this.noLicense = true
+          }, 1000)
+          return
+
+        }
+
+        this.updateConfig(() => {
+          this.checkLicense = false 
+          this.noLicense = false
+        })
+
+    })
+
+    this.getLastCounts()
+
   }
 };
 </script>

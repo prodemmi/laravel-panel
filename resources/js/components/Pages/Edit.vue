@@ -9,7 +9,7 @@
 
             <div class="flex justify-end">
 
-                <lava-button @click="update" :disabled="couldUpdate">Update</lava-button>
+                <lava-button @click="update" :disabled="couldUpdate" :loading="updating">Update</lava-button>
 
             </div>
 
@@ -35,40 +35,62 @@
         data() {
             return {
                 data: [],
-                newData: {},
-                resource: this.activeTool(),
+                newData: [],
                 errors: [],
+                updating: false,
+                resource: this.activeTool(),
                 canUpdate: false,
             };
         },
         computed: {
             couldUpdate() {
+
                 if (!this.canUpdate) {
                     return true;
                 }
 
                 return this.newData.length === 0;
-            },
+            }
         },
         mounted() {
+
+            this.$nextTick(() => {
+
+                if (!this.resource.editable) {
+                    this.goToBack()
+                }
+                return
+
+            })
+            
             this.errors = [];
-            this.$http
-                .post("/api/form", {
-                    resource: this.resource.resource,
-                    search: decodeURIComponent(this.$route.params.primaryKey),
-                    primary_key: this.resource.primaryKey,
-                })
-                .then((res) => {
-                    this.data = res.data;
-                });
+            Lava.showLoading(-1)
+            this.updateConfig(() => {
+
+                setTimeout(() => this.$http
+                    .post("/api/form", {
+                        resource: this.resource.resource,
+                        search: decodeURIComponent(this.$route.params.primaryKey),
+                        primary_key: this.resource.primaryKey,
+                    })
+                    .then((res) => {
+                        this.data = res.data.rows;
+                        Lava.showLoading(false)
+                }), 500)
+
+            })
+                
         },
         methods: {
-            changed(value, column) {
+            changed(value) {
+                
                 this.canUpdate = true;
-                console.log(this.newData);
-                this.$set(this.newData, column, value);
+                this.newData.push(value)
+                this.newData = _.uniqBy(this.newData.reverse(), 'column')
+
             },
             update() {
+                this.updating = true
                 this.$http
                     .post("/api/update", {
                         resource: this.resource.resource,
@@ -79,15 +101,17 @@
                     .then((res) => {
                         if (res) {
                             Lava.toast(res.data.message, "success");
-                            this.canUpdate = false;
-                            this.goToBack()
+                            this.updating = false
+                            this.newData = []
+                            // this.canUpdate = false;
                         }
                     })
                     .catch((error) => {
                         this.errors = error.response.data.errors || [];
-                        this.canUpdate = false;
+                            this.updating = false
+                        // this.canUpdate = false;
                     });
-            },
+            }
         },
     };
 </script>

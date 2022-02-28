@@ -9,9 +9,8 @@
                 <div v-for="(image, i) in thumbnails" class="relative" :key="image">
 
                     <ImageDetail class="m-1" :data="data" :value="image"/>
-                    <span v-html="icon('close')"
-                          @click="removeImage(i)"
-                          class="absolute -top-2 right-0 cursor-pointer text-lg"></span>
+                    <span @click="removeImage(i)"
+                          class="ri-close-line absolute -top-2 right-0 cursor-pointer text-lg"></span>
 
                 </div>
 
@@ -113,7 +112,6 @@
                     this.model = []
                     this.thumbnails = []
                     this.loading = false
-                    Lava.showLoading(false)
 
                 })
 

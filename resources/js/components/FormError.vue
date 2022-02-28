@@ -15,6 +15,10 @@
                 type: Array,
                 required: false,
                 default:  ()=>[]
+            },
+            field: {
+                type: Object,
+                required: false
             }
         }
     };

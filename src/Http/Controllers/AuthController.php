@@ -25,7 +25,10 @@ class AuthController extends Controller
         ]);
    
         $credentials = $request->only('email', 'password');
+        
         if (Auth::attempt($credentials, $request->input('remember', false))) {
+
+            $request->session()->regenerate();
 
             $route = session()->pull('auth_must_redirect');
 
@@ -39,15 +42,16 @@ class AuthController extends Controller
 
         }
 
-        return redirect()->route("auth.index");
+        return back();
 
     }
 
     public function logout() {
 
-        session()->flush();
         Auth::logout();
-  
+        session()->regenerateToken();
+        session()->invalidate();
+ 
         return redirect()->route("auth.index");
 
     }

@@ -33,12 +33,21 @@ class Boolean extends Field
 
             }
 
-            return NULL;
+            return $value;
 
         } );
 
     }
 
+    public function displayValue($callback)
+    {
+
+        parent::displayValue($callback);
+
+        $this->asHtml();
+
+        return $this;
+    }
     public function trueValue($value)
     {
         $this->trueValue = $this->callableValue( $value );

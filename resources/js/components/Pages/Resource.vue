@@ -1,11 +1,21 @@
 <template>
 
-    <div v-if="activeTool()" class="inline">
+    <div v-if="resource" class="inline">
 
-        <h2>{{ activeTool().pluralLabel }}</h2>
+        <h2>{{ resource.pluralLabel }}</h2>
 
-        <resource-table :resource="activeTool()" :key="$route.fullPath"/>
+        <resource-table :resource="resource" env="index" :key="$route.fullPath"/>
 
     </div>
 
 </template>
+
+<script>
+export default {
+    computed: {
+        resource(){
+            return this.activeTool()
+        }
+    }
+}
+</script>

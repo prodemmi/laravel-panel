@@ -57,11 +57,17 @@
 
                 if (_.isEmpty(event)) {
 
-                    this.$emit('on-change', null, this.data.column);
+                    this.$emit('on-change', {
+                        column: this.data.column,
+                        value: null
+                    });
                     return
                 }
 
-                this.$emit('on-change', event.format('YYYY-MM-DD'), this.data.column);
+                this.$emit('on-change', {
+                    column: this.data.column,
+                    value: event.format('YYYY-MM-DD')
+                });
 
             },
             setNull() {

@@ -150,7 +150,7 @@ class Panel
      * @param array $themes
      * @return static
      */
-    public function styles(array $styles)
+    public function styles(...$styles)
     {
         $this->styles = array_unique( array_merge( $this->styles, $styles ) );
 
@@ -163,9 +163,22 @@ class Panel
      * @param array $themes
      * @return static
      */
-    public function scripts(array $scripts)
+    public function scripts(...$scripts)
     {
         $this->scripts = array_unique( array_merge( $this->scripts, $scripts ) );
+
+        return $this;
+    }
+
+    /**
+     * Register the given metrics.
+     *
+     * @param array $themes
+     * @return static
+     */
+    public function options(...$options)
+    {
+        $this->options = array_unique( array_merge( $this->options, $options ) );
 
         return $this;
     }
@@ -266,7 +279,7 @@ class Panel
        
         return collect($this->resources)->unique()->map(function($resource){
 
-            return new $resource();
+            return resolve($resource);
 
         })->toArray();
         
@@ -282,8 +295,22 @@ class Panel
     protected function sideBarItems()
     {
 
-        return collect( $this->getResources() )->groupBy( 'group' );
+        return collect( $this->getResources() )->groupBy( 'group' )->sortKeys();
 
+    }
+
+    public function getBaseUrl()
+    {
+
+        return $this->route;
+        
+    }
+
+    public function getDebug()
+    {
+
+        return config('app.debug');
+        
     }
 
     public function getConfig()
@@ -297,9 +324,21 @@ class Panel
             'sidebarItems'  => $this->sideBarItems(),
             'tools'         => [],
             'metrics'       => [],
-            'config'        => config( 'lava' )
-
+            'config'        => config( 'lava' ),
+            'debug'         => config('app.debug')
         ];
+        
+    }
+
+    public function getLicense()
+    {
+
+        return [
+            'key'  => env('LAVA_KEY'),
+            'username'         => env('LAVA_USERNAME'),
+            'password'         => env('LAVA_PASSWORD')
+        ];
+
     }
 
     public function routeConfiguration()

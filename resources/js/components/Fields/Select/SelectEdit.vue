@@ -53,7 +53,7 @@ export default {
   },
   methods: {
     change(e) {
-      console.log(this.model);
+      
       let value = this.data.attributes.multiple
         ? this.model
         : _.indexOf(this.options, this.model);
@@ -62,7 +62,10 @@ export default {
         value = this.model.value;
       }
 
-      this.$emit("on-change", value, this.data.column);
+      this.$emit("on-change", {
+        column: this.data.column,
+        value
+      });
     },
     fetchOptions: _.debounce(function (search, loading) {
       if (this.data.searchable) {

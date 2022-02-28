@@ -21,21 +21,29 @@ abstract class Action implements Arrayable
 
     protected $fields = [];
 
-    protected function iconTemplate()
-    {
-
-        if ( $this->danger ) {
-
-            $this->color = 'red-700';
-
-        }
-
-        return "<i class='ri-$this->icon-line text-$this->color'></i>";
-    }
-
     abstract public function fields(): array;
 
     abstract public function handle($collection, $values, $resource): array;
+
+    abstract public function showOn($row, $resource): bool;
+
+    private function getColor() {
+
+        if ( $this->danger ) {
+
+            return 'red-700';
+
+        }
+
+        return $this->color;
+        
+    }
+
+    public function getIcon(){
+
+        return null;
+
+    }
 
     public function toArray()
     {
@@ -44,7 +52,8 @@ abstract class Action implements Arrayable
             'action'      => static::class,
             'name'        => $this->name,
             'help'        => $this->help,
-            'icon'        => $this->iconTemplate(),
+            'icon'        => $this->getIcon() ?? $this->icon,
+            'color'       => $this->getColor(),
             'danger'      => $this->danger,
             'onlyOnTable' => $this->onlyOnTable,
             'fields'      => $this->fields() ?? []

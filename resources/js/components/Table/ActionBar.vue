@@ -1,43 +1,53 @@
 <template>
-  <div
-    class="bg-white rounded shadow-lg p-2 z-100"
-    :class="
-      block
-        ? 'block'
-        : 'fixed top-8 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
-    "
-  >
-    {{ block }}
-    <div class="py-2 flex items-center justify-between w-full">
-      Choose action
-
-      <i class="ri-close-line cursor-pointer" @click="$emit('on-close')"></i>
-    </div>
-
     <div class="flex items-center">
       <select class="select" style="width: 220px" v-model="selected_action">
+        <option :value="null" disabled>Select action</option>
         <template v-for="(action, index) in actions">
           <option v-if="!action.onlyOnTable" :value="action" :key="index">
-            {{ action.name }}
+            {{ action.name }} {{ _.isEmpty(selected) ? 'all' : '' }}
           </option>
         </template>
       </select>
 
       <lava-button
-        :disabled="!selected_action"
         @click="$emit('handle-action', selected_action, selected)"
+        :disabled="!selected_action"
+        :color="selected_action && selected_action.danger ? 'danger' : null"
+        no-padding
         >Go
       </lava-button>
+
+      <lava-button
+        v-if="showClose"
+        @click="$emit('on-close')"
+        no-padding
+        ><i class="ri-close-line cursor-pointer" ></i>
+      </lava-button>
+      
     </div>
-  </div>
 </template>
 
 <script>
 export default {
-  props: ["actions", "selected", "block"],
+  props: {
+    actions :{
+      type: [Object, Array],
+      required: false,
+      default: () => [],
+    },
+    selected :{
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+    showClose: {
+      type: Boolean,
+      default: true,
+    }
+  },
   data() {
     return {
-      selected_action: undefined,
+      selected_action: null,
     };
   }
 };

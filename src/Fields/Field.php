@@ -39,6 +39,10 @@ class Field extends Element
 
     public $select = TRUE;
 
+    public $asHtml = false;
+
+    protected $is_export = TRUE;
+
     public function __construct($name, $column = NULL)
     {
 
@@ -119,6 +123,31 @@ class Field extends Element
         return $this;
     }
 
+    public function hideFromExport()
+    {
+
+        $this->is_export = FALSE;
+
+        return $this;
+
+    }
+
+    public function inExport()
+    {
+
+        return $this->is_export;
+
+    }
+
+    public function asHtml()
+    {
+
+        $this->asHtml = true;
+
+        return $this;
+
+    }
+
     protected function with(...$with)
     {
 
@@ -139,6 +168,7 @@ class Field extends Element
             'readonly'     => $this->readonly,
             'rules'        => $this->rules,
             'link'         => $this->link,
+            'asHtml'       => $this->asHtml,
             'attributes'   => $this->attributes,
             'showOnIndex'  => $this->showOnIndex,
             'showOnDetail' => $this->showOnDetail,

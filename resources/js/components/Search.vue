@@ -3,6 +3,7 @@
     <VueSelect v-model="model"
                @input="change"
                @search="fetchOptions"
+               @search:focus="fetchOptions"
                :options="options"
                :multiple="multiple"
                :push-tags="multiple"
@@ -26,7 +27,7 @@
     import "vue-select/dist/vue-select.css";
 
     export default {
-        props: ['multiple', 'value', 'uri', 'column', 'resource', 'placeholder'],
+        props: ['multiple', 'value', 'uri', 'column', 'resource', 'placeholder', 'firstSearch'],
         components: {
             VueSelect,
         },
@@ -53,12 +54,22 @@
             };
         },
         mounted() {
+
             this.$nextTick(() => {
 
                 this.model = this.value
-                this.fetchOptions(this.value)
+                
+                if(this.firstSearch && this.hasValue){
+                    this.fetchOptions(this.value)
+                }
 
             });
+
+        },
+        computed: {
+            hasValue (){
+                return _.isArray(this.value) ? !_.isEmpty(this.value) : !(this.value === null || this.value === undefined)
+            }
         },
         methods: {
 
@@ -66,45 +77,66 @@
 
                 if (this.multiple) {
 
-                    this.model = _.merge(this.model, _.map(e, 'value'))
-                    
-                } else {
-                    
-                    this.model = e?.value
+                    this.$emit("on-change", _.map(e, 'value'), this.column)
+                    return
                     
                 }
 
-                this.$emit("on-change", this.model, this.column);
+                this.$emit("on-change", e?.value, this.column);
 
             },
-            fetchOptions: _.debounce(function (search, loading) {
+            fetchOptions(search, loading) {
 
                 if (loading) loading(true);
 
-                this.$http
+                setTimeout(() => {
+
+                    this.$http
                     .post(this.uri, {
-                        resource: this.resource,
+                        resource: this.resource.resource,
+                        subtitle: this.resource?.subtitle,
                         search: this.init ? this.model : search,
                         init: this.init
                     })
                     .then((res) => {
 
-                        if (this.init) {
+                        if (this.init && this.firstSearch) {
 
-                            if(_.isEmpty(this.value)){
-                                this.options = res.data
+                            if(this.hasValue){
+
+                                this.model = this.multiple ? res.data : _.first(res.data)
+
                             }else{
-                                this.model = res.data;
+
+                                this.options = res.data
+
                             }
+
                             this.$emit('on-init')
+
                         }
-                        this.options = _.toArray(res.data);
+
+                        this.options = _.filter( _.toArray(res.data), opp => {
+
+                            return !_.map(this.model, 'value').includes(opp.value)
+
+                        })
+                        
+                        // this.log(this.options, true)
+
+                        // this.options = _.toArray(res.data)
+
                         this.temp_options = [...this.options, ...this.temp_options]
+
                         if (loading) loading(false);
+                        
                         this.init = false;
 
                     });
-            }, 400),
+
+                }, this.init ? 0 : 400)
+
+            },
         },
     };
 </script>

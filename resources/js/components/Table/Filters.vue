@@ -4,9 +4,9 @@
 
         <lava-button @click="show"
                      v-click-outside="hideFilters"
-                     :color="show_editor || is_search || filters.length > 0 ? 'info' : 'primary'"
+                     :color="active_filter || show_editor || is_search || (filters && filters.length > 0) ? 'info' : 'primary'"
                      :no-padding="true">
-            <span v-html="icon('filter-2')"></span>
+            <i class="ri-filter-2-line"></i>
         </lava-button>
 
         <div v-if="show_filters"
@@ -26,14 +26,14 @@
 
                     <div>
 
-                        <span v-html="icon('edit')"
-                              class="cursor-pointer mr-1"
+                        <span class="cursor-pointer mr-1"
                               @click="editFilter(filter)">
+                              <i class="ri-edit-line"></i>
                         </span>
 
-                        <span v-html="icon('delete-bin')"
-                              class="text-danger cursor-pointer"
+                        <span class="text-danger cursor-pointer"
                               @click="deleteFilter(filter)">
+                              <i class="ri-delete-bin-line"></i>
                         </span>
 
                     </div>
@@ -44,7 +44,7 @@
 
                 <li class="flex flex-col justify-start w-full p-2 cursor-pointer hover:text-gray-800"
                     @click="show_editor = true;show_filters = false">
-                    Custom filter
+                    Create custom filter
                 </li>
 
                 <li v-if="resource.filters.length > 0 && active_filter"
@@ -66,12 +66,13 @@
                 <div class="flex items-start justify-between text-lg w-full">
 
                     <span style="width: 25%;min-width: 120px;max-width: 180px;">{{ filter.name }}</span>
-
+                    
                     <component class="w-full mr-1"
                                :key="filter.column"
                                :is="filter.component + '-edit'"
                                :value="filter.value"
                                :data="filter"
+                               :resource="filter.resource"
                                :disabled="filter.where.where === 'null'"
                                @on-change="changed"/>
 
@@ -82,11 +83,10 @@
                           class="rounded-full cursor-pointer bg-primary mr-1 text-white flex items-center justify-center">
                     </span>
 
-                    <span v-html="icon('close')"
-                          @click="removeFilter(i)"
-                          style="width: 52px;height: 32px;"
-                          class="rounded-full cursor-pointer bg-primary text-white flex items-center justify-center">
-                    </span>
+                    <i @click="removeFilter(i)"
+                       style="width: 52px;height: 32px;"
+                       class="ri-arrow-up-line rounded-full cursor-pointer bg-primary text-white flex items-center justify-center">
+                    </i>
 
                 </div>
 
@@ -105,7 +105,7 @@
 
                 <option :value="null" selected></option>
 
-                <option v-for="field in getFields(resource.fields)" :value="field.column">
+                <option v-for="field in getFields(resource.fields)" :value="field.column" :key="field.column">
 
                     {{ field.name }}
 
@@ -114,20 +114,21 @@
             </select>
 
             <div class="flex justify-end mt-2">
-
-                <lava-button v-if="filters.length > 0"
+                
+                <lava-button v-if="filters && filters.length > 0"
                              @click="doFilter(filters)"
                              small
                              color="success"
+                             :disabled="show_fields"
                              :no-padding="true">
                     Search
                 </lava-button>
 
-                <lava-button v-if="filters.length > 0"
+                <lava-button v-if="filters && filters.length > 0"
                              @click="createFilter"
                              small
                              :no-padding="true">
-                    {{ edit_mode ? 'Edit' : 'Create' }}
+                    {{ edit_mode ? 'Edit' : 'Save' }}
                 </lava-button>
 
                 <lava-button @click="cancelFilter"
@@ -149,7 +150,6 @@
     export default {
         name: "filters",
         props: ['resource'],
-        computed: {},
         data() {
             return {
                 show_filters: false,
@@ -174,7 +174,7 @@
                     },
                     {
                         label: '∅',
-                        where: 'null'
+                        where: 'NULL'
                     },
                     {
                         label: 'NQ',
@@ -182,8 +182,12 @@
                     },
                     {
                         label: 'L',
-                        where: 'like'
+                        where: 'LIKE'
                     },
+                    {
+                        label: 'RE',
+                        where: 'REGEXP'
+                    }
                 ]
             }
         },
@@ -207,9 +211,6 @@
 
             },
             setFilter(filter) {
-                console.clear();
-                console.log("filter ===> ", filter);
-
 
                 if (filter !== null && (this.active_filter?.id === filter.id)) {
                     return
@@ -226,7 +227,8 @@
 
             },
             createFilter() {
-
+                
+                this.setLoading(-1)
                 Lava.confirm('Create filter', '', false, {
                     confirmButtonText: this.edit_mode ? 'Edit' : 'Create',
                     input: 'text',
@@ -240,15 +242,17 @@
                             resource: this.resource.resource,
                             filters: this.filters,
                             title: res.value,
-                            id: this.active_filter.id,
+                            id: this.edit_mode ? this.active_filter.id : null,
                             edit: this.edit_mode
                         }).then((response) => {
 
                             if (response.data.result) {
 
                                 Lava.toast(response.data.message, 'success')
+                                this.cancelFilter()
                                 this.hideEditor()
-                                setTimeout(() => window.location.reload(), 400)
+                                this.updateConfig()
+                                this.setLoading(false)
 
                             }
 
@@ -269,13 +273,13 @@
                 if (['select', 'badge', 'boolean'].includes(component.toLowerCase())) {
 
                     filter.wheres = _.filter(wheres, (where) => {
-                        return !['<=', '>=', 'like'].includes(where.where)
+                        return !['<=', '>=', 'LIKE', 'REGEXP'].includes(where.where)
                     })
 
                 } else if (['id', 'date', 'datetime', 'timezone', 'number', 'currency'].includes(component.toLowerCase())) {
 
                     filter.wheres = _.filter(wheres, (where) => {
-                        return !['like'].includes(where.where)
+                        return !['LIKE', 'REGEXP'].includes(where.where)
                     })
 
                 } else if (['text', 'code', 'ckeditor', 'textarea'].includes(component.toLowerCase())) {
@@ -284,7 +288,13 @@
                         return !['<=', '>='].includes(where.where)
                     })
 
-                } else {
+                } else if (filter.relation) {
+
+                filter.wheres = _.filter(wheres, (where) => {
+                    return ['=', '<>'].includes(where.where)
+                })
+
+                }else {
 
                     filter.wheres = this.wheres
 
@@ -301,11 +311,13 @@
 
                 this.is_search = true
                 this.hideEditor()
+                console.log(filter)
                 this.$emit('set-filter', {filter})
 
             },
             deleteFilter(filter) {
 
+                this.setLoading(-1)
                 Lava.confirm('Delete filter', '', true).then(res => {
 
                     if (res.isConfirmed) {
@@ -318,7 +330,9 @@
                             if (response.data.result) {
 
                                 Lava.toast(response.data.message, 'success')
-                                setTimeout(() => window.location.reload(), 400)
+                                this.cancelFilter()
+                                this.updateConfig()
+                                this.setLoading(false)
 
                             }
 
@@ -331,7 +345,7 @@
             },
             editFilter(filter) {
 
-                this.filters = filter.filter
+                this.filters = filter.filters
                 this.active_filter = filter
                 this.edit_mode = true
                 this.show_editor = true
@@ -357,6 +371,7 @@
             addQuery(value) {
 
                 const filter = _.find(this.flattenFields(this.resource.fields), {column: value.target.value})
+
                 filter.where = {
                     label: '=',
                     where: '='
@@ -371,14 +386,14 @@
 
                 return _.filter(this.flattenFields(fields), (field) => {
 
-                    return !['password', 'avatar'].includes(field.component) && field.showOnIndex && !field.relation
+                    return !['password', 'avatar'].includes(field.component) && field.showOnIndex
 
                 })
 
             },
-            changed(value, column) {
+            changed(data) {
 
-                _.find(this.filters, {column}).value = value
+                _.find(this.filters, {column: data.column}).value = data.value
 
             }
         }

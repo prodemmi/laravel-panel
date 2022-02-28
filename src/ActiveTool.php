@@ -16,6 +16,8 @@ trait ActiveTool
 
         $current = url()->current();
 
+        $current = str_contains($current, 'api') ? url()->previous() : $current;
+
         $url = ltrim( str_replace( Request::root(), "", $current ), "/" );
 
         $route = explode( '/', $url )[str_contains( $current, '/tool' ) ? 2 : 1] ?? NULL;
@@ -24,7 +26,8 @@ trait ActiveTool
 
             $panel = Lava::getActivePanel();
             $res   = collect( $panel->resources )->first( function ($resource, $key) use ($route) {
-                return resolve($resource)::route() == $route;
+                
+                return resolve($resource)->route() == $route;
 
             } );
 

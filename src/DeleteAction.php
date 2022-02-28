@@ -22,57 +22,75 @@ class DeleteAction extends Action
 
     public function fields(): array
     {
+        
+        $activeTool = $this->activeTool();
 
-//        $model          = $this->activeTool()::getModelInstance();
-//        $useSoftDeletes = in_array( 'Illuminate\Database\Eloquent\SoftDeletes', class_uses( $model ) );
-//
-//        if ( $useSoftDeletes ) {
-//
-//            return [
-//            ];
-//
-//        }
-//
+        if($activeTool && isset($activeTool::$model)){
+
+            $model = $this->activeTool()->getModelInstance();
+
+            if (in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($model))) {
+    
+                return [
+                    Boolean::create('Force Delete')
+                ];
+            }
+
+        }
+
 
         return [];
+    }
+
+    public function showOn($row, $resource): bool
+    {
+
+        return $resource->creatableWhen() ?? false;
     }
 
     public function handle($collection, $values, $resource): array
     {
 
-        $model      = $resource::getModelInstance();
+        $forceDelete = $values['force_delete'] ?? false;
+
+        $model      = $resource->getModelInstance();
         $primaryKey = $resource->getPrimaryKey();
 
         try {
 
-            $collection->each( function ($row) use ($model, $primaryKey) {
+            $collection->each(function ($row) use ($model, $primaryKey, $forceDelete) {
 
-                $model->where( $primaryKey, $row[$primaryKey] )->first()->delete();
+                $model->where($primaryKey, $row[$primaryKey])->first()->{$forceDelete ? 'forceDelete' : 'delete'}();
 
-            } );
+            });
 
             $counts = $collection->count();
 
+            $end = $forceDelete ? 'deleted' : 'trashed';
 
-            if ( $counts > 1 ) {
+            if ($counts > 1) {
+             
+                $message = "$counts Records successfully $end.";
 
-                $message = "$counts Records successfully deleted.";
+            } else {
+
+                $message = "Record " . $collection->first()[$primaryKey] . " successfully $end.";
 
             }
-            else {
 
-                $message = "Record " . $collection->first()[$primaryKey] . " successfully deleted.";
+            return ActionStatus::success($message);
 
-            }
+        } catch (\Exception $e) {
 
-            return ActionStatus::success( $message );
-
+            return ActionStatus::error($e->getMessage());
+            
         }
-        catch ( \Exception $e ) {
+    }
 
-            return ActionStatus::error( $e->getMessage() );
+    public function getIcon(){
 
-        }
+        return 'delete-bin';
 
     }
+
 }

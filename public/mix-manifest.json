@@ -3,12 +3,7 @@
     "/app.css": "/app.css",
     "/public/lava/app.css": "/public/lava/app.css",
     "/public/lava/app.js": "/public/lava/app.js",
+    "/public/lava/app.js.LICENSE.txt": "/public/lava/app.js.LICENSE.txt",
     "/public/lava/hot": "/public/lava/hot",
-    "/public/lava/mix-manifest.json": "/public/lava/mix-manifest.json",
-    "/public/lava/resources_js_components_Pages_Create_vue.js": "/public/lava/resources_js_components_Pages_Create_vue.js",
-    "/public/lava/resources_js_components_Pages_Dashboard_vue.js": "/public/lava/resources_js_components_Pages_Dashboard_vue.js",
-    "/public/lava/resources_js_components_Pages_Detail_vue.js": "/public/lava/resources_js_components_Pages_Detail_vue.js",
-    "/public/lava/resources_js_components_Pages_Edit_vue.js": "/public/lava/resources_js_components_Pages_Edit_vue.js",
-    "/public/lava/resources_js_components_Pages_Resource_vue.js": "/public/lava/resources_js_components_Pages_Resource_vue.js",
-    "/public/lava/resources_js_components_Pages_Tool_vue.js": "/public/lava/resources_js_components_Pages_Tool_vue.js"
+    "/public/lava/mix-manifest.json": "/public/lava/mix-manifest.json"
 }

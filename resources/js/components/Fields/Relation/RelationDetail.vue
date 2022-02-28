@@ -5,7 +5,7 @@
                     :column="data.column"
                     env="detail"
                     :resource="activeTool()"/>
-
+                    
 </template>
 
 <script>
@@ -13,7 +13,7 @@
     import ResourceTable from '../../Table/ResourceTable'
 
     export default {
-        name: "belongs-to-detail",
+        name: "relation-detail",
         components: {
             ResourceTable
         },

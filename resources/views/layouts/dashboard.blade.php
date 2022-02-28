@@ -39,27 +39,33 @@
 
 </div>
 
+@php($panel = Lava::getActivePanel())
+
 <script>
-    window.config = @json(Lava::getActivePanel()->getConfig())
+    window.baseUrl = @json($panel->getBaseUrl())
 </script>
+
+<script>
+    window.debug = @json($panel->getDebug())
+</script>
+
 <script>
     window.user = @json(\Illuminate\Support\Facades\Auth::user() ?? [])
 </script>
 
-<script src="{{ mix('app.js', 'lava') }}"></script>
-
 <script>
-    window.Lava = new CreateLavaApp();
+    window.license = @json($panel->getLicense());
 </script>
 
-@foreach( Lava::getActivePanel()->getScripts() as $script )
-    <script src="{{ \Illuminate\Support\Str::of($script)->startsWith(['http', 'https']) ? $script : asset('lava/' . $script) }}"></script>
+<script src="{{ mix('app.js', 'lava') }}"></script>
+
+@foreach( $panel->getScripts() as $script )
+    <script src="{{ \Illuminate\Support\Str::of($script)->startsWith('http') ? $script : asset('lava/' . $script) }}"></script>
 @endforeach
 
 <script>
 
-    console.log('config ===> ', window.config)
-    window.Lava.start();
+    window.Lava = new CreateLavaApp();
 
 </script>
 

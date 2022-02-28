@@ -1,18 +1,18 @@
 <template>
-
-    <div v-bind="data.attributes"
-         style="padding: 2px 4px 2px 4px"
-         class="text-white text-center rounded"
-         :class="data.types[data.data[value]]"
-         v-html="value">
-
-    </div>
-
+  <div
+    v-bind="data.attributes"
+    class="badge"
+    :class="data.types[data.data[value]]"
+    v-bind.prop="getValue"
+  ></div>
 </template>
 
 <script>
-    export default {
-        name: "badge-index",
-        props: ['data', 'value']
-    }
+import { asHtmlMixin } from "../../../mixins";
+
+export default {
+  name: "badge-index",
+  props: ["data", "value"],
+  mixins: [asHtmlMixin]
+};
 </script>

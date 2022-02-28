@@ -1,13 +1,18 @@
 <template>
     <div class="flex flex-col">
-        <i @click="goToBack()" class="ri-arrow-left-line cursor-pointer text-lg w-fit"></i>
+        
+        <div class="flex items-center justify-between">
 
-        <div class="flex justify-end">
-            <lava-button @click="store" :disabled="couldCreate">Create</lava-button>
+            <i @click="goToBack()" class="ri-arrow-left-line cursor-pointer text-lg w-fit"></i>
+
+            <div class="flex justify-end">
+                <lava-button @click="store" :disabled="!couldCreate">Create</lava-button>
+            </div>
+            
         </div>
 
         <div class="p-2 text-lg bg-white shadow rounded-md my-2">
-            <fields :data="data" :fields="resource.fields" :errors="errors" env="create" @on-change="changed"/>
+            <fields :data="[]" :fields="resource.fields" :errors="errors" env="create" @on-change="changed"/>
         </div>
     </div>
 </template>
@@ -22,11 +27,10 @@
         },
         data() {
             return {
-                data: [],
-                newData: {},
+                newData: [],
                 resource: this.activeTool(),
                 errors: [],
-                canCreated: false,
+                canCreate: false,
             };
         },
         mounted() {
@@ -42,36 +46,36 @@
         },
         computed: {
             couldCreate() {
-                if (!this.canCreated) {
-                    return true;
-                }
 
-                return this.newData.length === 0;
+                return this.newData.length > 0;
+
             },
         },
         methods: {
-            changed(value, column) {
-                this.canCreated = true;
-                this.$set(this.newData, column, value);
+            changed(value) {
+                
+                this.canUpdate = true;
+                this.newData.push(value)
+                this.newData = _.uniqBy(this.newData.reverse(), 'column')
+                console.log(this.newData)
+
             },
             store() {
                 this.$http
                     .post("/api/store", {
                         resource: this.resource.resource,
-                        data: this.newData,
-                        primary_key: this.resource.primaryKey,
-                        search: decodeURIComponent(this.$route.params.primaryKey),
+                        data: this.newData
                     })
                     .then((res) => {
                         if (res) {
                             Lava.toast(res.data.message, "success");
-                            this.canCreated = false;
-                            this.data = []
+                            this.canCreate = false;
+                            this.newData = []
                         }
                     })
                     .catch((error) => {
                         this.errors = error.response.data.errors || [];
-                        this.canCreated = false;
+                        this.canCreate = false;
                     });
             },
         },

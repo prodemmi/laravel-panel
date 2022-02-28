@@ -1,7 +1,7 @@
 <template>
   <ul class="breadcrumb" v-if="crumbs.length">
     <template v-for="(item, i) in crumbs">
-      <li>
+      <li :key="i">
         <a
           :class="[
             crumbs.length - 1 === i
@@ -64,7 +64,7 @@ export default {
           label: _.startCase(label || route),
           goTo: () => this.goToRoute(route_object.name, this.$route.params),
           is_root: index === 0,
-          icon: index === 0 ? this.icon('dashboard') : _.find(this.config.resources, { route : label })?.iconTemplate
+          icon: index === 0 ? '<i class="ri-home-2-line"></i>' : this.icon(_.find(this.$store.getters.getConfig.resources, { route : label })?.icon)
         })
 
       }

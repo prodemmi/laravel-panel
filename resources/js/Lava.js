@@ -5,8 +5,9 @@ import VTooltip from "v-tooltip"
 import swal from "sweetalert2"
 import ClickOutside from 'vue-click-outside'
 import VueLazyload from "vue-lazyload"
-import {RouteMixin} from "./mixins"
+import {HelperMixin, RouteMixin, ActionMixin} from "./mixins"
 import CKEditor from '@ckeditor/ckeditor5-vue2';
+import _ from "lodash"
 
 Vue.use(VTooltip)
 Vue.use(VueLazyload)
@@ -16,18 +17,23 @@ VTooltip.options.defaultHtml = true
 
 Vue.directive('click-outside', ClickOutside)
 
+Vue.mixin(HelperMixin)
 Vue.mixin(RouteMixin)
+Vue.mixin(ActionMixin)
 
 export default class Lava {
 
-    constructor() {}
+    constructor(id = "#app", options = null) {
 
-    start() {
-        this.app = new Vue({
-            el: "#app",
-            router,
-            store
-        })
+        if(!options){
+            options = {
+                router,
+                store
+            }
+        }
+
+        this.app = new Vue(options).$mount(id)
+
     }
 
     /**
@@ -97,8 +103,17 @@ export default class Lava {
      * @memberof Lava
      */
     showLoading(loading) {
-        if (this.app)
+        if (this.app){
+
+            if(loading == false){
+                setTimeout(() => this.app.$store.commit('setLoading', loading), 1000)
+                return
+            }
+
             this.app.$store.commit('setLoading', loading)
+
+        }
+            
     }
 
 }

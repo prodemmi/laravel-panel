@@ -27,7 +27,7 @@ class Badge extends Field
 
         $this->displayValue( function ($value) {
 
-            return $this->options[$value] ?? null;
+            return $this->options[$value];
 
         } );
 
@@ -48,7 +48,7 @@ class Badge extends Field
     public function options(array $options)
     {
 
-        $this->options = $options;
+        $this->options = $this->callableValue($options);
 
         return $this;
 

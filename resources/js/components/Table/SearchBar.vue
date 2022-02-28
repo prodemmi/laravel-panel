@@ -5,7 +5,7 @@
         <input class="border-solid border-2 border-gray-300 bg-white py-1 pl-2 pr-5 rounded text-sm focus:outline-none"
                type="search"
                v-model.trim="search"
-               :placeholder="_.first(this.searchIn) === '*' ? 'Search' : 'Search in ' + searchIn.join(' , ')">
+               :placeholder="_.first(this.searchIn) === '*' ? 'Search' : 'Search in ' + searchIn.join(',')">
 
         <button style="top: 6px;right: 6px;"
                 @click="$emit('on-search', search)"

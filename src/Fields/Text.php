@@ -13,18 +13,31 @@ class Text extends Field
 
     public $suggestions = [];
 
+    public function __construct($name, $column = NULL)
+    {
+        parent::__construct( $name, $column );
+
+        $this->sortable();
+
+    }
+
     public function suggestions($suggestions)
     {
         $this->suggestions = $this->callableValue( $suggestions );
 
         return $this;
     }
+
     public function link($regex, $blank = FALSE)
     {
 
         $regex = $this->callableValue( $regex );
 
-        $this->displayValue( function ($value, $row, $env) use ($regex, $blank) {
+        $this->displayValue( function ($value, $row, $env, $export) use ($regex, $blank) {
+
+            if($export){
+                return $value;
+            }
             
             if($env === 'index'){
 
@@ -43,6 +56,8 @@ class Text extends Field
             return $value;
 
         } );
+
+        $this->asHtml();
 
         return $this;
 

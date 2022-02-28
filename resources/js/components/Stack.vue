@@ -1,8 +1,8 @@
 <template>
 
     <div>
-
-        <slot v-if="$slots['body']" name="body"></slot>
+        
+        <slot v-if="!!$slots['body']" name="body"></slot>
         <slot v-else ></slot>
 
     </div>

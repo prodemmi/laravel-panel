@@ -8,7 +8,7 @@
 
 <script>
     export default {
-        name: "belongs-to-index",
+        name: "relation-index",
         props: ['data', 'value']
     }
 </script>

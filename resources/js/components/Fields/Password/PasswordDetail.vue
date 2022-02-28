@@ -1,13 +1,17 @@
 <template>
 
-    <div v-bind="data.attributes" class="truncate" v-html="value"></div>
+    <div v-bind="data.attributes" class="truncate" v-bind.prop="getValue"></div>
 
 </template>
 
 <script>
+
+    import {asHtmlMixin} from '../../../mixins'
+
     export default {
         name: "password-detail",
-        props: ['data', 'value']
+        props: ['data', 'value'],
+        mixins: [asHtmlMixin],
     }
 </script>
 

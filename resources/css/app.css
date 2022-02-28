@@ -37,9 +37,11 @@
 
 /*@formatter:off*/
 
-/* Base
-----------------------------------------------------------------------------
-*/
+body {
+    margin: 0 !important;
+}
+
+/* Base */
 
 .primary {
     @apply bg-primary !important;
@@ -57,12 +59,10 @@
     @apply bg-danger !important;
 }
 
-/* Loading
----------------------------------------------------------------------------
-*/
+/* Loading */
 
 .progress-back{
-    @apply fixed block left-sidebar top-0 bottom-0 right-0 bg-white overflow-hidden h-loading z-100;
+    @apply relative bg-white w-full overflow-hidden h-loading z-100;
 }
 
 .progress-back .determinate {
@@ -108,20 +108,16 @@
   100% {left: 107%;right: -8%; }
 }
 
-/* Header
-----------------------------------------------------------------------------
-*/
+/* Header */
 
 .header {
-    @apply fixed left-sidebar right-0 top-0 flex items-center justify-start p-2 h-header bg-white shadow-lg;
+    @apply flex flex-col items-start h-header bg-white shadow-lg;
 }
 
-/* Breadcrumbs
-----------------------------------------------------------------------------
-*/
+/* Breadcrumbs */
 
 .breadcrumb {
-    @apply select-none inline-flex items-center list-none px-1;
+    @apply select-none inline-flex items-center list-none p-2 m-0;
 }
 
 .breadcrumb__item {
@@ -136,24 +132,21 @@
     @apply px-2;
 }
 
-/* Header
-----------------------------------------------------------------------------
-*/
+/* Header */
 
 .content {
-    @apply fixed overflow-y-auto overflow-x-hidden left-sidebar top-header right-0 bottom-0 bg-main p-2;
+    @apply overflow-y-auto overflow-x-hidden bg-main p-2 w-full h-full;
 }
 
-/* Sidebar
-----------------------------------------------------------------------------
-*/
+/* Sidebar */
 
 .side-bar {
-    @apply fixed left-0 top-0 bottom-0 flex flex-col place-content-between bg-primary w-sidebar transition-all duration-200 ease-in-out;
+    height: 100vh;
+    @apply flex flex-col place-content-between bg-primary w-sidebar transition-all duration-200 ease-in-out;
 }
 
 .side-bar__group {
-    @apply text-gray-300 font-bold m-1 p-2;
+    @apply text-gray-300 font-bold;
 }
 
 .side-bar__item {
@@ -176,21 +169,29 @@
     @apply w-full bg-cover;
 }
 
-.side-bar__profile{
+.side-bar__profile {
     @apply flex justify-between items-start text-white bg-sidebar-menu-active rounded m-2 p-2 cursor-pointer;
 }
 
-.side-bar__profile--avatar{
+.side-bar__profile--avatar {
     @apply w-1/4 h-auto rounded-full;
 }
 
-/* Spinner
-----------------------------------------------------------------------------
-*/
+.side-bar-collapse {
+    @apply text-white;
+}
+
+.side-bar-collapse--header {
+    @apply cursor-pointer py-1 mx-1 my-0 rounded-md hover:bg-gray-600 hover:text-white;
+}
+
+.side-bar-collapse--body {}
+
+/* Card */
 
 .card{
 
-    @apply flow-root my-2 shadow-lg rounded-lg bg-primary-light;
+    @apply flow-root my-2 mx-1 shadow-lg w-auto h-full rounded-md bg-primary-light;
 
 }
 
@@ -202,7 +203,7 @@
 
 .card--body{
 
-    @apply bg-white p-2 rounded-lg;
+    @apply bg-white p-2 rounded-md;
 
 }
 
@@ -212,9 +213,14 @@
 
 }
 
-/* Button
-----------------------------------------------------------------------------
-*/
+/* Badge */
+
+.badge {
+    max-width: 100px;
+    @apply text-white text-center rounded py-0.5 px-3;
+}
+
+/* Button */
 
 .button {
     @apply text-center transition-all duration-150 ease-in-out border-none cursor-pointer m-0.5 outline-none rounded;
@@ -248,9 +254,7 @@
     @apply cursor-wait !important;
 }
 
-/* Button
-----------------------------------------------------------------------------
-*/
+/* Button */
 
 .dropdown{
     @apply relative;
@@ -268,9 +272,7 @@
     @apply bg-gray-100 text-gray-600;
 }
 
-/* Spinner
-----------------------------------------------------------------------------
-*/
+/* Spinner */
 
 .spinner {
     margin: auto;
@@ -322,9 +324,7 @@
     }
 }
 
-/* Spinner
-----------------------------------------------------------------------------
-*/
+/* Spinner */
 
 .tooltip {
   @apply bg-tooltip text-tooltip-text m-0.5 px-2 py-1 rounded text-sm shadow-lg leading-normal;
@@ -377,7 +377,7 @@
 }
 
 .resource-table__loading{
-    @apply absolute inset-0 bg-black opacity-50;
+    @apply absolute inset-0 bg-black opacity-50 w-full h-full;
 }
 
 .resource-table__pagination{
@@ -404,16 +404,6 @@
 
 .select {
     @apply form-element;
-}
-
-.vs__selected-options {
-    display: block !important;
-    max-width: 100% !important;
-    z-index: 200 !important;
-}
-
-.vs__search {
-    display: none !important;
 }
 
 .checkbox{
@@ -443,6 +433,16 @@
 
 .ck-content {
     @apply form-element !important;
+}
+
+/* Select */
+
+.vs__selected {
+    @apply bg-primary text-white !important;
+}
+
+.vs__deselect {
+    @apply fill-current text-white px-1 !important;
 }
 
 /* Dialog */

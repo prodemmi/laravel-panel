@@ -1,39 +1,46 @@
 let routes = []
 
+import Dashboard from '../components/Pages/Dashboard'
+import Tool from '../components/Pages/Tool'
+import Resource from '../components/Pages/Resource'
+import Detail from '../components/Pages/Detail'
+import Edit from '../components/Pages/Edit'
+import Create from '../components/Pages/Create'
+
 routes.push({
     path: '/',
     name: 'dashboard',
-    component: () => import('../components/Pages/Dashboard')
+    component: Dashboard
 })
 
 routes.push({
     path: '/tool/:name',
     name: 'tool',
-    component: () => import('../components/Pages/Tool')
+    component: Tool
 })
 
 routes.push({
     path: '/:resource',
     name: 'index',
-    component: () => import('../components/Pages/Resource')
+    component: Resource
 })
 
 routes.push({
     path: '/:resource/:primaryKey',
     name: 'detail',
-    component: () => import('../components/Pages/Detail')
+    component: Detail
 })
 
 routes.push({
     path: '/:resource/:primaryKey/edit',
     name: 'edit',
-    component: () => import('../components/Pages/Edit')
+    component: Edit
 })
 
 routes.push({
     path: '/:resource/create',
     name: 'create',
-    component: () => import('../components/Pages/Create')
+    component: Create
 })
 
 routes.push({

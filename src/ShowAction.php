@@ -14,6 +14,13 @@ class ShowAction extends Action
         return [];
     }
 
+    public function showOn($row, $resource): bool
+    {
+
+        return true;
+
+    }
+
     public function handle($collection, $values, $resource): array
     {
 
@@ -25,4 +32,11 @@ class ShowAction extends Action
         ] );
 
     }
+
+    public function getIcon(){
+
+        return 'eye';
+
+    }
+
 }

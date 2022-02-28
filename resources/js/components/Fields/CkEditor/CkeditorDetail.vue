@@ -5,7 +5,7 @@
         <div v-bind="data.attributes"
              style="width: 50vw;"
              :class="[ more ? 'hidden' : '' ]"
-             v-html="value">
+             v-bind.prop="getValue">
         </div>
 
         <div v-if="(value && value.length > 40) && more"
@@ -18,9 +18,13 @@
 </template>
 
 <script>
+
+    import {asHtmlMixin} from '../../../mixins'
+
     export default {
         name: "ckeditor-detail",
         props: ['data', 'value'],
+        mixins: [asHtmlMixin],
         data() {
 
             return {
@@ -28,6 +32,7 @@
             }
 
         },
+        
         mounted() {
 
             this.more = this.data.more

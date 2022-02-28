@@ -8,43 +8,44 @@ use Illuminate\Support\Facades\DB;
 abstract class Resource extends Tools
 {
 
-    public static $group = 'Resources';
+    public $group = 'Resources';
 
-    public static $model;
-    public static $primaryKey = 'id';
-    public static $selectable = TRUE;
-    public static $searches   = [ '*' ];
-    public static $perPages   = [ 25, 50, 100 ];
-    public static $sort       = 'id desc';
-    public static $subtitle;
+    public $model;
+    public $primaryKey = 'id';
+    public $selectable = TRUE;
+    public $searches   = [ '*' ];
+    public $perPages   = [ 25, 50, 100 ];
+    public $sort       = 'id desc';
+    public $subtitle;
+    public $route;
 
     protected $with = [];
 
-    public abstract static function fields(): array;
+    public abstract function fields(): array;
 
-    public abstract static function actions(): array;
+    public abstract function actions(): array;
 
-    public abstract static function creatableWhen(): bool;
+    public abstract function creatableWhen(): bool;
 
-    public abstract static function editableWhen(): bool;
+    public abstract function editableWhen(): bool;
 
-    public abstract static function deletableWhen(): bool;
+    public abstract function deletableWhen(): bool;
 
-    public static function getPrimaryKey()
+    public function getPrimaryKey()
     {
 
-        return static::$primaryKey ?? self::getModelInstance()->getKeyName();
+        return $this->primaryKey ?? $this->getModelInstance()->getKeyName();
     }
 
-    public static function getModelInstance()
+    public function getModelInstance()
     {
-        return new static::$model;
+        return new $this->model;
     }
 
     public function selects()
     {
 
-        return static::getFieldsOfForDesign()->flatten( 1 )->filter( function ($field) {
+        return $this->getFieldsOfForDesign()->flatten( 1 )->filter( function ($field) {
 
             if ( !$field->select ) {
 
@@ -56,6 +57,9 @@ abstract class Resource extends Tools
                 case 'hasMany':
                     return FALSE;
                 case 'morphToMany':
+                    return FALSE;
+                    break;
+                case 'morphedByMany':
                     return FALSE;
                     break;
             }
@@ -70,20 +74,20 @@ abstract class Resource extends Tools
     public function headers()
     {
 
-        $fields = static::getFieldsOfForDesign();
+        $fields = $this->getFieldsOfForDesign();
 
         return $fields->filter( function ($field) {
 
             return ( $field->stack ?? FALSE ) || $field->showOnIndex === TRUE;
 
-        } )->map( function ($field) {
+        } )->map( function ($field, $key) {
 
             return [
                 'name'      => $field->name ?? $field->title,
                 'column'    => $field->column ?? NULL,
                 'stack'     => $field->stack ?? FALSE,
                 'sortable'  => $field->sortable ?? FALSE,
-                'show'      => !$field->hideDefault,
+                'show'      => $key <=2 ? true : !$field->hideDefault,
                 'headers'   => $field->fields ?? [],
                 'direction' => $field->direction ?? NULL
             ];
@@ -93,7 +97,7 @@ abstract class Resource extends Tools
     public function findField($column)
     {
 
-        return static::getFieldsOfForDesign()->first( function ($field, $key) use ($column) {
+        return $this->getFieldsOfForDesign()->first( function ($field, $key) use ($column) {
 
             return isset( $field->column ) && $field->column == $column;
         } );
@@ -103,17 +107,17 @@ abstract class Resource extends Tools
     public function getWith()
     {
 
-        return static::getFieldsOfForDesign()->filter( function ($field) {
+        return $this->getFieldsOfForDesign()->filter( function ($field) {
 
             return str_contains( $field->column, '.' ) || ( $field->relation ?? FALSE );
 
         } )->map( function ($field) {
 
             switch ( $field->relation ?? '' ) {
-                case 'hasOne':
+                case 'HasOne':
                     return str_replace( '_id', '', $field->column );
                     break;
-                case 'belongsTo':
+                case 'BelongsTo':
                     return str_replace( '_id', '', $field->column );
                     break;
             }
@@ -126,24 +130,24 @@ abstract class Resource extends Tools
     public function getSearches()
     {
 
-        if ( count( static::$searches ) === 1 && head( static::$searches ) === '*' ) {
+        if ( count( $this->searches ) === 1 && head( $this->searches ) === '*' ) {
 
-            return static::getFieldsOfForDesign()->pluck( 'column' )->toArray();
+            return $this->getFieldsOfForDesign()->pluck( 'column' )->toArray();
         }
 
-        return static::$searches;
+        return $this->searches;
     }
 
-    protected static function getActions()
+    public function getActions()
     {
 
-        $actions = collect( static::actions() )->unique()->push( ShowAction::class );
+        $actions = collect( $this->actions() )->unique()->push( ShowAction::class );
 
-        if ( static::editableWhen() ) {
+        if ( $this->editableWhen() ) {
             $actions->push( EditAction::class );
         }
 
-        if ( static::deletableWhen() ) {
+        if ( $this->deletableWhen() ) {
             $actions->push( DeleteAction::class );
         }
 
@@ -156,14 +160,15 @@ abstract class Resource extends Tools
 
 
             return $action->toArray();
+            
         } )->toArray();
 
     }
 
-    public static function getFieldsOfForDesign($fields = NULL)
+    public function getFieldsOfForDesign($fields = NULL)
     {
 
-        $fields = $fields ?? static::fields();
+        $fields = $fields ?? $this->fields();
 
         foreach ( $fields as $key => $field ) {
 
@@ -171,7 +176,7 @@ abstract class Resource extends Tools
 
             if ( $field->forDesign ?? FALSE ) {
 
-                $fields[$key] = static::getFieldsOfForDesign( $field->fields ?? [] );
+                $fields[$key] = $this->getFieldsOfForDesign( $field->fields ?? [] );
             }
 
         }
@@ -179,10 +184,10 @@ abstract class Resource extends Tools
         return collect( $fields )->flatten( 1 )->unique( 'column' );
     }
 
-    public static function getRules()
+    public function getRules()
     {
 
-        $fields = static::getFieldsOfForDesign();
+        $fields = $this->getFieldsOfForDesign();
         $rules  = [];
 
         collect( $fields )->each( function ($field) use (&$rules) {
@@ -194,12 +199,12 @@ abstract class Resource extends Tools
         return $rules;
     }
 
-    public static function getFilters()
+    public function getFilters()
     {
 
-        return DB::table( 'lava_filters' )->where( 'resource', static::class )->get()->map( function ($filter) {
+        return DB::table( 'lava_filters' )->where( 'resource', get_class($this) )->get()->map( function ($filter) {
 
-            $filter->filter = json_decode( $filter->filter, TRUE );
+            $filter->filters = json_decode( $filter->filters, TRUE );
 
             return $filter;
 
@@ -207,10 +212,10 @@ abstract class Resource extends Tools
 
     }
 
-    public static function getSort()
+    public function getSort()
     {
 
-        $sort    = explode( ' ', static::$sort );
+        $sort    = explode( ' ', $this->sort );
         $sort[1] = strtoupper( $sort[1] );
 
         return $sort;
@@ -222,22 +227,22 @@ abstract class Resource extends Tools
         $parent['tool'] = FALSE;
 
         return array_merge( $parent, [
-            'resource'   => static::class,
-            'model'      => static::$model,
-            'selectable' => static::$selectable,
-            'subtitle'   => static::$subtitle,
-            'searches'   => static::$searches,
-            'modelKey'   => static::getModelInstance()->getKeyName(),
-            'perPages'   => static::$perPages,
-            'primaryKey' => static::getPrimaryKey(),
-            'fields'     => static::fields(),
-            'actions'    => static::getActions(),
-            'filters'    => static::getFilters(),
-            'sort'       => static::getSort(),
+            'resource'   => get_class($this),
+            'model'      => $this->model,
+            'selectable' => $this->selectable,
+            'subtitle'   => $this->subtitle,
+            'searches'   => $this->searches,
+            'modelKey'   => $this->getModelInstance()->getKeyName(),
+            'perPages'   => $this->perPages,
+            'primaryKey' => $this->getPrimaryKey(),
+            'fields'     => $this->fields(),
+            'actions'    => $this->getActions(),
+            'filters'    => $this->getFilters(),
+            'sort'       => $this->getSort(),
             'active'     => TRUE,
-            'creatable'  => static::creatableWhen(),
-            'editable'   => static::editableWhen(),
-            'deletable'  => static::deletableWhen()
+            'creatable'  => $this->creatableWhen(),
+            'editable'   => $this->editableWhen(),
+            'deletable'  => $this->deletableWhen()
         ] );
     }
 
