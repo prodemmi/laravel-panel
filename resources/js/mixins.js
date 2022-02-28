@@ -152,7 +152,6 @@ const RouteMixin = {
     goToRoute(name, params = {}) {
 
       this.$router.push({ name, params }).catch(() => { });
-      this.toggleSidebar()
 
     },
     goToBack() {

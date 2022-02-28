@@ -34,7 +34,7 @@
 
         </lava-dialog>
 
-        <div>Total: {{data.all || _.size(data.rows)}}</div>
+        <div v-if="(relation && data.all > 1) || !relation">Total: {{data.all || _.size(data.rows)}}</div>
         <div v-show="!relation" >News: {{data.news}}</div>
 
         <div v-if="!relation" class="flex justify-between items-center w-full my-1">

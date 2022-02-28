@@ -12,7 +12,7 @@
       <lava-button
         @click="$emit('handle-action', selected_action, selected)"
         :disabled="!selected_action"
-        :color="selected_action && selected_action.danger ? 'danger' : null"
+        :color="selected_action && selected_action.danger ? 'danger' : 'primary'"
         no-padding
         >Go
       </lava-button>

@@ -58,9 +58,10 @@
             changed(value, column) {
 
                 this.$emit('on-change', {
-                    relationType: this.data.relation,
+                    relationType: this.data.relationType,
                     relationModel: this.findResource.model,
                     relationPrimaryKey: this.findResource.primaryKey,
+                    update_column: this.data.update_column,
                     column,
                     value
                 })

@@ -184,11 +184,11 @@ class ResourceController extends Controller
 
     }
 
-    private function saveHasOne($model, $toSave, $primaryKey, $column)
+    private function saveHasOne($model, $toSave, $primaryKey, $update_column)
     {
 
         $model->fill( [
-            $column => $toSave->{$primaryKey}
+            $update_column => $toSave->{$primaryKey}
         ] );
 
         return response()->json( TRUE );
@@ -213,10 +213,10 @@ class ResourceController extends Controller
 
     }
 
-    private function saveBelongsTo($model, $toSave, $primaryKey, $column){
+    private function saveBelongsTo($model, $toSave, $primaryKey, $update_column){
 
         $model->fill( [
-            $column => $toSave->{$primaryKey}
+            $update_column => $toSave->{$primaryKey}
         ] );
 
         return response()->json( TRUE );
@@ -468,20 +468,13 @@ class ResourceController extends Controller
         $search     = $request->search;
         $resource   = resolve( $request->resource );
         $rules      = $resource->getRules();
-        
-        $noRelations = [];
-        $relations = [];
 
-        collect($data)->each(function($d)use(&$noRelations, &$relations){
+        $newData = [];
+        collect($data)->each(function($d)use(&$newData){
 
-            if(isset($d['relationType']))
-                $relations[$d['column']] = $d['value'] ?? null;
-            else
-                $noRelations[$d['column']] = $d['value'] ?? null;
+            $newData[$d['column']] = $d['value'] ?? null;
 
         });
-
-        $newData = array_merge($noRelations, $relations);
 
         $validator = Validator::make( $newData, array_intersect_key( $rules, array_flip(array_keys($newData)) ) );
 
@@ -495,81 +488,51 @@ class ResourceController extends Controller
 
             $model = $resource->getModelInstance()->where( $primaryKey, $search )->first();
 
-            if(filled($noRelations)){
+            $toUpdate = [];
+            foreach (array_filter($data, fn($d) => isset($d['update_column']) || !isset($d['relationType'])) as $row) {
 
-                $model->update($noRelations);
+                if(isset($row['relationModel'])){
+                    
+                    $toSave = $this->toSave($row);
+                    $key = resolve($row['relationModel'])->getKeyName();
+                    $toUpdate[$row['update_column']] = $toSave->{$key};
 
+                }else{
+
+                    $toUpdate[$row['column']] = $row['value'];
+
+                }
+                
             }
+
+            $model->update($toUpdate);
             
-            foreach ($relations ?? [] as $column => $value) {
+            foreach (array_filter($data, fn($d) => isset($d['relationType']) && empty($d['update_column'])) as $row) {
 
-                $relation = collect($data)->first(function($d) use ($column){
+                $toSave = $this->toSave($row);
+                $relation = $row['column'];
 
+                $function = $model->{$relation}();
+                $method = 'save';
 
-                    return $d['column'] == $column;
-
-                });
-
-                $relationModel = $relation['relationModel'] ?? null;
-
-                $relationType = $relation['relationType'] ?? null;
-
-                if ( blank( $value ) ) {
-
-                    $value = NULL;
-        
+                if(method_exists($function, 'saveMany')){
+                    $method = 'saveMany';
+                    $before = $model->{$relation}()->get();
+                    $toDelete = $before->filter( function ($record) use ($toSave, $model) {
+                        return !in_array( $record->id, $toSave->pluck( $model->getKeyName() )->toArray() );
+                    } )->first();
+                    optional( $toDelete )->delete();
+                }else{
+                    $method = 'sync';
                 }
 
-                $newColumn = collect($resource->getWith())->first(function($with)use($column){
-                    return str_contains($column, $with);
-                });
-             
-                // $column = $newColumn ?: $column;
-                
-                if($relationModel){
-                    // dump($relationModel);
+                $model->{$relation}()->{$method}($toSave);
 
-                    $relationModel = resolve( $relationModel );
-
-                    $function = is_array($value) ? 'whereIn' : 'where';
-                    $get = is_array($value) ? 'get' : 'first';
-
-                    $key = $relation['relationPrimaryKey'] ?? null ? $relation['relationPrimaryKey'] : $relationModel->getKeyName();
-                    // dump($column, $key, $value, '---');
-
-                    $toSave = $relationModel->{$function}( $key, $value )->{$get}();
-
-                }
-
-                switch ($relationType) {
-                    case 'HasOne':
-                        $this->saveHasOne($model, $toSave, $relationModel->getKeyName(), $column);
-                        break;
-                    case 'HasMany':
-                        $this->saveHasMany($model, $toSave, $column);
-                        break;
-                    case 'BelongsTo':
-                        $this->saveBelongsTo($model, $toSave, $relationModel->getKeyName(), $column);
-                        break;
-                    case 'BelongsToMany':
-                        $this->saveBelongsToMany($model, $toSave, $column);
-                        break;
-                    case 'MorphToMany':
-                        $this->saveMorph($model, $toSave, $column);
-                        break;
-                    case 'MorphedByMany':
-                        $this->saveMorph($model, $toSave, $column);
-                        break;
-                }
-                
             }
-
-            $model->save();
 
             return response()->json( [ 'message' => "Update successfully." ] );
 
-        }
-        catch ( \Exception $e ) {
+        }catch ( \Exception $e ) {
 
             return response()->json( [ 
                 'message' => $e->getMessage() ,
@@ -586,23 +549,15 @@ class ResourceController extends Controller
 
         $data     = $request->data ?? [];
         $resource = resolve( $request->input( 'resource' ) );
-
         $rules    = $resource->getRules();
 
-        $noRelations = [];
-        $relations = [];
+        $newData = [];
 
-        collect($data)->each(function($d)use(&$noRelations, &$relations){
+        collect($data)->each(function($d)use(&$newData){
 
-            if(isset($d['relationType']))
-                $relations[$d['column']] = $d['value'] ?? null;
-            else
-                $noRelations[$d['column']] = $d['value'] ?? null;
+            $newData[$d['column']] = $d['value'] ?? null;
 
         });
-
-        $newData = array_merge($noRelations, $relations);
-
         $validator = Validator::make( $newData, $rules );
 
         if ( $validator->fails() ) {
@@ -613,106 +568,43 @@ class ResourceController extends Controller
 
         try {
 
-            $model = $resource->getModelInstance()->fill($noRelations);
+            $model = $resource->getModelInstance();
 
-            foreach ($relations ?? [] as $column => $value) {
+            $toUpdate = [];
+            foreach (array_filter($data, fn($d) => isset($d['update_column']) || !isset($d['relationType'])) as $row) {
 
-                $relation = collect($data)->first(function($d) use ($column){
+                if(isset($row['relationModel'])){
+                    
+                    $toSave = $this->toSave($row);
+                    $key = resolve($row['relationModel'])->getKeyName();
+                    $toUpdate[$row['update_column']] = $toSave->{$key};
 
-                    return $d['column'] == $column;
+                }else{
 
-                });
-
-                $relationModel = $relation['relationModel'] ?? null;
-
-                $relationType = $relation['relationType'] ?? null;
-
-                if ( blank( $value ) ) {
-
-                    $value = NULL;
-        
-                }
-                
-                if($relationModel){
-
-                    $relationModel = resolve( $relationModel );
-
-                    $function = is_array($value) ? 'whereIn' : 'where';
-                    $get = is_array($value) ? 'get' : 'first';
-
-                    $key = $relation['relationPrimaryKey'] ?? null ? $relation['relationPrimaryKey'] : $relationModel->getKeyName();
-
-                    $toSave = $relationModel->{$function}( $key, $value )->{$get}();
+                    $toUpdate[$row['column']] = $row['value'];
 
                 }
 
-                switch ($relationType) {
-                    case 'HasOne':
-                        $this->saveHasOne($model, $toSave, $relationModel->getKeyName(), $column);
-                        break;
-                    case 'BelongsTo':
-                        $this->saveBelongsTo($model, $toSave, $relationModel->getKeyName(), $column);
-                        break;
-
-                }
                 
             }
 
-            $model = $model->save();
+            $model = $model->create($toUpdate);
+            
+            foreach (array_filter($data, fn($d) => isset($d['relationType']) && empty($d['update_column'])) as $row) {
 
-            foreach ($relations ?? [] as $column => $value) {
+                $toSave = $this->toSave($row);
+                $relation = $row['column'];
 
-                $relation = collect($data)->first(function($d) use ($column){
+                $function = $model->{$relation}();
+                $method = 'save';
 
-
-                    return $d['column'] == $column;
-
-                });
-
-                $relationModel = $relation['relationModel'] ?? null;
-
-                $relationType = $relation['relationType'] ?? null;
-
-                if ( blank( $value ) ) {
-
-                    $value = NULL;
-        
+                if(method_exists($function, 'saveMany')){
+                    $method = 'saveMany';
+                }else{
+                    $method = 'sync';
                 }
 
-                $newColumn = collect($resource->getWith())->first(function($with)use($column){
-                    return str_contains($column, $with);
-                });
-             
-                // $column = $newColumn ?: $column;
-                
-                if($relationModel){
-
-                    $relationModel = resolve( $relationModel );
-
-                    $function = is_array($value) ? 'whereIn' : 'where';
-                    $get = is_array($value) ? 'get' : 'first';
-
-                    $key = $relation['relationPrimaryKey'] ?? null ? $relation['relationPrimaryKey'] : $relationModel->getKeyName();
-
-                    $toSave = $relationModel->{$function}( $key, $value )->{$get}();
-
-                }
-
-                switch ($relationType) {
-                    case 'hasMany':
-                        $this->saveHasMany($model, $toSave, $column);
-                        break;
-                    case 'belongsToMany':
-                        $this->saveBelongsToMany($model, $toSave, $column);
-                        break;
-                    case 'morphToMany':
-                        $this->saveMorph($model, $toSave, $column);
-                        break;
-                    case 'morphedByMany':
-                        $this->saveMorph($model, $toSave, $column);
-                        break;
-
-                }
+                $model->{$relation}()->{$method}($toSave);
                 
             }
 
@@ -728,6 +620,29 @@ class ResourceController extends Controller
             ], 422 );
 
         }
+
+    }
+
+    protected function toSave($row){
+
+        $relationModel = $row['relationModel'] ?? null;
+        $relationPrimaryKey = $row['relationPrimaryKey'] ?? null;
+        $value = $row['value'];
+        
+        if ( blank( $value ) ) {
+
+            $value = NULL;
+
+        }
+
+        $relationModel = resolve( $relationModel );
+
+        $function = is_array($value) ? 'whereIn' : 'where';
+        $get = is_array($value) ? 'get' : 'first';
+
+        $key = $relationPrimaryKey ?? null ? $relationPrimaryKey : $relationModel->getKeyName();
+
+        return $relationModel->{$function}( $key, $value )->{$get}();
 
     }
 

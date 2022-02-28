@@ -10,7 +10,9 @@ class Relation extends Field
 
     public $component = 'relation';
 
-    public $relation;
+    public $relationType;
+
+    public $update_column;
 
     public $resource;
 
@@ -25,11 +27,7 @@ class Relation extends Field
 
         }
 
-        $static = new static( $name, $resource, $relation );
-
-        $static->resource = $resource;
-
-        return $static;
+        return new static( $name, $resource, $relation );
     }
 
     public function __construct($name, $resource, $relation = null)
@@ -41,14 +39,11 @@ class Relation extends Field
 
         }
 
-        $this->relation = $relation;
-        $this->resource = $resource;
-
-        $this->findRelationType(); 
+        $this->resource     = $resource;
 
         parent::__construct( $name, $relation );
 
-        $this->exceptOnIndex()->noSqlSelect();
+        $this->findRelationType()->exceptOnIndex()->noSqlSelect(); 
 
     }
 
@@ -58,42 +53,38 @@ class Relation extends Field
 
         $model = $caller->getModelInstance();
         
-        $name = last((explode('\\', get_class($model->{$this->relation}()))));
+        $relationType = last((explode('\\', get_class($model->{$this->column}()))));
 
-        $function = $model->{$this->relation}();
+        $function = $model->{$this->column}();
 
-        if(method_exists($function, 'getLocalKeyName')){
+        $this->multiple = !(Str::of($relationType)->lower()->contains('one') || !Str::of($relationType)->lower()->contains('many'));
 
-            $column = $function->getLocalKeyName();
+        if($relationType === 'HasOne'){
 
-        }elseif(method_exists($function, 'getOwnerKeyName')){
+            $update_column = $function?->getLocalKeyName();
+            
+        }elseif($relationType === 'BelongsTo'){
 
-            $column = $function->getOwnerKeyName();
-
-        }
-        elseif(method_exists($function, 'getForeignPivotKeyName')){
-
-            $column = $function->getForeignPivotKeyName();
-
-        }
-        else{
-
-            dd($name);
+            $update_column = $function?->getForeignKeyName();
 
         }
         
-        $this->column     = $column;
-        $this->relation   = $name;
-        $this->multiple   = !(Str::of($name)->lower()->contains('one') || !Str::of($name)->lower()->contains('many'));
+        $this->update_column     = $update_column ?? null;
+        $this->relationType      = $relationType;
+
+        return $this;
 
     }
 
     public function toArray()
     {
         return array_merge( parent::toArray(), [
-            'resource' => $this->resource,
-            'multiple' => $this->multiple,
-            'relation' => $this->relation
+            'resource'        => $this->resource,
+            'multiple'        => $this->multiple,
+            'relationType'    => $this->relationType,
+            'relation'        => true,
+            'column'          => $this->column,
+            'update_column'   => $this->update_column
         ] );
     }
 

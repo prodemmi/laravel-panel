@@ -1,7 +1,7 @@
 <template>
 
     <resource-table :relationResource="getResource(resource)"
-                    :relation="data.relation"
+                    :relation="data.relationType"
                     :column="data.column"
                     env="detail"
                     :resource="activeTool()"/>

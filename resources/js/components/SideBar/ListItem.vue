@@ -5,7 +5,7 @@
         <div v-if="$store.getters.getConfig.showDashboard"
              class="side-bar__item"
              :class="{ 'side-bar__item--active': activeSidebar === '/' }"
-             @click="goToRoute('dashboard')">
+             @click="goToRoute('dashboard');toggleSidebar()">
 
             <i class="ri-home-2-line w-4"></i>
 
@@ -139,6 +139,7 @@
                 }
 
                 this.goToRoute(item.tool ? 'tool' : 'index', {name: item.route, resource: item.route});
+                this.toggleSidebar()
 
             },
             defaultOpened(resources){

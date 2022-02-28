@@ -69,13 +69,13 @@
                     .then((res) => {
                         if (res) {
                             Lava.toast(res.data.message, "success");
-                            this.canCreate = false;
-                            this.newData = []
+                            // this.canCreate = false;
+                            // this.newData = []
                         }
                     })
                     .catch((error) => {
                         this.errors = error.response.data.errors || [];
-                        this.canCreate = false;
+                        // this.canCreate = false;
                     });
             },
         },
