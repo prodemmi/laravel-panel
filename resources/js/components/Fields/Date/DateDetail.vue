@@ -7,7 +7,6 @@
 <script>
     import {asHtmlMixin} from '../../../mixins'
     export default {
-        name: "date-detail",
         props: ['data', 'value'],
         mixins: [asHtmlMixin]
     }

@@ -109,7 +109,7 @@ abstract class Resource extends Tools
 
         return $this->getFieldsOfForDesign()->filter( function ($field) {
 
-            return str_contains( $field->column, '.' ) || ( $field->relationType ?? FALSE );
+            return str_contains( $field->column, '.' ) || ( $field->relationType ?? FALSE ) || ( $field->file ?? FALSE );
 
         } )->map( function ($field) {
 

@@ -20,6 +20,7 @@ foreach ( Lava::getPanels() as $panel ) {
         Route::post( 'update', 'ResourceController@update' );
         Route::post( 'store', 'ResourceController@store' );
         Route::post( 'select-search', 'ResourceController@selectSearch' );
+        Route::post( 'searchable-select', 'ResourceController@searchableSelect' );
 
         Route::post( 'store-filter', 'ResourceController@storeFilter' );
         Route::post( 'delete-filter', 'ResourceController@deleteFilter' );
@@ -32,7 +33,6 @@ foreach ( Lava::getPanels() as $panel ) {
         Route::get( 'media/get-media', 'MediaController@getMedia' );
         
         Route::post( 'check-license', 'ResourceController@checkLicense' );
-        Route::post( 'get-last-counts', 'ResourceController@getLastCounts' );
 
     } );
 

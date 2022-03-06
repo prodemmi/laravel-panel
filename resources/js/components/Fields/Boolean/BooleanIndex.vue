@@ -12,7 +12,6 @@
 import { asHtmlMixin } from "../../../mixins";
 
 export default {
-  name: "boolean-index",
   props: ["data", "value"],
   mixins: [asHtmlMixin],
 };

@@ -22,7 +22,6 @@
     import {asHtmlMixin} from '../../../mixins'
 
     export default {
-        name: "ckeditor-detail",
         props: ['data', 'value'],
         mixins: [asHtmlMixin],
         data() {

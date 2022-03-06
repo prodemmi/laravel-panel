@@ -13,7 +13,6 @@
     import {asHtmlMixin} from '../../../mixins'
 
     export default {
-        name: "text-area-index",
         props: ['data', 'value'],
         mixins: [asHtmlMixin]
     }

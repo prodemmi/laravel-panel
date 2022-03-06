@@ -11,7 +11,6 @@
 import { asHtmlMixin } from "../../../mixins";
 
 export default {
-  name: "badge-index",
   props: ["data", "value"],
   mixins: [asHtmlMixin]
 };

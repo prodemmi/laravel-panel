@@ -8,7 +8,7 @@ export default new Vuex.Store({
         loading: false,
         config: [],
         sidebar_collapsed: true,
-        last_counts: []
+        changing_route: false
     },
     getters: {
         getLoading: state => {
@@ -17,14 +17,11 @@ export default new Vuex.Store({
         getConfig: state => {
             return state.config
         },
-        getLastCounts: state => {
-            return state.last_counts
-        },
-        getLastCounts: state => {
-            return state.last_counts
-        },
         getSidebarCollapsed: state => {
             return state.sidebar_collapsed
+        },
+        getChangingRoute: state => {
+            return state.changing_route
         }
     },
     mutations: {
@@ -36,25 +33,14 @@ export default new Vuex.Store({
         setConfig(state, config) {
             state.config = config
         },
-        addLastCounts(state, data) {
-
-            var newData = JSON.parse(localStorage.getItem('last_counts')) || []
-
-            newData.push(data)
-            newData = _.uniqBy(newData.reverse(), 'resource')
-            
-            localStorage.setItem('last_counts', JSON.stringify(newData))
-            state.last_counts = newData
-        },
-        setLastCounts(state, data) {
-
-            localStorage.setItem('last_counts', JSON.stringify(data))
-            state.last_counts = data
-
-        },
         toggleSidebar(state, toggle) {
 
             state.sidebar_collapsed = toggle
+
+        },
+        setChangingRoute(state, changing) {
+
+            state.changing_route = changing
 
         }
     }

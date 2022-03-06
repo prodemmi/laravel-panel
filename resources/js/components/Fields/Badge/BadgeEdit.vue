@@ -1,16 +1,45 @@
 <template>
 
-    <select v-bind="data.attributes" v-model="model" class="select" @change="onChange">
-        <option v-for="(title, value) in data.options" :key="value" :value="value" v-text="title"></option>
-    </select>
+  <VueSelect
+      v-bind="data.attributes"
+      v-model="model"
+      @input="change"
+      :options="_.values(data.options)"
+      :reduce="(option) => option">
+  </VueSelect>
 
 </template>
 
 <script>
-import { FormMixin } from "../../../mixins";
+import VueSelect from "vue-select";
 export default {
-  name: "badge-edit",
   props: ["data", "value"],
-  mixins: [FormMixin]
+  components: {
+    VueSelect
+  },
+  data(){
+    return {
+      model: null
+    }
+  },
+  mounted(){
+
+    this.$nextTick(() => {
+
+      this.model = this.data.options[this.value]
+
+    })
+
+  },
+  methods: {
+    change(e) {
+
+      this.$emit("on-change", {
+        column: this.data.column,
+        value: _.invert(_.values(_.keyBy(this.data.options)))[e]
+      });
+
+    },
+  }
 };
 </script>

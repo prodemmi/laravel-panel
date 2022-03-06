@@ -34,18 +34,17 @@
 
         </lava-dialog>
 
-        <div v-if="(relation && data.all > 1) || !relation">Total: {{data.all || _.size(data.rows)}}</div>
-        <div v-show="!relation" >News: {{data.news}}</div>
+        <div v-if="(relation && data.all > 1) || !relation">Total: {{data.total || _.size(data.rows)}}</div>
 
         <div v-if="!relation" class="flex justify-between items-center w-full my-1">
 
-            <div class="flex justify-between items-center">
-
+                        <div class="flex justify-between items-center">
+                
                 <SearchBar :search-in="resource.searches"
-                           @on-search="search"/>
+                            @on-search="search"/>
 
                 <lava-button @click="getData(true)"
-                             :no-padding="true">
+                            :no-padding="true">
 
                     <i class="ri-refresh-line"></i>
 
@@ -60,19 +59,19 @@
                     </lava-button>
 
                     <div v-show="show_visibility"
-                         class="absolute z-100 rounded bg-white shadow-md p-2"
-                         style="width: max-content">
+                        class="absolute z-100 rounded bg-white shadow-md p-2"
+                        style="width: max-content">
 
                         <div v-for="(column, index) in data.headers"
-                             :key="index"
-                             class="flex flex-wrap">
+                            :key="index"
+                            class="flex flex-wrap">
 
                             <span style="min-width: 120px">{{ column.name }}</span>
 
                             <input v-model="shows[index].show"
-                                   type="checkbox"
-                                   class="my-0.5"
-                                   :disabled="(shows[index].show && index <= 2) || column.column === resource.primaryKey"/>
+                                type="checkbox"
+                                class="my-0.5"
+                                :disabled="(shows[index].show && index <= 2) || column.column === resource.primaryKey"/>
 
                         </div>
 
@@ -81,26 +80,16 @@
                 </div>
 
                 <filters :resource="resource" @set-filter="doFilter"/>
+                
+            </div>
 
-                <div class="relative" v-click-outside="hideExport">
+            <div class="flex">
 
-                    <lava-button @click="show_export = true" :no-padding="true">
-
-                        <i class="ri-download-2-line"></i>
-
-                    </lava-button>
-
-                    <div v-show="show_export"
-                         class="absolute z-100 rounded bg-white shadow-md p-2"
-                         style="width: max-content">
-
-                        <div v-for="type in ['EXCEL', 'JSON', 'PRINT']" :key="type">
-                            <lava-button @click="exportData(type)">{{ type }}</lava-button>
-                        </div>
-
-                    </div>
-
-                </div>
+                <ActionBar  v-if="selected.length"
+                    :actions="resource.actions"
+                    :selected="selected"
+                    :showClose="false"
+                    @handle-action="handleAction"/>
 
                 <div v-show="!selected.length" class="relative" v-click-outside="hideActions">
 
@@ -111,8 +100,8 @@
                     </lava-button>
 
                     <div v-show="show_actions"
-                         class="absolute z-100 rounded bg-white shadow-md p-2"
-                         style="width: max-content">
+                            class="absolute ltr:right-0 rtl:left-0 z-100 rounded bg-white shadow-md p-2"
+                            style="width: max-content">
 
                         <ActionBar
                             :actions="resource.actions"
@@ -124,18 +113,27 @@
 
                 </div>
 
-                <ActionBar  v-if="selected.length"
-                            :actions="resource.actions"
-                            :selected="selected"
-                            :showClose="false"
-                            @handle-action="handleAction"/>
+                <div class="relative" v-click-outside="hideExport">
+
+                    <lava-button @click="show_export = true" :no-padding="true">
+
+                        <i class="ri-download-2-line"></i>
+
+                    </lava-button>
+
+                    <div v-show="show_export"
+                        class="absolute z-100 ltr:right-0 rtl:left-0 rounded bg-white shadow-md p-2"
+                        style="width: max-content">
+
+                        <div v-for="type in ['EXCEL', 'JSON', 'PRINT']" :key="type">
+                            <lava-button @click="exportData(type)">{{ type }}</lava-button>
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
-
-            <lava-button v-if="resource.creatable"
-                         @click="goToRoute('create', { resource: resource.route })">
-                Create {{ resource.singularLabel }}
-            </lava-button>
 
         </div>
 
@@ -181,7 +179,7 @@
 
                                         <span v-if="header.sortable"
                                             @click="setSort(header.column)"
-                                            class="cursor-pointer ml-2">
+                                            class="cursor-pointer ltr:ml-2 rtl:mr-2">
 
                                             <template v-if="query.sort.column === header.column">
 
@@ -439,11 +437,6 @@
 
                     this.setLoading(true);
 
-                    this.$store.commit('addLastCounts', {
-                        resource: this.resource.resource,
-                        new_count: 0
-                    })
-
                     this.updateConfig( () => {
 
                         this.$http
@@ -466,12 +459,6 @@
                                 this.checkIndeterminate();
 
                                 this.setLoading(false);
-
-                                if(!this.relation){
-                                
-                                    this.$store.commit('addLastCounts', res.data.last)
-
-                                }
 
                             })
 
@@ -663,6 +650,12 @@
             exportPrint(filename, data) {
 
                 var root = document.createElement('div');
+
+                if(this.$store.getters.getConfig.rtl){
+
+                    root.style.direction = 'rtl'
+
+                }
 
                 var header = document.createElement('h3');
                 header.innerHTML = this.resource.pluralLabel

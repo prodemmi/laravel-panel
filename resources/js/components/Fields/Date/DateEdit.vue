@@ -30,7 +30,6 @@
     import DatePicker from 'vue-persian-datetime-picker'
 
     export default {
-        name: "date-detail",
         props: ['data', 'value'],
         data() {
             return {

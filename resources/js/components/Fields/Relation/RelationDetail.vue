@@ -13,7 +13,6 @@
     import ResourceTable from '../../Table/ResourceTable'
 
     export default {
-        name: "relation-detail",
         components: {
             ResourceTable
         },

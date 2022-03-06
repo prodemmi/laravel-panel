@@ -45,26 +45,13 @@
 
                         </div>
 
-                        <div class="flex items-center justify-between w-full">
-
-                            <span v-if="item.tool">
+                        <span v-if="item.tool">
                             {{ item.singularLabel }}
-                            </span>
+                        </span>
 
-                            <span v-else>
-                                {{ item.pluralLabel }}
-                            </span>
-
-                            <template name="fade">
-
-                                <span v-if="getLastCounts(item.resource) > 0"
-                                      class="flex items-center justify-center bg-danger p-0.5 w-3 h-3 shadow rounded-full">
-                                    {{ getLastCounts(item.resource) }}
-                                </span>
-
-                            </template>
-
-                        </div>
+                        <span v-else>
+                            {{ item.pluralLabel }}
+                        </span>
 
                     </div>
             
@@ -145,23 +132,6 @@
             defaultOpened(resources){
 
                 return !!_.find(resources, {route: this.activeSidebar})
-
-            },
-            getLastCounts(resource){
-                
-                var t = _.find(this.$store.getters.getLastCounts, { resource })
-
-                if(t){
-
-                    if(t?.new_count > 0){
-                        return t.new_count
-                    }
-
-                    return 0
-                
-                }
-
-                return 0
 
             }
         }

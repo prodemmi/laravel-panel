@@ -2,19 +2,20 @@
 
 @import "~sweetalert2/dist/sweetalert2.min.css";
 @import "~vue-js-modal/dist/styles.css";
+@import "~vue-select/dist/vue-select.css";
 
 :root {
     --transparent         : transparent;
     --white               : white;
-    --black               : #22292f;
+    --black               : #141f28;
 
-    --primary             : #232f3d;
-    --warning             : yellow;
-    --success             : green;
-    --danger              : red;
-    --info                : blue;
+    --primary             : rgb(25, 35, 52);
+    --warning             : rgb(255, 255, 43);
+    --success             : rgb(9, 158, 9);
+    --danger              : rgb(255, 24, 24);
+    --info                : rgb(73, 194, 255);
 
-    --primary-light       : #2d3d4f;
+    --primary-light       : rgb(24, 34, 50);
     --warning-light       : yellow;
     --success-light       : green;
     --danger-light        : red;
@@ -191,7 +192,7 @@ body {
 
 .card{
 
-    @apply flow-root my-2 mx-1 shadow-lg w-auto h-full rounded-md bg-primary-light;
+    @apply flow-root my-2 mx-1 shadow-lg h-full rounded-md bg-primary-light;
 
 }
 
@@ -261,7 +262,7 @@ body {
 }
 
 .dropdown--list{
-    @apply absolute py-1 px-2 bg-white w-full text-base list-none z-100 text-left rounded-lg shadow-lg mt-1 m-0 border-none;
+    @apply absolute py-1 px-2 bg-white w-full text-base list-none z-100 ltr:text-left rtl:text-right rounded-lg shadow-lg mt-1 m-0 border-none;
 }
 
 .dropdown--list__item{
@@ -283,7 +284,6 @@ body {
 .spinner > div {
     width: 8px;
     height: 8px;
-    background-color: whitesmoke;
     border-radius: 100%;
     display: inline-block;
     -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
@@ -365,7 +365,7 @@ body {
 /* Resource Table */
 
 .resource-table{
-    @apply rounded-lg min-w-full border-collapse text-left;
+    @apply rounded-lg min-w-full border-collapse ltr:text-left rtl:text-right;
 }
 
 .resource-table__th{
@@ -437,18 +437,23 @@ body {
 
 /* Select */
 
+.vs__dropdown-toggle {
+  height: 100%;
+  @apply bg-transparent !important;
+}
+
 .vs__selected {
-    @apply bg-primary text-white !important;
+    @apply bg-transparent text-black !important;
 }
 
 .vs__deselect {
-    @apply fill-current text-white px-1 !important;
+    @apply fill-current text-primary px-1 !important;
 }
 
 /* Dialog */
 
 .swal2-popup > * {
-    @apply text-left !important;
+    @apply ltr:text-left rtl:text-right !important;
 }
 
 .swal2-actions {
@@ -456,7 +461,7 @@ body {
 }
 
 .swal2-input-label {
-    @apply text-left w-full !important;
+    @apply ltr:text-left rtl:text-right w-full !important;
 }
 
 .swal2-input {
@@ -466,8 +471,8 @@ body {
 /* Scrollbar */
 
 ::-webkit-scrollbar {
-  width  : 8px;
-  height : 8px;
+  width  : 6px;
+  height : 6px;
 }
 
 ::-webkit-scrollbar-track {

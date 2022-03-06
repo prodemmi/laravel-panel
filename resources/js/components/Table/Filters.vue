@@ -1,155 +1,237 @@
 <template>
+  <div class="relative">
+    <lava-button
+      @click="show"
+      v-click-outside="hideFilters"
+      :color="
+        active_filter ||
+        show_editor ||
+        is_search ||
+        (filters && filters.length > 0)
+          ? 'info'
+          : 'primary'
+      "
+      :no-padding="true"
+    >
+      <i class="ri-filter-2-line"></i>
+    </lava-button>
 
-    <div class="relative">
+    <div
+      v-show="show_filters"
+      class="absolute z-100 rounded bg-white shadow-md p-2"
+      style="width: 200px"
+    >
+      <ul class="list-none leading-3 m-0 p-0">
+        <li
+          v-for="filter in resource.filters"
+          :key="filter.id"
+          class="flex justify-between p-2 rounded-md hover:bg-gray-200"
+          :class="[
+            (active_filter && active_filter.title) === filter.title
+              ? 'bg-gray-200 text-gray-800'
+              : '',
+          ]"
+        >
+          <div @click="setFilter(filter)" class="cursor-pointer">
+            {{ filter.title }}
+          </div>
 
-        <lava-button @click="show"
-                     v-click-outside="hideFilters"
-                     :color="active_filter || show_editor || is_search || (filters && filters.length > 0) ? 'info' : 'primary'"
-                     :no-padding="true">
-            <i class="ri-filter-2-line"></i>
-        </lava-button>
+          <div>
+            <span class="cursor-pointer ltr:mr-1 rtl:ml-1" @click="editFilter(filter)">
+              <i class="ri-edit-line"></i>
+            </span>
 
-        <div v-if="show_filters"
+            <span
+              class="text-danger cursor-pointer"
+              @click="deleteFilter(filter)"
+            >
+              <i class="ri-delete-bin-line"></i>
+            </span>
+          </div>
+        </li>
 
-             class="absolute z-100 rounded bg-white shadow-md p-2"
-             style="width: 200px;">
+        <hr v-if="resource.filters.length > 0" />
 
-            <ul class="list-none leading-3 m-0 p-0">
+        <li
+          class="
+            flex flex-col
+            justify-start
+            w-full
+            p-2
+            cursor-pointer
+            hover:text-gray-800
+          "
+          @click="
+            show_editor = true;
+            show_filters = false;
+          "
+        >
+          Create custom filter
+        </li>
 
-                <li v-for="filter in resource.filters"
-                    :key="filter.id"
-                    class="flex justify-between p-2 rounded-md hover:bg-gray-200"
-                    :class="[ (active_filter && active_filter.title) === filter.title ? 'bg-gray-200 text-gray-800' :
-                    '']">
-
-                    <div @click="setFilter(filter)" class="cursor-pointer">{{ filter.title }}</div>
-
-                    <div>
-
-                        <span class="cursor-pointer mr-1"
-                              @click="editFilter(filter)">
-                              <i class="ri-edit-line"></i>
-                        </span>
-
-                        <span class="text-danger cursor-pointer"
-                              @click="deleteFilter(filter)">
-                              <i class="ri-delete-bin-line"></i>
-                        </span>
-
-                    </div>
-
-                </li>
-
-                <hr v-if="resource.filters.length > 0"/>
-
-                <li class="flex flex-col justify-start w-full p-2 cursor-pointer hover:text-gray-800"
-                    @click="show_editor = true;show_filters = false">
-                    Create custom filter
-                </li>
-
-                <li v-if="resource.filters.length > 0 && active_filter"
-                    class="flex flex-col justify-start w-full p-2 cursor-pointer hover:text-gray-800"
-                    @click="setFilter(null)">
-                    Disable filter
-                </li>
-
-            </ul>
-
-        </div>
-
-        <div v-if="show_editor"
-             class="absolute flex flex-col z-100 rounded bg-white shadow-md p-2"
-             style="min-width: 500px">
-
-            <div v-for="(filter, i) in filters" class="flex justify-start text-lg p-1" :key="i">
-
-                <div class="flex items-start justify-between text-lg w-full">
-
-                    <span style="width: 25%;min-width: 120px;max-width: 180px;">{{ filter.name }}</span>
-                    
-                    <component class="w-full mr-1"
-                               :key="filter.column"
-                               :is="filter.component + '-edit'"
-                               :value="filter.value"
-                               :data="filter"
-                               :resource="filter.resource"
-                               :disabled="filter.where.where === 'null'"
-                               @on-change="changed"/>
-
-                    <span v-text="filter.where.label"
-                          @click="changeWhere(filter.component, filter.column)"
-                          style="width: 52px;height: 32px;"
-                          :class="{ 'bg-danger': filter.where.where === 'null' }"
-                          class="rounded-full cursor-pointer bg-primary mr-1 text-white flex items-center justify-center">
-                    </span>
-
-                    <i @click="removeFilter(i)"
-                       style="width: 52px;height: 32px;"
-                       class="ri-arrow-up-line rounded-full cursor-pointer bg-primary text-white flex items-center justify-center">
-                    </i>
-
-                </div>
-
-            </div>
-
-            <lava-button v-if="!show_fields"
-                         @click="show_fields = true"
-                         small
-                         :no-padding="true">
-
-                +
-
-            </lava-button>
-
-            <select v-if="show_fields" class="select" @change="addQuery">
-
-                <option :value="null" selected></option>
-
-                <option v-for="field in getFields(resource.fields)" :value="field.column" :key="field.column">
-
-                    {{ field.name }}
-
-                </option>
-
-            </select>
-
-            <div class="flex justify-end mt-2">
-                
-                <lava-button v-if="filters && filters.length > 0"
-                             @click="doFilter(filters)"
-                             small
-                             color="success"
-                             :disabled="show_fields"
-                             :no-padding="true">
-                    Search
-                </lava-button>
-
-                <lava-button v-if="filters && filters.length > 0"
-                             @click="createFilter"
-                             small
-                             :no-padding="true">
-                    {{ edit_mode ? 'Edit' : 'Save' }}
-                </lava-button>
-
-                <lava-button @click="cancelFilter"
-                             color="danger"
-                             small
-                             :no-padding="true">
-                    Cancel
-                </lava-button>
-
-            </div>
-
-        </div>
-
+        <li
+          v-if="resource.filters.length > 0 && active_filter"
+          class="
+            flex flex-col
+            justify-start
+            w-full
+            p-2
+            cursor-pointer
+            hover:text-gray-800
+          "
+          @click="setFilter(null)"
+        >
+          Disable filter
+        </li>
+      </ul>
     </div>
 
+    <div
+      v-show="show_editor"
+      class="absolute flex flex-col z-100 rounded bg-white shadow-md p-2"
+      style="min-width: 540px"
+    >
+      <div
+        v-for="(filter, i) in filters"
+        class="flex justify-start text-lg p-1"
+        :key="i"
+      >
+        <div class="flex items-start justify-between text-lg w-full">
+          <span style="width: 25%; min-width: 120px; max-width: 180px">{{
+            filter.name
+          }}</span>
+
+          <component
+            class="w-full ltr:mr-1 rtl:ml-1"
+            :key="filter.column"
+            :is="filter.component + '-edit'"
+            :value="filter.value"
+            :data="filter"
+            :resource="filter.resource"
+            :disabled="filter.where.where === 'NULL'"
+            @on-change="changed"
+          />
+
+          <lava-tooltip :text="filter.where.tooltip">
+            <span
+              v-text="filter.where.label"
+              @click="changeWhere(filter.component, filter.column)"
+              style="width: 32px; height: 32px"
+              :class="{ 'bg-danger': filter.where.where === 'NULL' }"
+              class="
+                rounded-full
+                cursor-pointer
+                bg-primary
+                ltr:mr-1
+                rtl:ml-1
+                text-white
+                flex
+                w-fit
+                items-center
+                justify-center
+              "
+            >
+            </span>
+          </lava-tooltip>
+
+          <lava-tooltip :text="filter.con.tooltip">
+            <span
+              v-text="filter.con.label"
+              @click="changeC(filter)"
+              style="width: 32px; height: 32px"
+              class="
+                rounded-full
+                cursor-pointer
+                bg-primary
+                ltr:mr-1
+                rtl:ml-1
+                text-white
+                flex
+                w-fit
+                items-center
+                justify-center
+              "
+            >
+            </span>
+          </lava-tooltip>
+
+          <i
+            @click="removeFilter(i)"
+            style="width: 52px; height: 32px"
+            class="
+              ri-close-line
+              rounded-full
+              cursor-pointer
+              bg-primary
+              text-white
+              flex
+              items-center
+              justify-center
+            "
+          >
+          </i>
+        </div>
+      </div>
+
+      <lava-button
+        v-if="!show_fields"
+        @click="show_fields = true"
+        small
+        :no-padding="true"
+        >+
+      </lava-button>
+
+      <VueSelect
+        v-show="show_fields"
+        v-model="selected_field"
+        placeholder="Select a column"
+        @input="addQuery"
+        :options="getOptions"
+        :reduce="(option) => option">
+      </VueSelect>
+
+      <div class="flex justify-end mt-2">
+        <lava-button
+          v-if="filters && filters.length > 0"
+          @click="doFilter(filters)"
+          small
+          color="success"
+          :disabled="show_fields"
+          :no-padding="true"
+        >
+          Search
+        </lava-button>
+
+        <lava-button
+          v-if="filters && filters.length > 0"
+          @click="createFilter"
+          small
+          :no-padding="true"
+        >
+          {{ edit_mode ? "Edit" : "Save" }}
+        </lava-button>
+
+        <lava-button
+          @click="cancelFilter"
+          color="danger"
+          small
+          :no-padding="true"
+        >
+          Cancel
+        </lava-button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
+
+    import VueSelect from "vue-select";
     export default {
-        name: "filters",
         props: ['resource'],
+        components: {
+            VueSelect
+        },
         data() {
             return {
                 show_filters: false,
@@ -159,36 +241,59 @@
                 filters: [],
                 is_search: false,
                 edit_mode: false,
+                selected_field: null,
                 wheres: [
                     {
-                        label: '=',
-                        where: '='
+                        label: 'E',
+                        where: '=',
+                        tooltip: 'Equal'
                     },
                     {
-                        label: '>=',
-                        where: '>='
+                        label: 'NE',
+                        where: '<>',
+                        tooltip: 'Not equal'
                     },
                     {
-                        label: '<=',
-                        where: '<='
+                        label: 'GT',
+                        where: '>=',
+                        tooltip: 'Greater than'
+                    },
+                    {
+                        label: 'LT',
+                        where: '<=',
+                        tooltip: 'Less than'
                     },
                     {
                         label: '∅',
-                        where: 'NULL'
-                    },
-                    {
-                        label: 'NQ',
-                        where: '<>'
+                        where: 'NULL',
+                        tooltip: 'Is empty'
                     },
                     {
                         label: 'L',
-                        where: 'LIKE'
+                        where: 'LIKE',
+                        tooltip: 'Containse'
+                    },
+                    {
+                        label: 'NL',
+                        where: 'NOT LIKE',
+                        tooltip: 'Not containse'
                     },
                     {
                         label: 'RE',
-                        where: 'REGEXP'
+                        where: 'REGEXP',
+                        tooltip: 'Regex'
                     }
                 ]
+            }
+        },
+        computed: {
+            getOptions(){
+                
+                var fields = _.filter(this.getFields(this.resource.fields), (f) => f.component !== 'image')
+                return _.map(fields, (field) => ({
+                    label: field.name,
+                    value: field.column
+                }))
             }
         },
         methods: {
@@ -228,7 +333,7 @@
             },
             createFilter() {
                 
-                this.setLoading(-1)
+                Lava.showLoading(-1)
                 Lava.confirm('Create filter', '', false, {
                     confirmButtonText: this.edit_mode ? 'Edit' : 'Create',
                     input: 'text',
@@ -252,7 +357,7 @@
                                 this.cancelFilter()
                                 this.hideEditor()
                                 this.updateConfig()
-                                this.setLoading(false)
+                                Lava.showLoading(false)
 
                             }
 
@@ -264,6 +369,7 @@
 
             },
             changeWhere(component, column) {
+              console.log(component.toLowerCase())
 
                 let filter = _.find(this.filters, {column})
                 let wheres = filter.wheres || this.wheres
@@ -276,13 +382,13 @@
                         return !['<=', '>=', 'LIKE', 'REGEXP'].includes(where.where)
                     })
 
-                } else if (['id', 'date', 'datetime', 'timezone', 'number', 'currency'].includes(component.toLowerCase())) {
+                } else if (['id', 'date', 'date-time', 'timezone', 'number', 'currency'].includes(component.toLowerCase())) {
 
                     filter.wheres = _.filter(wheres, (where) => {
                         return !['LIKE', 'REGEXP'].includes(where.where)
                     })
 
-                } else if (['text', 'code', 'ckeditor', 'textarea'].includes(component.toLowerCase())) {
+                } else if (['text', 'code', 'cke-ditor', 'text-area'].includes(component.toLowerCase())) {
 
                     filter.wheres = _.filter(wheres, (where) => {
                         return !['<=', '>='].includes(where.where)
@@ -291,7 +397,7 @@
                 } else if (filter.relation) {
 
                 filter.wheres = _.filter(wheres, (where) => {
-                    return ['=', '<>'].includes(where.where)
+                    return ['=', '<>', 'NULL'].includes(where.where)
                 })
 
                 }else {
@@ -302,6 +408,28 @@
 
                 filter.where = filter.wheres[0]
 
+            },
+            changeC(filter){
+
+                var cons = [
+                    {
+                        label: 'A',
+                        con: 'and',
+                        tooltip: 'And'
+                    },
+                    {
+                        label: 'O',
+                        con: 'or',
+                        tooltip: 'Or'
+                    }
+                ]
+
+                if(filter?.con.con === 'and'){
+                    filter.con = cons [1]
+                }else{
+                    filter.con = cons [0]
+                }
+                
             },
             arrayRotate(array) {
                 array.push(array.shift());
@@ -317,7 +445,7 @@
             },
             deleteFilter(filter) {
 
-                this.setLoading(-1)
+                Lava.showLoading(-1)
                 Lava.confirm('Delete filter', '', true).then(res => {
 
                     if (res.isConfirmed) {
@@ -331,8 +459,9 @@
 
                                 Lava.toast(response.data.message, 'success')
                                 this.cancelFilter()
+                                this.hideEditor()
                                 this.updateConfig()
-                                this.setLoading(false)
+                                Lava.showLoading(false)
 
                             }
 
@@ -369,31 +498,48 @@
 
             },
             addQuery(value) {
+                
+                const filter = _.find(this.flattenFields(this.resource.fields), {column: value.value})
 
-                const filter = _.find(this.flattenFields(this.resource.fields), {column: value.target.value})
+                filter.column += '__' + Math.ceil(Math.random()*1000)
 
                 filter.where = {
-                    label: '=',
-                    where: '='
+                    label: 'E',
+                    where: '=',
+                    tooltip: 'Equal'
+                }
+
+                filter.con = {
+                    label: 'A',
+                    con: 'and',
+                    tooltip: 'And'
                 }
 
                 this.filters.push(filter)
 
+                this.selected_field = null
+
                 this.show_fields = false
+                console.log(this.filters)
 
             },
             getFields(fields) {
 
                 return _.filter(this.flattenFields(fields), (field) => {
 
-                    return !['password', 'avatar'].includes(field.component) && field.showOnIndex
+                    return !['password', 'avatar'].includes(field.component)
 
                 })
 
             },
             changed(data) {
 
-                _.find(this.filters, {column: data.column}).value = data.value
+                if(data?.value){ 
+
+                    _.find(this.filters, {column: data.column}).value = data.value
+                    console.log(this.filters)
+
+                }
 
             }
         }
@@ -401,5 +547,4 @@
 </script>
 
 <style scoped>
-
 </style>

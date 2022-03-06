@@ -22,6 +22,8 @@ function createRouter() {
 
 async function beforeEach(to, from, next) {
 
+    router.app.$store.commit('setChangingRoute', true)
+
     if(_.isEmpty(to.matched)){
         next('/')
     }
@@ -32,6 +34,7 @@ async function beforeEach(to, from, next) {
 
 async function afterEach(to, from) {
 
+    setTimeout(() => router.app.$store.commit('setChangingRoute', false), 2000);
 
 }
 

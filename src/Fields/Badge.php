@@ -13,27 +13,24 @@ class Badge extends Field
     public $map      = [];
     public $options      = [];
     public $types
-                      = [
-            'danger'  => 'bg-red-600',
-            'success' => 'bg-green-600',
-            'info'    => 'bg-blue-600',
-            'warning' => 'bg-yellow-600',
-
-        ];
+    = [
+        'danger'  => 'bg-red-600',
+        'success' => 'bg-lime-600',
+        'info'    => 'bg-blue-600',
+        'warning' => 'bg-yellow-600'
+    ];
 
     public function __construct($name, $column = NULL)
     {
-        parent::__construct( $name, $column );
+        parent::__construct($name, $column);
 
-        $this->displayValue( function ($value) {
+        $this->displayValue(function ($value) {
 
             return $this->options[$value];
-
-        } );
+        });
 
         $this->setOnIndex();
         $this->setOnDetail();
-
     }
 
     public function map(array $map)
@@ -42,7 +39,6 @@ class Badge extends Field
         $this->map = $map;
 
         return $this;
-
     }
 
     public function options(array $options)
@@ -51,7 +47,6 @@ class Badge extends Field
         $this->options = $this->callableValue($options);
 
         return $this;
-
     }
 
     public function types(array $types)
@@ -60,16 +55,14 @@ class Badge extends Field
         $this->types = $types;
 
         return $this;
-
     }
 
     public function toArray()
     {
-        return array_merge( parent::toArray(), [
+        return array_merge(parent::toArray(), [
             'data'  => $this->map,
             'options'  => $this->options,
             'types' => $this->types
-        ] );
+        ]);
     }
-
 }

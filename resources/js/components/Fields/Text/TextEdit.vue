@@ -9,7 +9,6 @@
     import {FormMixin} from '../../../mixins'
 
     export default {
-        name: "text-edit",
         props: ['data', 'value'],
         mixins: [FormMixin]
     }

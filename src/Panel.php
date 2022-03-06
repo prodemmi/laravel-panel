@@ -67,7 +67,7 @@ class Panel
      *
      * @var string
      */
-    public $RTL = FALSE;
+    public $rtl = FALSE;
 
     /**
      * List of the registered metrics classes
@@ -81,7 +81,7 @@ class Panel
      *
      * @var string
      */
-    public $local = 'en';
+    public $locale = 'en';
 
     /**
      * List of the registered metrics classes
@@ -189,9 +189,9 @@ class Panel
      * @param $rtl
      * @return static
      */
-    public function rtl($rtl = FALSE)
+    public function rtl($rtl = TRUE)
     {
-        $this->RTL = $this->callableValue( $rtl );
+        $this->rtl = $this->callableValue( $rtl ) ? 'rtl': 'ltr';
 
         return $this;
     }
@@ -212,12 +212,12 @@ class Panel
     /**
      * Register the given metrics.
      *
-     * @param string $local
+     * @param string $locale
      * @return static
      */
-    public function local($local = 'en')
+    public function locale($locale = 'en')
     {
-        $this->local = $this->callableValue( $local );
+        $this->locale = $this->callableValue( $locale );
 
         return $this;
     }
@@ -252,7 +252,7 @@ class Panel
      */
     public function getRTL()
     {
-        return $this->RTL;
+        return $this->rtl ? 'rtl': 'ltr';
     }
 
     /**
@@ -266,9 +266,9 @@ class Panel
     /**
      * @return string
      */
-    public function getLocal()
+    public function getLocale()
     {
-        return $this->local;
+        return $this->locale;
     }
 
     /**
@@ -319,6 +319,7 @@ class Panel
         return [
             'name'          => $this->name,
             'baseUrl'       => $this->route,
+            'rtl'           => $this->getRTL() === 'rtl',
             'showDashboard' => $this->showDashboard,
             'resources'     => $this->getResources(),
             'sidebarItems'  => $this->sideBarItems(),

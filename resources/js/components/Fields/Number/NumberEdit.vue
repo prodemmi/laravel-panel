@@ -9,7 +9,6 @@
     import {FormMixin} from '../../../mixins'
 
     export default {
-        name: "number-detail",
         mixins: [FormMixin],
         props: ['data', 'value']
     }

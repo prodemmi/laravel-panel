@@ -32,16 +32,16 @@
 
         </lava-dialog>
 
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between" :class="isMobile ? 'flex-col place-content-end' : ''">
 
             <div class="flex items-center justify-between">
 
                 <i @click="goToBack()"
-                class="ri-arrow-left-line cursor-pointer text-lg w-fit"></i>
+                class="cursor-pointer text-lg w-fit" :class="$store.getters.getConfig.rtl ? 'ri-arrow-right-line': 'ri-arrow-left-line'"></i>
 
                 <ActionBar 
                     v-if="!_.isEmpty(active_actions)"
-                    class="ml-2"
+                    class="ltr:ml-2 rtl:mr-2"
                     :actions="active_actions"
                     :selected="[data]"
                     :showClose="false"

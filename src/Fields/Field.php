@@ -17,8 +17,6 @@ class Field extends Element
 
     public $name;
 
-    public $value;
-
     public $sortable = FALSE;
 
     public $nullable = FALSE;

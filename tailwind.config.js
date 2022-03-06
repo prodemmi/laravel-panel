@@ -1,5 +1,4 @@
 let colors = {
-
     transparent: "var(--transparent)",
     black: "var(--black)",
     white: "var(--white)",
@@ -20,17 +19,16 @@ let colors = {
     success: "var(--success)",
 
     tooltip: "var(--tooltip)",
-    "tooltip-text": "var(--tooltip-text)",
+    "tooltip-text": "var(--tooltip-text)"
 };
 
 module.exports = {
     // important: true,
-    purge: [
+    content: [
         "./resources/**/*.blade.php",
         "./resources/**/*.js",
         "./resources/**/*.vue",
     ],
-    darkMode: "class",
     theme: {
         fontFamily: {
             sans: ["Graphik", "sans-serif"],
@@ -73,6 +71,7 @@ module.exports = {
         },
         spacing: {
             0: "0",
+            '0.5': "4px",
             1: "8px",
             2: "12px",
             3: "16px",
@@ -107,18 +106,11 @@ module.exports = {
             },
             zIndex: {
                 100: 100,
-            },
-            transitionProperty: {
-                height: "height",
-            },
+            }
         },
     },
-    variants: {
-        extend: {},
-    },
     plugins: [
-        require("@tailwindcss/forms"),
-        require('tailwindcss-rtl')
+        require("@tailwindcss/forms")
     ],
     corePlugins: {
         preflight: false,

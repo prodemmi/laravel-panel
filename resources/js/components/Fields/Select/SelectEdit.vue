@@ -4,6 +4,8 @@
     v-model="model"
     @input="change"
     @search="fetchOptions"
+    @search:focus="fetchOptions"
+    :multiple="data.multiple && !data.searchable"
     :options="options"
     :selectable="
       () => (data.attributes.multiple ? (_.isArray(model) ? model.length : [model].length) < data.limit : true)
@@ -20,11 +22,9 @@
 
 <script>
 import VueSelect from "vue-select";
-import "vue-select/dist/vue-select.css";
 import { FormMixin } from "../../../mixins";
 export default {
-  name: "select-edit",
-  props: ["data", "value", 'url'],
+  props: ["data", "value"],
   mixins: [FormMixin],
   components: {
     VueSelect,
@@ -39,7 +39,7 @@ export default {
   mounted() {
     this.$nextTick(() => {
 
-      if (this.data.searchable) {
+      if (this.data.searchable && !(this.value === undefined || this.value === null)) {
         this.fetchOptions(this.model);
       } else {
         this.model = this.data.attributes.multiple
@@ -59,7 +59,7 @@ export default {
         : _.indexOf(this.options, this.model);
 
       if (this.data.searchable && !this.data.attributes.multiple) {
-        value = this.model.value;
+        value = this.model?.value || null;
       }
 
       this.$emit("on-change", {
@@ -70,16 +70,17 @@ export default {
     fetchOptions: _.debounce(function (search, loading) {
       if (this.data.searchable) {
         this.$http
-          .post(this.url ? this.url : "/api/select" , {
+          .post("/api/searchable-select", {
             resource: this.activeTool().resource,
             field: this.data.column,
-            search,
+            search: this.init ? this.value : search,
             init: this.init
           })
           .then((res) => {
             this.options = _.toArray(res.data);
             if (this.data.searchable && this.init) {
-              this.model = _.find(res.data, { value: this.model });
+              this.model = _.find(this.options, { value: this.value });
+              console.log(this.model)
             }
             if (loading) loading(false);
             this.init = false;

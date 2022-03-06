@@ -8,6 +8,7 @@
         :resource="findResource"
         :placeholder="getlabel"
         :firstSearch="env !== 'create'"
+        :disabled="disabled"
         @on-change="changed"
         uri="api/select-search"/>
 
@@ -18,7 +19,6 @@
     import ResourceTable from '../../Table/ResourceTable'
 
     export default {
-        name: "relation-edit",
         components: {
             ResourceTable
         },
@@ -26,12 +26,15 @@
             data: Object,
             value: null,
             env: String,
-            resource: String
+            resource: String,
+            disabled: Boolean
         },
         computed: {
             getValue() {
 
-                return this.data.multiple ? _.map(this.value, this.findResource.modelKey) : this.value
+                var key = this.findResource.modelKey
+
+                return this.data.multiple ? _.map(this.value, key) : _.get(this.value, key, this.value)
 
             },
             getlabel(){

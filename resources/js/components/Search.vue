@@ -10,6 +10,7 @@
                :placeholder="placeholder"
                :getOptionLabel="getOptionLabel"
                :reduce="(option) => option"
+               :disabled="disabled"
                label="label">
 
         <slot name="spinner">
@@ -27,7 +28,7 @@
     import "vue-select/dist/vue-select.css";
 
     export default {
-        props: ['multiple', 'value', 'uri', 'column', 'resource', 'placeholder', 'firstSearch'],
+        props: ['multiple', 'value', 'uri', 'column', 'resource', 'placeholder', 'firstSearch', 'disabled'],
         components: {
             VueSelect,
         },

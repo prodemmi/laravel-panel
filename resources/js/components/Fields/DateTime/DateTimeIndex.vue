@@ -9,7 +9,6 @@
     import {asHtmlMixin} from '../../../mixins'
 
     export default {
-        name: "date-time-index",
         props: ['data', 'value'],
         mixins: [asHtmlMixin]
     }

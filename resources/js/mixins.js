@@ -42,15 +42,6 @@ const HelperMixin = {
     toggleSidebar(){
       this.$store.commit('toggleSidebar', !this.$store.getters.getSidebarCollapsed)
     },
-    getLastCounts() {
-
-      return this.$http.post("/api/get-last-counts", { last_count: this.$store.getters.getLastCounts }).then((res) => {
-
-        this.$store.commit('setLastCounts', res.data)
-
-      })
-
-    },
     updateConfig(then = null, optional = false) {
 
       if (optional) {
@@ -166,6 +157,7 @@ const RouteMixin = {
 const ActionMixin = {
   methods: {
     handleAction(action, row = null, goback = false) {
+      console.log(action)
 
       this.updateConfig(() => {
 
@@ -220,7 +212,7 @@ const ActionMixin = {
           this.selected = [];
           this.temp_selected = [];
           this.selected_action = undefined;
-
+          
           Lava.showLoading(false)
 
           if (goback) {
@@ -284,7 +276,7 @@ const FormMixin = {
         "on-change",
         {
           column: this.data.column,
-          value: val,
+          value: val
         }
       );
 

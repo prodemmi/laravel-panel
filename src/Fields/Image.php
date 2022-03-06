@@ -2,55 +2,24 @@
 
 namespace Prodemmi\Lava\Fields;
 
-
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
+use App\Models\Media;
 
 class Image extends File
 {
 
-    public $component = 'image';
-
-    public $thumbnail;
-
-    public $rounded = FALSE;
-
-    public $fullRounded = FALSE;
-
-    public function __construct($name, $column = NULL)
+    public function __construct($name, $resource, $relation = NULL)
     {
-        parent::__construct( $name, $column );
 
-        $this->acceptTypes( 'image/*' )->hideFromExport();
-
+        parent::__construct($name, $resource, $relation = NULL);
+        $this->acceptTypes( 'image/*' )->hideFromExport()->showOnAll();
+        
     }
 
-    public function thumbnail($thumbnail)
+    public function rounded()
     {
 
-        $this->thumbnail = $this->callableValue( $thumbnail );
+        return $this->classes('rounded-full');
 
-        return $this;
-
-    }
-
-    public function rounded($fullRounded = FALSE)
-    {
-
-        $this->rounded     = TRUE;
-        $this->fullRounded = $this->callableValue( $fullRounded );
-
-        return $this;
-
-    }
-
-
-    public function toArray()
-    {
-        return array_merge( parent::toArray(), [
-            'rounded'     => $this->rounded,
-            'fullRounded' => $this->fullRounded
-        ] );
     }
 
 }

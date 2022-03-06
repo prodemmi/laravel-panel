@@ -1,18 +1,19 @@
 <template>
     <div class="flex items-center">
-      <select class="select" style="width: 220px" v-model="selected_action">
-        <option :value="null" disabled>Select action</option>
-        <template v-for="(action, index) in actions">
-          <option v-if="!action.onlyOnTable" :value="action" :key="index">
-            {{ action.name }} {{ _.isEmpty(selected) ? 'all' : '' }}
-          </option>
-        </template>
-      </select>
-
+      
+      <VueSelect style="width: 220px;height: 40px;"
+                 :style="{ direction: $store.getters.getConfig.rtl ? 'rtl': 'ltr'}"
+                 class="ltr:mr-1 rtl:ml-1"
+                 placeholder="Select an action"
+                 v-model="selected_action"
+                 :options="getOptions"
+                 :reduce="(option) => option">
+      </VueSelect>
+      
       <lava-button
-        @click="$emit('handle-action', selected_action, selected)"
+        @click="$emit('handle-action', getAction, selected)"
         :disabled="!selected_action"
-        :color="selected_action && selected_action.danger ? 'danger' : 'primary'"
+        :color="getAction && getAction.danger ? 'danger' : 'primary'"
         no-padding
         >Go
       </lava-button>
@@ -28,7 +29,11 @@
 </template>
 
 <script>
+import VueSelect from "vue-select";
 export default {
+  components: {
+    VueSelect,
+  },
   props: {
     actions :{
       type: [Object, Array],
@@ -49,6 +54,19 @@ export default {
     return {
       selected_action: null,
     };
+  },
+  computed: {
+    getAction(){
+        return _.find(this.actions, { name: _.trimEnd(this.selected_action?.label, ' all') })
+    },
+    getOptions(){
+      
+      return _.filter(this.actions, { onlyOnTable: false }).map((action, index) => ({
+                value: index,
+                label: action.name + (_.isEmpty(this.selected) ? ' all' : '')
+              }))
+
+    }
   }
 };
 </script>

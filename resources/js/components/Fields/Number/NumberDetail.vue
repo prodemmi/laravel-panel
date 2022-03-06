@@ -9,7 +9,6 @@
     import {asHtmlMixin} from '../../../mixins'
 
     export default {
-        name: "number-detail",
         props: ['data', 'value'],
         mixins: [asHtmlMixin]
     }

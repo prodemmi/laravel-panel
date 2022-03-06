@@ -51,6 +51,7 @@ class MediaController extends Controller
 
                 $response = [];
 
+                $media = [];
                 foreach ( $files as $key => $file ) {
 
                     $filename  = pathinfo( $file->getClientOriginalName(), PATHINFO_FILENAME );
@@ -66,6 +67,8 @@ class MediaController extends Controller
                     $response[$key]['extension'] = $extension;
                     $response[$key]['size']      = $file->getSize();
                     $response[$key]['path']      = $store_name;
+                    $response[$key]['mime_type'] = $file->getClientMimeType();
+                    $response[$key]['disk']      = $disk;
 
                     $uploadedFile = $file->storeAs( $disk, $store_name );
 
@@ -79,20 +82,11 @@ class MediaController extends Controller
 
                     }
 
-                    //                $media = Media::create( [
-                    //                    'disk'      => $disk,
-                    //                    'path'      => $store_name,
-                    //                    'filename'  => $filename,
-                    //                    'extension' => $extension,
-                    //                    'mime_type' => $file->getClientMimeType(),
-                    //                    'size'      => $file->getSize()
-                    //                ] );
+                    $media[] = Media::create( $response[$key] );
 
                 }
 
-                $response = array_values( $response );
-
-                return response()->json( $ckeditor ? Arr::first( $response ) : $response );
+                return response()->json( $ckeditor ? Arr::first( array_values( $response ) ) : $media );
 
             }
 

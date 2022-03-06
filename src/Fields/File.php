@@ -2,14 +2,12 @@
 
 namespace Prodemmi\Lava\Fields;
 
-
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-
-class File extends Field
+class File extends Relation
 {
 
     public $disk = 'public';
+
+    public $component = 'file';
 
     public $storeFileName;
 
@@ -19,21 +17,24 @@ class File extends Field
 
     public $onDownload;
 
-    public $multiple = FALSE;
-
     public $maxFiles = PHP_INT_MAX;
 
-    public $acceptTypes;
+    public $acceptTypes = [];
 
-    public function __construct($name, $column = NULL)
+    public $file = True;
+
+    public function __construct($name, $resource, $relation = NULL)
     {
-        parent::__construct( $name, $column );
+        
+        parent::__construct( $name, $resource, $relation);
 
         if ( !$this->multiple ) {
 
             $this->maxFiles = 1;
 
         }
+
+        $this->exceptOnIndex();
 
     }
 
@@ -108,9 +109,9 @@ class File extends Field
     {
 
         return array_merge( parent::toArray(), [
-            'multiple'    => $this->multiple,
             'maxFiles'    => $this->maxFiles,
             'disk'        => $this->disk,
+            'file'        => $this->file,
             'acceptTypes' => implode( ',', $this->acceptTypes ),
         ] );
 

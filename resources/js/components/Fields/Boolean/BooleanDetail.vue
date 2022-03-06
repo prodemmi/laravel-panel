@@ -9,7 +9,6 @@
     import {asHtmlMixin} from '../../../mixins'
 
     export default {
-        name: "boolean-detail",
         props: ['data', 'value'],
         mixins: [asHtmlMixin]
     }

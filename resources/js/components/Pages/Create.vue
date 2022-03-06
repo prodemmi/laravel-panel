@@ -3,7 +3,8 @@
         
         <div class="flex items-center justify-between">
 
-            <i @click="goToBack()" class="ri-arrow-left-line cursor-pointer text-lg w-fit"></i>
+            <i @click="goToBack()" class="cursor-pointer text-lg w-fit" 
+               :class="$store.getters.getConfig.rtl ? 'ri-arrow-right-line': 'ri-arrow-left-line'"></i>
 
             <div class="flex justify-end">
                 <lava-button @click="store" :disabled="!couldCreate">Create</lava-button>

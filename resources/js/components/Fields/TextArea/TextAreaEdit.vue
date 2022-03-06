@@ -13,7 +13,6 @@
     import {FormMixin} from '../../../mixins'
 
     export default {
-        name: "text-area-detail",
         props: ['data', 'value'],
         mixins: [FormMixin]
     }

@@ -22,6 +22,10 @@ class Date extends Field
 
         $this->displayValue( function ($value) {
 
+            if(blank($value)){
+                return null;
+            }
+
             $value = Carbon::parse($value);
 
             if($this->jalali){

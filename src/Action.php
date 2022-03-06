@@ -31,7 +31,7 @@ abstract class Action implements Arrayable
 
         if ( $this->danger ) {
 
-            return 'red-700';
+            return 'danger';
 
         }
 

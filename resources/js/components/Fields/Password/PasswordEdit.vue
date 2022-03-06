@@ -1,14 +1,14 @@
 <template>
 
     <div class="flex justify-between items-center">
-        <div class="relative w-full mr-4">
+        <div class="relative w-full ltr:mr-4 rtl:ml-4">
             <input class="text-input w-full" 
             :type="show || env == 'create' ? 'text' : 'password'" 
             v-bind="data.attributes" 
             v-model="model" @input="onChange"
             :disabled="!canEdit"/>
-            <i v-if="canEdit && _.size(model) > 0" :class="['absolute right-0 top-1', show ? 'ri-eye-line' : 'ri-eye-off-line' ]" @click="show = !show"></i>
-            <i v-else-if="!canEdit" class="absolute right-0 top-1 cursor-pointer ri-edit-line" @click="edit()"></i>
+            <i v-if="canEdit && _.size(model) > 0" :class="['absolute ltr:right-0 rtl:left-0 top-0.5', show ? 'ri-eye-line' : 'ri-eye-off-line' ]" @click="show = !show"></i>
+            <i v-else-if="!canEdit" class="absolute ltr:right-0 rtl:left-0 top-0.5 cursor-pointer ri-edit-line" @click="edit()"></i>
         </div>
         <lava-button v-if="canEdit" @click="generate" small>Generate</lava-button>
     </div>
@@ -20,7 +20,6 @@
     import {FormMixin} from '../../../mixins'
 
     export default {
-        name: "password-edit",
         props: ['data', 'value', 'env'],
         mixins: [FormMixin],
         data(){

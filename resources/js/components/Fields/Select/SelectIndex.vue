@@ -9,7 +9,6 @@
     import {asHtmlMixin} from '../../../mixins'
     
     export default {
-        name: "select-index",
         props: ['data', 'value'],
         mixins: [asHtmlMixin]
     }

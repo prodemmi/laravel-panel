@@ -14,7 +14,6 @@
     import {asHtmlMixin} from '../../../mixins'
 
     export default {
-        name: "image-index",
         props: ['data', 'value'],
         mixins: [asHtmlMixin]
     }

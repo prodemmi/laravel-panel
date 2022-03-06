@@ -38,6 +38,7 @@ class Select extends Field
 
             $this->searchable     = $searchable;
             $this->searchCallback = $options;
+
         }
         else {
 
@@ -57,14 +58,6 @@ class Select extends Field
                 'label' => $label
             ];
         }, $options, array_keys( $options ) );
-    }
-
-    public function onSearch($closure)
-    {
-
-        $this->searchCallback = $closure;
-
-        return $this;
     }
 
     public function multiple($limit = 1, $multiple = TRUE)

@@ -6,7 +6,6 @@
 
 <script>
     export default {
-        name: "text-area-index",
         props: ['data', 'value']
     }
 </script>

@@ -6,7 +6,6 @@
 
 <script>
     export default {
-        name: "ckeditor-index",
         props: ['data', 'value']
     }
 </script>

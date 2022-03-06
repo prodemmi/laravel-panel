@@ -15,7 +15,6 @@
     import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 
     export default {
-        name: "ckeditor-edit",
         props: ["data", "value", 'env'],
         mixins: [FormMixin],
         mounted() {

@@ -22,7 +22,6 @@
     import {asHtmlMixin} from '../../../mixins'
 
     export default {
-        name: "text-area-detail",
         props: ['data', 'value'],
         mixins: [asHtmlMixin],
         data() {

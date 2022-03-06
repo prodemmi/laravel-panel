@@ -2,6 +2,7 @@
 
 namespace Prodemmi\Lava;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -53,14 +54,14 @@ trait Table
 
         $filters = $this->filter['filter'] ?? [];
 
-        $newFilters = [];
-
         foreach ( $filters as $filter ) {
 
             $value = $filter['value'] ?? '';
-            $value = $filter['where']['where'] === 'like' ? "%$value%" : $value;
+            $value = $filter['where']['where'] === 'LIKE' || $filter['where']['where'] === 'NOT LIKE' ? "%$value%" : $value;
 
-            $n = [ $filter['column'], $filter['where']['where'], $value];
+            $col = explode('__', $filter['column'])[0];
+
+            $n = [ $col, $filter['where']['where'], $value];
 
             if($filter['relation'] ?? false){
 
@@ -72,42 +73,49 @@ trait Table
 
             }
 
-            $newFilters[] = $n;
+            if(isset($filter['relation']) && $filter['relation']){
 
-
-        }
-
-        $this->records = $this->records->where( array_filter($newFilters, fn($f) => !isset($f[3])) );
-
-        $relFilters = array_filter($newFilters, fn($f) => isset($f[3]));
-
-        if(filled($relFilters)){
-
-            foreach($relFilters as $filter){
-
-                $column = collect($filter[4])->first(function($fil, $key)use($filter){
-                    return str_contains($filter[0], $fil);
-                }) ?? $filter[0];
-
-                $this->records = $this->records->whereHas($column, function($q)use($filter){
+                $column = collect($n[4])->first(function($fil, $key)use($n){
+                    return str_contains($n[0], $fil);
+                }) ?? $n[0];
+    
+                $this->records = $this->records->whereHas($column, function($q)use($filter, $n){
                     
-                    if(is_array($filter[2])){
-
-                        $op = $filter[1] == '<>' ? 'whereNotIn' : 'whereIn';
-
-                        $q->{$op}($filter[5], $filter[2]);
-
+                    if(is_array($n[2])){
+    
+                        $op = $n[1] === '<>' ? 'whereNotIn' : 'whereIn';
+    
+                        $op = ($filter['con']['con'] ?? 'and') === 'or' ? ('or' . ucfirst($op)) : $op;
+    
+                        $q->{$op}($n[5], $n[2]);
+    
                     }else{
 
-                        $q->where($filter[5], $filter[1], $filter[2]);
-
+                        $con = ($filter['con']['con'] ?? 'and') === 'and' ? 'where' : 'orWhere';
+    
+                        $q->{$con}($n[5], $n[1], $n[2]);
+    
                     }
-
+    
                 });
+                
+            }else{
+
+                $con = ($filter['con']['con'] ?? 'and') === 'and' ? 'where' : 'orWhere';
+
+                if(str_starts_with( $filter['component'], 'date')){
+
+                    $con .= 'Date';
+
+                }
+
+                $this->records = $this->records->{$con}( ...$n );
 
             }
 
         }
+
+        $relFilters = array_filter($filters, fn($f) => isset($f['relation']) && $f['relation']);
 
     }
 
@@ -199,7 +207,9 @@ trait Table
 
         $fields = $res->getFieldsOfForDesign();
 
-        return $records->map( function ($row) use ($fields, $display, $value, $export, $selects, $res, $createActions) {
+        $empty = config( 'lava.table.empty' );
+
+        return $records->map( function ($row) use ($fields, $display, $value, $export, $selects, $res, $createActions, $empty) {
 
             $rowToSend = is_array($row) ? $row : $row->toArray();
             $row = array_map( function ($value) {
@@ -209,7 +219,7 @@ trait Table
                     'display' => $value
                 ];
 
-            }, $rowToSend );;
+            }, $rowToSend );
 
             foreach ( $fields as $field ) {
 
@@ -225,52 +235,57 @@ trait Table
 
                 }
 
-                if ( filled( $field->resolveCallbacks ) && $value ) {
-                    
-                    $field->value = data_get( $row, $field->column . ".value" );
-
-                    foreach ( $field->resolveCallbacks as $resolveCallback ) {
-
-                        if ( isset( $resolveCallback ) ) {
-
-                            $field->value = call_user_func( $resolveCallback, $field->value, $rowToSend, $this->env, $export );
-
-                        }
-
-                    }
-
-                    if ( blank( $field->value ) ) {
-
-                        $field->value = config( 'lava.table.empty' );
-
-                    }
-
-                    data_set( $row, $field->column . ".value", $field->value );
-
-                }
+                $val = data_get($row, $field->column . ".value");
 
                 if ( filled( $field->displayCallbacks ) && $display ) {
-
-                    $field->value = data_get( $row, $field->column . ".value" );
 
                     foreach ( $field->displayCallbacks as $displayCallback ) {
 
                         if ( !is_null( $displayCallback ) ) {
 
-                            $field->value = call_user_func( $displayCallback, $field->value, $rowToSend, $this->env, $export );
+                            $val = call_user_func( $displayCallback, $val, $rowToSend, $this->env, $export );
 
                         }
 
                     }
 
-                    if ( blank( $field->value ) ) {
+                    data_set( $row, $field->column . ".display", filled($val) ? $val : $empty );
 
-                        $field->value = config( 'lava.table.empty' );
+                }
+
+                $val = data_get($row, $field->column . ".value");
+
+                if ( filled( $field->resolveCallbacks ) && $value ) {
+                    
+                    foreach ( $field->resolveCallbacks as $resolveCallback ) {
+
+                        if ( isset( $resolveCallback ) ) {
+
+                            $val = call_user_func( $resolveCallback, $val, $rowToSend, $this->env, $export );
+
+                        }
 
                     }
 
-                    data_set( $row, $field->column . ".display", $field->value );
+                    data_set( $row, $field->column . ".value", $val );
 
+                }
+
+                if ( ($field->searchable ?? false) && filled( $field->searchCallback )) {
+
+                    $val = data_get($row, $field->column . ".value");
+                    $display = data_get($row, $field->column . ".display");
+
+                    if ( filled( $val ) ) {
+
+                        $options = call_user_func($field->searchCallback, $display);
+
+                        $val = optional($options->first(function($option)use($val){return $option['value'] === $val;}));
+
+                    }
+
+                    data_set( $row, $field->column . ".display", filled($val) ? $val->label : $empty );
+                    
                 }
 
             }

@@ -1,17 +1,14 @@
-<?php
-
-    session()->push('auth_must_redirect', Route::current()->getName());
-
-?>
+@php($panel = Lava::getActivePanel())
+@php(session()->push('auth_must_redirect', Route::current()->getName()))
 
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ Lava::getActivePanel()->getRTL() }}">
+<html lang="{{ $panel->getLocale() }}" dir="{{ $panel->getRTL() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ Lava::getActivePanel()->name }}</title>
+    <title>{{ $panel->name }}</title>
 
     <!-- Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
@@ -25,21 +22,19 @@
     {{-- animatecss --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
-    @foreach( Lava::getActivePanel()->getStyles() as $styles )
+    @foreach( $panel->getStyles() as $styles )
         <link rel="stylesheet"
               href="{{ \Illuminate\Support\Str::of($styles)->startsWith(['http', 'https']) ? $styles : asset('lava/' . $styles) }}">
     @endforeach
 
 </head>
 <body>
-
+    
 <div id="app">
 
     <dashboard></dashboard>
 
 </div>
-
-@php($panel = Lava::getActivePanel())
 
 <script>
     window.baseUrl = @json($panel->getBaseUrl())

@@ -15,7 +15,6 @@
 <script>
 import { FormMixin } from "../../../mixins";
 export default {
-  name: "boolean-detail",
   props: ["data", "value"],
   mixins: [FormMixin],
 };

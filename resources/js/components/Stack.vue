@@ -1,6 +1,6 @@
 <template>
 
-    <div class="overflow-auto">
+    <div :class="isMobile ? 'overflow-auto' : 'overflow-visible'">
         
         <slot v-if="!!$slots['body']" name="body"></slot>
         <slot v-else ></slot>
@@ -11,7 +11,6 @@
 
 <script>
     export default {
-        name: 'lava-stack',
         props: ['data']
     }
 </script>

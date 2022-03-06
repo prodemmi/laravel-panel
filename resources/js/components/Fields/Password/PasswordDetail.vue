@@ -9,7 +9,6 @@
     import {asHtmlMixin} from '../../../mixins'
 
     export default {
-        name: "password-detail",
         props: ['data', 'value'],
         mixins: [asHtmlMixin],
     }
