@@ -43,7 +43,7 @@ export default {
       default: false,
     },
     path: {
-      type: String,
+      type: [String],
       required: false,
       default: undefined,
     },
@@ -51,7 +51,7 @@ export default {
   computed: {
     crumbs: function () {
 
-      const routes = (this.$route.matched[0]?.path || "").split("/");
+      const routes = (this.path || this.$route.matched[0]?.path).split("/");
       let breadcrumbs = [];
       let temp = "";
       for (const route of routes) {

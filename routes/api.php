@@ -29,8 +29,11 @@ foreach ( Lava::getPanels() as $panel ) {
         Route::post( 'get-active-actions', 'ResourceController@getActiveActions' );
 
         Route::post( 'media/upload', 'MediaController@upload' );
-        Route::delete( 'media/delete', 'MediaController@delete' );
-        Route::get( 'media/get-media', 'MediaController@getMedia' );
+        Route::post( 'media/delete-media', 'MediaController@deleteMedia' );
+        Route::post( 'media/search-media', 'MediaController@searchMedia' );
+        Route::post( 'media/new-file', 'MediaController@newFile' );
+        Route::post( 'media/new-folder', 'MediaController@newFolder' );
+        Route::post( 'media/get-media', 'MediaController@getMedia' );
         
         Route::post( 'check-license', 'ResourceController@checkLicense' );
 

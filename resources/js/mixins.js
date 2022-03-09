@@ -5,6 +5,19 @@ const HelperMixin = {
     }
   },
   methods: {
+    uplaodFile(files, data = {}){
+
+      const formData = new FormData();
+      _.each(files, (file, i) => formData.append(`file-${i}`, file))
+      _.each(data, (d, i) => formData.append(i, d))
+
+      return this.$http.post('api/media/upload', formData, {
+              onUploadProgress: progressEvent => Lava.showLoading(progressEvent.loaded),
+              'Content-Type': 'multipart/form-data'
+          }
+      )
+
+    },
     openPopup(url, title, w = 800, h = 600) {
       var left = (screen.width - w) / 2;
       var top = (screen.height - h) / 2;

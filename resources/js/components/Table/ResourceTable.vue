@@ -40,7 +40,7 @@
 
                         <div class="flex justify-between items-center">
                 
-                <SearchBar :search-in="resource.searches"
+                <lava-search-bar :search-in="resource.searches"
                             @on-search="search"/>
 
                 <lava-button @click="getData(true)"
@@ -296,7 +296,6 @@
 
     import Pagination from "./Pagination";
     import ActionBar from "../Table/ActionBar";
-    import SearchBar from "../Table/SearchBar";
     import Filters from "../Table/Filters";
     import NoData from "../Table/NoData";
     import Fields from "../Pages/Fields";
@@ -305,7 +304,6 @@
         components: {
             Pagination,
             ActionBar,
-            SearchBar,
             Filters,
             NoData,
             Fields

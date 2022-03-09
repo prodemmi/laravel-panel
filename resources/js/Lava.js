@@ -28,14 +28,11 @@ export default class Lava {
 
     constructor(id = "#app", options = null) {
 
-        if(!options){
-            options = {
-                router,
-                store
-            }
-        }
-
-        this.app = new Vue(options).$mount(id)
+        this.app = new Vue({
+            router,
+            store,
+            ...options
+        }).$mount(id)
 
     }
 

@@ -2,10 +2,7 @@
 
 namespace Prodemmi\Lava;
 
-use Closure;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Prodemmi\Lava\Utils\ArrayHelper;
+use Prodemmi\Lava\MediaTool;
 
 class Panel
 {
@@ -277,7 +274,7 @@ class Panel
     public function getResources()
     {
        
-        return collect($this->resources)->unique()->map(function($resource){
+        return collect($this->resources)->push(MediaTool::class)->unique()->map(function($resource){
 
             return resolve($resource);
 

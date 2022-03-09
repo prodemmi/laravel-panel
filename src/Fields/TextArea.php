@@ -18,12 +18,22 @@ class TextArea extends Field
         
         parent::__construct( $name, $column );
 
+        $this->exceptOnIndex();
+
     }
 
     public function more($more = TRUE)
     {
 
         $this->more = $this->callableValue( $more );
+
+        return $this;
+
+    }
+
+    public function ckeditor(){
+
+        $this->component = 'ckeditor';
 
         return $this;
 

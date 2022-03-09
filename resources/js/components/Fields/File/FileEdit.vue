@@ -66,7 +66,7 @@
                 _.each(files, (file, i) => formData.append(`file-${i}`, files[i]))
 
                 formData.append('column', this.data.column)
-                formData.append('disk', this.data.disk)
+                formData.append('disk', this.data?.disk)
                 formData.append('resource', this.activeTool()?.resource)
 
                 this.$http.post('api/media/upload', formData, {

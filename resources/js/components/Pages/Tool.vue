@@ -5,7 +5,7 @@
         <div v-html="view" id="tool-asfasf" class="hidden"></div>
         <lava-button v-if="window.debug" @click="load" :loading="reloading">Refresh</lava-button>
 
-        <div v-show="!reloading">
+        <div v-if="!reloading">
 
             <div v-html="template"></div>
 
@@ -43,6 +43,8 @@ export default {
 
                 this.$nextTick(() => {
 
+                    this.reloading = false
+
                     var template = $('#tool-asfasf > template')
                     var script = $('#tool-asfasf > script')
 
@@ -54,7 +56,6 @@ export default {
                     }else{
 
                         this.template = _.trim(template = $('#tool-asfasf').html())
-                        this.reloading = false
                         return
                         
                     }
