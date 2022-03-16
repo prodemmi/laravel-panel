@@ -23,7 +23,7 @@ let colors = {
 };
 
 module.exports = {
-    // important: true,
+    important: true,
     content: [
         "./resources/**/*.blade.php",
         "./resources/**/*.js",
@@ -102,7 +102,8 @@ module.exports = {
             },
             height: {
                 loading: "8px",
-                header: "46px",
+                header: "46px", 
+                element : '38px'
             },
             zIndex: {
                 100: 100,

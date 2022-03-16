@@ -14,7 +14,8 @@
   ] ,
   "require"      : {
     "brick/money"        : "^0.5.3",
-    "hekmatinasser/verta": "^1.12.4"
+    "hekmatinasser/verta": "^1.12.4",
+    "ext-zip": "*" 
   } ,
   "autoload"     : {
     "psr-4" : {

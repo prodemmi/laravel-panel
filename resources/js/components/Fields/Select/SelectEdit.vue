@@ -80,7 +80,6 @@ export default {
             this.options = _.toArray(res.data);
             if (this.data.searchable && this.init) {
               this.model = _.find(this.options, { value: this.value });
-              console.log(this.model)
             }
             if (loading) loading(false);
             this.init = false;

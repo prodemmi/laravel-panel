@@ -89,7 +89,6 @@
         },
         methods: {
             changed(data) {
-                console.log(data)
                 this.$emit('on-change', data)
             },
             nextLine(field){

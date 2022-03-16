@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Media extends Model
 {
 
-    protected $guarded = [];
+    protected $fillable = [
+        'disk',
+        'path',
+        'filename',
+        'extension',
+        'mime_type',
+        'size'
+    ];
 
 }

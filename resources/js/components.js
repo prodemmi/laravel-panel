@@ -4,6 +4,7 @@ Vue.component("dashboard", require("./components/Dashboard/Dashboard.vue").defau
 
 Vue.component("lava-file-input", require("./components/FileInput.vue").default);
 Vue.component("lava-button", require("./components/Button.vue").default);
+Vue.component("lava-select", require("./components/Select.vue").default);
 Vue.component("lava-spinner", require("./components/Spinner.vue").default);
 Vue.component("lava-card", require("./components/Card.vue").default);
 Vue.component("lava-collapse", require("./components/Collapse.vue").default);

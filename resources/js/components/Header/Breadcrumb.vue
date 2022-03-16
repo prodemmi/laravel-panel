@@ -45,13 +45,17 @@ export default {
     path: {
       type: [String],
       required: false,
-      default: undefined,
+      default: undefined
     },
   },
   computed: {
     crumbs: function () {
 
-      const routes = (this.path || this.$route.matched[0]?.path).split("/");
+      var hasPath = this.path !== undefined
+
+      var path = (hasPath ? this.path || '' : this.$route.matched[0]?.path)
+
+      const routes = (path && path.length && !_.startsWith(path, '/') ? '/' + path : path)?.split("/");
       let breadcrumbs = [];
       let temp = "";
       for (const route of routes) {
@@ -62,7 +66,7 @@ export default {
         
         breadcrumbs.push({
           label: _.startCase(label || route),
-          goTo: () => this.goToRoute(route_object.name, this.$route.params),
+          goTo: () => hasPath ? this.$emit('on-change', route) : this.goToRoute(route_object.name, this.$route.params),
           is_root: index === 0,
           icon: index === 0 ? '<i class="ri-home-2-line"></i>' : this.icon(_.find(this.$store.getters.getConfig.resources, { route : label })?.icon)
         })

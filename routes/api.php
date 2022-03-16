@@ -31,9 +31,16 @@ foreach ( Lava::getPanels() as $panel ) {
         Route::post( 'media/upload', 'MediaController@upload' );
         Route::post( 'media/delete-media', 'MediaController@deleteMedia' );
         Route::post( 'media/search-media', 'MediaController@searchMedia' );
+        Route::post( 'media/paste-media', 'MediaController@pasteMedia' );
+        Route::post( 'media/rename-media', 'MediaController@renameMedia' );
+        Route::post( 'media/compress-media', 'MediaController@compressMedia' );
+        Route::post( 'media/extract-media', 'MediaController@extractMedia' );
         Route::post( 'media/new-file', 'MediaController@newFile' );
         Route::post( 'media/new-folder', 'MediaController@newFolder' );
         Route::post( 'media/get-media', 'MediaController@getMedia' );
+        Route::post( 'media/get-content', 'MediaController@getContent' );
+        Route::post( 'media/edit-content', 'MediaController@editContent' );
+        Route::post( 'media/get-statics', 'MediaController@getStatics' );
         
         Route::post( 'check-license', 'ResourceController@checkLicense' );
 

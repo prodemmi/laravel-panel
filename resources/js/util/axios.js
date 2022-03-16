@@ -21,6 +21,8 @@ instance.interceptors.response.use(
             return
         }
 
+        Lava.showLoading(false)
+
         return response
 
     },

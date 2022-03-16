@@ -58,7 +58,6 @@
                 this.canUpdate = true;
                 this.newData.push(value)
                 this.newData = _.uniqBy(this.newData.reverse(), 'column')
-                console.log(this.newData)
 
             },
             store() {

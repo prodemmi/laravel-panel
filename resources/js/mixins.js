@@ -170,7 +170,6 @@ const RouteMixin = {
 const ActionMixin = {
   methods: {
     handleAction(action, row = null, goback = false) {
-      console.log(action)
 
       this.updateConfig(() => {
 
@@ -288,7 +287,7 @@ const FormMixin = {
       this.$emit(
         "on-change",
         {
-          column: this.data.column,
+          column: this.data?.column,
           value: val
         }
       );

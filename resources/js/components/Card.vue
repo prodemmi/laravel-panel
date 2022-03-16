@@ -1,6 +1,6 @@
 <template>
 
-  <div v-bind="data.attributes" class="card">
+  <div v-bind="attriubtes" class="card">
 
     <h4 class="card--header" v-if="!!$slots.header">
 
@@ -26,6 +26,20 @@
 
 <script>
 export default {
-  props: ['data']
+  props: {
+    data: {
+      default: () => {}
+    }
+  },
+  computed: {
+    attriubtes(){
+      if(this.data && data.attributes){
+        return data.attributes
+      }
+
+
+      return {}
+    }
+  }
 }
 </script>

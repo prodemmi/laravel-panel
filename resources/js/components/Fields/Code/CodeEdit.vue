@@ -107,7 +107,7 @@ import "codemirror/addon/hint/xml-hint.js";
 import { FormMixin } from "../../../mixins";
 
 export default {
-  props: ["data", "value"],
+  props: ["data", "value", 'extenstion'],
   mixins: [FormMixin],
   data: () => ({ codemirror: null }),
 
@@ -117,10 +117,10 @@ export default {
       indentWithTabs: true,
       lineWrapping: true,
       lineNumbers: true,
-      theme: this.data.theme,
+      theme: this.data?.theme || 'darcula',
       viewportMargin: Infinity,
-      mode: this.data.mode,
-      readOnly: this.data.readonly,
+      mode: !this.data?.mode && this.extenstion ? this.detectMode() : this.data.mode,
+      readOnly: this.data?.readonly || false,
       autoCloseBrackets: true,
       matchBrackets: true,
       matchTags: true,
@@ -136,7 +136,7 @@ export default {
       },
       gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
       extraKeys: {"Ctrl-Space": "autocomplete"},
-      ...this.data.options
+      ...this.data?.options
     };
 
     this.codemirror = CodeMirror.fromTextArea(this.$refs.code, config);
@@ -154,6 +154,11 @@ export default {
       return this.codemirror.getDoc();
     },
   },
+  methods: {
+    detectMode() {
+      return CodeMirror.findModeByExtension(this.extenstion)?.mode || ''
+    }
+  }
 };
 </script>
 

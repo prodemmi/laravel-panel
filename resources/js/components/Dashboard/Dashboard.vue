@@ -17,7 +17,7 @@
 
       <Header />
 
-      <main class="content w-auto h-full">
+      <main class="content w-auto h-full" :class="activeTool().tool ? 'overflow-hidden' : 'overflow-y-auto'">
         <transition name="fade" mode="out-in">
           <div v-show="!$store.getters.getChangingRoute"><router-view :key="$route.fullPath"></router-view></div>
         </transition>

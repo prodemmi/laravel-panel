@@ -136,7 +136,7 @@ body {
 /* Header */
 
 .content {
-    @apply overflow-y-auto overflow-x-hidden bg-main p-2 w-full h-full;
+    @apply overflow-x-hidden bg-main p-2 w-full h-full;
 }
 
 /* Sidebar */
@@ -277,7 +277,7 @@ body {
 
 .spinner {
     margin: auto;
-    width: 100%;
+    width: fit-content;
     text-align: center;
 }
 
@@ -356,7 +356,7 @@ body {
 /* Fade Transition */
 
 .fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+  transition: opacity .3s;
 }
 .fade-enter, .fade-leave-to{
   opacity: 0;
@@ -461,7 +461,7 @@ body {
 }
 
 .swal2-input-label {
-    @apply ltr:text-left rtl:text-right w-full !important;
+    @apply px-5 ltr:justify-start ltr:text-left rtl:text-right w-full !important;
 }
 
 .swal2-input {

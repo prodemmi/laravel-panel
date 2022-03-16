@@ -7,10 +7,11 @@
             {{ placeholder }}
 
             <input class="hidden"
+                   ref="fileInput"
                    type="file"
                    :accept="accept"
                    :multiple="multiple"
-                   @change="$emit('on-change', $event)">
+                   @change="change">
 
         </label>
 
@@ -21,7 +22,17 @@
 <script>
 
     export default {
-        props: ['placeholder', 'accept', 'multiple']
+        props: ['placeholder', 'accept', 'multiple'],
+        methods:{
+            change($event){
+                
+                this.$nextTick(() => {
+                    this.$emit('on-change', $event)
+                    this.$refs.fileInput.value = null
+                })
+
+            }
+        }
     }
 
 </script>

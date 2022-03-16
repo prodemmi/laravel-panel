@@ -19,7 +19,7 @@ Vue.use(CKEditor)
 VTooltip.options.defaultHtml = true
 
 Vue.directive('click-outside', ClickOutside)
-
+ 
 Vue.mixin(HelperMixin)
 Vue.mixin(RouteMixin)
 Vue.mixin(ActionMixin)

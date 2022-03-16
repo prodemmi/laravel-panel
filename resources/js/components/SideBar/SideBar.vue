@@ -49,7 +49,6 @@
         },
         methods: {
             hideSlidbar(){
-                console.log(this.isMobile && !this.$store.getters.getSidebarCollapsed)
                 
                 if(this.isMobile && !this.$store.getters.getSidebarCollapsed){
                     this.$store.commit('toggleSidebar', true)

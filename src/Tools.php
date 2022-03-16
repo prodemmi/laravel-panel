@@ -49,6 +49,16 @@ abstract class Tools implements JsonSerializable, Arrayable
         return $this->route ?? Str::of($this->label() )->lower()->plural()->slug();
     }
 
+    public function getScripts()
+    {
+        return $this->scripts ?? [];
+    }
+
+    public function getStyles()
+    {
+        return $this->styles ?? [];
+    }
+
     public function toArray()
     {
         $toArray = [
@@ -63,6 +73,15 @@ abstract class Tools implements JsonSerializable, Arrayable
         if(method_exists(get_class($this), 'view')){
             $toArray['view'] = $this->view()->render();
         }
+
+        if(isset($this->scripts) && $this->scripts){
+            $toArray['scripts'] = $this->getScripts();
+        }
+
+        if(isset($this->styles) && $this->styles){
+            $toArray['styles'] = $this->getStyles();
+        }
+
 
         return $toArray;
     }

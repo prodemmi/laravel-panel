@@ -10,9 +10,9 @@
               small    ? 'button--small'    : '',
               rounded  ? 'button--rounded'  : '',
               !(disabled || loading) ? `button--hover`    : '',
-              noPadding ? 'p-2 max-w-12 max-h-12': 'min-w-button py-2 px-4'
+              noPadding ? 'p-2 w-element h-element': 'min-w-button h-element py-2 px-4'
             ]">
-        <lava-spinner v-if="loading"></lava-spinner>
+        <lava-spinner v-if="loading" :dot="noPadding"></lava-spinner>
         <slot v-else></slot>
     </button>
 </template>

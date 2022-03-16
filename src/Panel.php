@@ -233,7 +233,9 @@ class Panel
      */
     public function getStyles()
     {
-        return $this->styles;
+        return collect($this->getTools())->map(function($tool){
+            return $tool['styles'];
+        })->flatten()->merge($this->styles)->toArray();
     }
 
     /**
@@ -241,7 +243,17 @@ class Panel
      */
     public function getScripts()
     {
-        return $this->scripts;
+        
+        return collect($this->getTools())->map(function($tool){
+            return $tool['scripts'];
+        })->flatten()->merge($this->scripts)->toArray();
+        
+    }
+
+    protected function getTools(){
+
+        return collect($this->getResources())->where('tool', TRUE)->toArray();
+
     }
 
     /**

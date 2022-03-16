@@ -1,6 +1,6 @@
 <template>
 
-    <div v-if="view">
+    <div v-if="view" :key="$route.fullPath">
 
         <div v-html="view" id="tool-asfasf" class="hidden"></div>
         <lava-button v-if="window.debug" @click="load" :loading="reloading">Refresh</lava-button>

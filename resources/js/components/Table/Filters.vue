@@ -369,7 +369,6 @@
 
             },
             changeWhere(component, column) {
-              console.log(component.toLowerCase())
 
                 let filter = _.find(this.filters, {column})
                 let wheres = filter.wheres || this.wheres
@@ -439,7 +438,6 @@
 
                 this.is_search = true
                 this.hideEditor()
-                console.log(filter)
                 this.$emit('set-filter', {filter})
 
             },
@@ -520,7 +518,6 @@
                 this.selected_field = null
 
                 this.show_fields = false
-                console.log(this.filters)
 
             },
             getFields(fields) {
@@ -537,7 +534,6 @@
                 if(data?.value){ 
 
                     _.find(this.filters, {column: data.column}).value = data.value
-                    console.log(this.filters)
 
                 }
 
