@@ -2,7 +2,7 @@
 
 namespace Prodemmi\Lava\Fields;
 
-class File extends Relation
+class File extends Field
 {
 
     public $disk = 'public';
@@ -11,32 +11,17 @@ class File extends Relation
 
     public $storeFileName;
 
-    public $afterUpload;
+    public $onUpload;
+
+    public $onUpdate;
 
     public $onDelete;
-
-    public $onDownload;
 
     public $maxFiles = PHP_INT_MAX;
 
     public $acceptTypes = [];
 
     public $file = True;
-
-    public function __construct($name, $resource, $relation = NULL)
-    {
-        
-        parent::__construct( $name, $resource, $relation);
-
-        if ( !$this->multiple ) {
-
-            $this->maxFiles = 1;
-
-        }
-
-        $this->exceptOnIndex();
-
-    }
 
     public function disk($disk)
     {
@@ -56,10 +41,10 @@ class File extends Relation
 
     }
 
-    public function afterUpload($afterUpload)
+    public function onUpload($onUpload)
     {
 
-        $this->afterUpload = $afterUpload;
+        $this->onUpload = $onUpload;
 
         return $this;
 
@@ -74,24 +59,30 @@ class File extends Relation
 
     }
 
-    public function onDownload($onDownload)
+    public function onUpdate($onUpdate)
     {
 
-        $this->onDownload = $this->callableValue( $onDownload );
+        $this->onUpdate = $onUpdate;
 
         return $this;
 
     }
 
-    public function multiple($maxFiles = PHP_INT_MAX, $multiple = TRUE)
+    public function multiple($maxFiles = PHP_INT_MAX)
     {
 
-        $this->multiple = $this->callableValue( $multiple );
-        $this->maxFiles = $this->callableValue( $maxFiles );
+        $max = $this->callableValue( $maxFiles );
+
+        if($max > 1){
+            $this->maxFiles = $max ?: 1;
+            return $this->exceptOnIndex()->noSqlSelect();
+
+        }
 
         return $this;
 
     }
+
 
     public function acceptTypes(...$acceptTypes)
     {
@@ -104,12 +95,30 @@ class File extends Relation
 
     }
 
+    public function image(){
+
+        return $this->acceptTypes('image/bmp', 'image/jpg', 'image/jpeg', 'image/png', 'image/webp');
+
+    }
+
+    public function video(){
+
+        return $this->acceptTypes('video/mp4');
+
+    }
+
+    public function audio(){
+
+        return $this->acceptTypes('audio/mp3');
+
+    }
 
     public function toArray()
     {
 
         return array_merge( parent::toArray(), [
             'maxFiles'    => $this->maxFiles,
+            'multiple'    => $this->maxFiles > 1,
             'disk'        => $this->disk,
             'file'        => $this->file,
             'acceptTypes' => implode( ',', $this->acceptTypes ),

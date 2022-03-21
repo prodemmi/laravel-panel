@@ -4,7 +4,6 @@ namespace Prodemmi\Lava;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use JsonSerializable;
 

@@ -1,8 +1,8 @@
 <template>
 
-    <div v-if="!data.asHtml" v-bind="data.attributes">
-        <img class="inline-block shadow h-6 w-6 ring-2 ring-white"
-             :class="{ 'rounded-md': data.rounded, 'rounded-full': data.fullRounded }"
+    <div v-if="!data.asHtml">
+        <img class="inline-block shadow h-7 w-7 ring-2 ring-white"
+             v-bind="data.attributes"
              v-lazy="value" alt="">
     </div>
     <div v-else v-bind.prop="getValue"></div>

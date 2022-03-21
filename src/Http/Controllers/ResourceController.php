@@ -444,18 +444,44 @@ class ResourceController extends Controller
 
         $validator = Validator::make($newData, array_intersect_key($rules, array_flip(array_keys($newData))));
 
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'errors' => $validator->errors()
+        //     ], 422);
+        // }
 
         try {
 
             $model = $resource->getModelInstance()->where($primaryKey, $search)->first();
 
+            foreach (array_filter($data, fn ($d) => (isset($d['file']) && $d['multiple'])) as $row) {
+
+                $field = $resource->findField($row['column']);
+                if($row['file'] ?? false){
+
+                    if(isset($row['all']) && !empty($row['all']) && empty($row['value']) && isset($field->onDelete)){
+                        call_user_func($field->onDelete, $model);
+                    }elseif(isset($field->onUpdate) && $field->onUpdate){
+                        call_user_func($field->onUpdate, $model, $row['value'] ?? []);
+                    }
+
+                }
+                
+            }
+
             $toUpdate = [];
-            foreach (array_filter($data, fn ($d) => isset($d['update_column']) || !isset($d['relationType'])) as $row) {
+            foreach (array_filter($data, fn ($d) => isset($d['update_column']) || (isset($d['file']) && $d['file'] && !$d['multiple'])) as $row) {
+
+                $field = $resource->findField($row['column']);
+                if($row['file'] ?? false){
+
+                    if(isset($row['all']) && !empty($row['all']) && empty($row['value']) && isset($field->onDelete)){
+                        call_user_func($field->onDelete, $model);
+                    }elseif(isset($field->onUpdate) && $field->onUpdate){
+                        call_user_func($field->onUpdate, $model, $row['value'] ?? null);
+                    }
+
+                }
 
                 if (isset($row['relationModel'])) {
 
@@ -516,13 +542,14 @@ class ResourceController extends Controller
 
             $newData[$d['column']] = $d['value'] ?? null;
         });
+
         $validator = Validator::make($newData, $rules);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'errors' => $validator->errors()
+        //     ], 422);
+        // }
 
         try {
 
@@ -560,8 +587,21 @@ class ResourceController extends Controller
 
                 $model->{$relation}()->{$method}($toSave);
             }
+            
+            foreach(array_filter($data, fn ($d) => isset($d['file']) && $d['file']) as $file){
+
+                $field = $resource->findField($file['column']);
+                if(isset($field->onUpdate) && $field->onUpdate){
+
+                    call_user_func($field->onUpdate, $model, $file['value'] ?? null);
+
+                }
+
+            }
 
             return response()->json(['message' => "Store successfully."]);
+
+
         } catch (\Exception $e) {
 
             return response()->json([

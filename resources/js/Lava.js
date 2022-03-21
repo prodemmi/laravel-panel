@@ -12,7 +12,7 @@ import _ from "lodash"
 Vue.use(VTooltip)
 Vue.use(VueLazyload, {
     loading: 'https://media2.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif?cid=ecf05e47fku4z3nedjhyhyu3d4pl7cijwlsoezdy85s13jeq&rid=giphy.gif&ct=g',
-    attempt: 3
+    attempt: 1
   })
 Vue.use(CKEditor)
 

@@ -1,6 +1,6 @@
 <template>
 
-    <div class="flex flex-col" v-if="!_.isEmpty(data)">
+    <div class="flex flex-col">
 
         <lava-dialog :show="selected_action && selected_action.fields.length > 0"
                      :disabled="canDoAction"
@@ -59,7 +59,7 @@
 
         </div>
         
-        <div class="p-2 text-lg bg-white shadow rounded-md my-2">
+        <div v-if="data" class="p-2 text-lg bg-white shadow rounded-md my-2">
 
             <fields :data="data" :fields="resource.fields" :errors="[]" env="detail"/>
 
@@ -80,7 +80,7 @@
         },
         data() {
             return {
-                data: [],
+                data: null,
                 active_actions: [],
                 selected_action: undefined,
                 resource: this.activeTool(),

@@ -20,7 +20,7 @@
 
             <template v-slot:body>
 
-                <code-edit :extenstion="edit_mode.ext" :value="edit_mode.content" @on-change="data => edit_mode.content = data.value"></code-edit>
+                <code-edit :extenstion="edit_mode.ext" :mime-type="edit_mode.mime_type" :value="edit_mode.content" @on-change="data => edit_mode.content = data.value"></code-edit>
 
             </template>
 

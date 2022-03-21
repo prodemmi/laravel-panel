@@ -1,6 +1,6 @@
 <template>
 
-    <div class="flex flex-col" v-if="!_.isEmpty(data)">
+    <div class="flex flex-col">
 
         <div class="flex items-center justify-between">
 
@@ -16,13 +16,14 @@
 
         </div>
 
-        <div class="p-2 text-lg bg-white shadow rounded-md my-2">
+        <div v-if="data" class="p-2 text-lg bg-white shadow rounded-md my-2">
 
             <fields :data="data" :fields="resource.fields" :errors="errors" env="edit" @on-change="changed"/>
 
         </div>
 
     </div>
+
 </template>
 
 <script>
@@ -35,7 +36,7 @@
         },
         data() {
             return {
-                data: [],
+                data: null,
                 newData: [],
                 errors: [],
                 updating: false,
@@ -110,7 +111,7 @@
                     .catch((error) => {
                         this.errors = error.response.data.errors || [];
                             this.updating = false
-                        // this.canUpdate = false;
+                            // this.canUpdate = false;
                     });
             }
         },

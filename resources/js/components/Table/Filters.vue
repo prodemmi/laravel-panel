@@ -87,9 +87,9 @@
     </div>
 
     <div
-      v-show="show_editor"
+      v-if="show_editor"
       class="absolute flex flex-col z-100 rounded bg-white shadow-md p-2"
-      style="min-width: 540px"
+      style="min-width: 560px"
     >
       <div
         v-for="(filter, i) in filters"
@@ -112,64 +112,67 @@
             @on-change="changed"
           />
 
-          <lava-tooltip :text="filter.where.tooltip">
-            <span
-              v-text="filter.where.label"
-              @click="changeWhere(filter.component, filter.column)"
+        <div class="flex items-center" style="width: 200px">
+
+            <lava-tooltip :text="filter.where.tooltip">
+              <span
+                v-text="filter.where.label"
+                @click="changeWhere(filter.component, filter.column)"
+                style="width: 32px; height: 32px"
+                :class="{ 'bg-danger': filter.where.where === 'NULL' }"
+                class="
+                  rounded-full
+                  cursor-pointer
+                  bg-primary
+                  ltr:mr-1
+                  rtl:ml-1
+                  text-white
+                  flex
+                  items-center
+                  justify-center
+                "
+              >
+              </span>
+            </lava-tooltip>
+
+            <lava-tooltip :text="filter.con.tooltip">
+              <span
+                v-text="filter.con.label"
+                @click="changeC(filter)"
+                style="width: 32px; height: 32px"
+                class="
+                  rounded-full
+                  cursor-pointer
+                  bg-primary
+                  ltr:mr-1
+                  rtl:ml-1
+                  text-white
+                  flex
+                  items-center
+                  justify-center
+                "
+              >
+              </span>
+            </lava-tooltip>
+
+            <i
+              @click="removeFilter(i)"
               style="width: 32px; height: 32px"
-              :class="{ 'bg-danger': filter.where.where === 'NULL' }"
               class="
+                ri-close-line
                 rounded-full
                 cursor-pointer
                 bg-primary
-                ltr:mr-1
-                rtl:ml-1
                 text-white
                 flex
-                w-fit
                 items-center
                 justify-center
               "
             >
-            </span>
-          </lava-tooltip>
+            </i>
 
-          <lava-tooltip :text="filter.con.tooltip">
-            <span
-              v-text="filter.con.label"
-              @click="changeC(filter)"
-              style="width: 32px; height: 32px"
-              class="
-                rounded-full
-                cursor-pointer
-                bg-primary
-                ltr:mr-1
-                rtl:ml-1
-                text-white
-                flex
-                w-fit
-                items-center
-                justify-center
-              "
-            >
-            </span>
-          </lava-tooltip>
-
-          <i
-            @click="removeFilter(i)"
-            style="width: 52px; height: 32px"
-            class="
-              ri-close-line
-              rounded-full
-              cursor-pointer
-              bg-primary
-              text-white
-              flex
-              items-center
-              justify-center
-            "
-          >
-          </i>
+        </div>
+          
         </div>
       </div>
 

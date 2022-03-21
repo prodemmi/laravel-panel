@@ -2,41 +2,48 @@
 
     <div class="flex flex-col">
 
-        <div class="flex items-center flex-wrap w-fit">
+        <div class="flex items-center flex-wrap">
+            
+            <template v-for="(url, i) in getValue.slice(0, 6 * page)">
 
-            <lava-tooltip text="Click to copy url" v-for="(file, i) in value.slice(0, 6 * page)" :key="i" class="relative mx-0.5">
+                <div class="relative mx-0.5" :key="i">
+                 
+                    <lava-tooltip :text="url">
 
-                <div @click="copyToClipboard(file)">
-                    <img v-if="isImage(file)"
-                         v-bind="data.attributes"
-                         class="inline-block h-8 w-8 shadow-lg rounded object-cover cursor-pointer border-solid border-2 border-slate-300"
-                         v-lazy="file" alt="">
-                    <div v-else
-                         v-bind="data.attributes"
-                         class="inline-block h-8 w-8 shadow-lg rounded object-cover cursor-pointer border-solid border-2 border-slate-300">
-                         {{isImage(file)}}
-                    </div>
+                        <div v-if="url" @click="copyToClipboard(url)" class="flex items-center justify-center h-8 w-8 shadow-lg text-3xl rounded cursor-pointer border-solid border-2 border-slate-300" v-bind="data.attributes">
+                            <img v-if="urlIsImage(url)"
+                                v-bind="data.attributes"
+                                class="object-cover w-full h-full"
+                                v-lazy="url" alt="">
+                            <div v-else
+                                v-bind="data.attributes">
+                                {{getThumbName(url)}}
+                            </div>
+                        </div>
+
+                    </lava-tooltip>
+
+                    <span v-if="deletable"
+                        @click="$emit('on-delete', url)"
+                        style="width: 28px;height: 28px"
+                        class="ri-close-line absolute z-60 -top-2 ltr:-right-0.5 rtl:-left-0.5 cursor-pointer rounded-full bg-primary text-white flex items-center justify-center"></span>
+
                 </div>
-
-                <span v-if="deletable"
-                    @click="$emit('on-delete', i)"
-                    style="width: 28px;height: 28px"
-                    class="ri-close-line absolute z-60 -top-2 ltr:-right-0.5 rtl:-left-0.5 cursor-pointer rounded-full bg-primary text-white flex w-fit items-center justify-center"></span>
-
-            </lava-tooltip>
+            
+            </template>
 
         </div>
 
-        <div v-if="!(value.slice(0, 6 * page).length >= value.length)" class="flex items-center justify-between cursor-pointer w-full">
+        <div v-if="data.multiple && !(getValue.slice(0, 6 * page).length >= getValue.length)" class="flex items-center justify-between cursor-pointer w-full">
             <div class="flex items-center">
                 <span class="ltr:mr-1 rtl:ml-1 text-blue-400" @click="showMore">Show more</span>
                 <span @click="showAll" class="text-blue-400">Show all</span>
                 <lava-spinner v-show="loading" color="primary" class="ltr:ml-4 rtl:mr-4"></lava-spinner>
             </div>
-            <div v-if="removable && value.length > 0" @click="$emit('remove-all')" class="text-danger">Remove all</div>
+            <div v-if="removable && getValue.length > 0" @click="$emit('remove-all')" class="text-danger">Remove all</div>
         </div>
 
-        <div v-show="value && value.length">All: {{value.length}}</div>
+        <div v-show="data.multiple && getValue && getValue.length">All: {{getValue.length}}</div>
 
     </div>
 
@@ -49,6 +56,24 @@
             return {
                 page: 1,
                 loading: false
+            }
+        },
+        computed: {
+            getValue(){
+
+                if(this.value === null || this.value === undefined){
+                    return []
+                }
+
+                if(_.isArray(this.value) && _.isEmpty(this.value)){
+                    return []
+                }
+
+                if(_.isArray(this.value)){
+                    return this.value
+                }
+
+                return [this.value]
             }
         },
         methods: {
@@ -66,28 +91,21 @@
                     this.loading = false
                 }, 400)
             },
-            async isImage(url) {
-                try{
+            urlIsImage(url) {
 
-                    var isImage = false
-                    var ext = ''
-                    let resp= $.ajax(url);
-                    await resp;
-                    let headers=resp.getAllResponseHeaders().split(/\n/g);
-                    for(let i=0;i<=headers.length;i++){
-                        let hd=headers[i].split(': ')
-                        if (hd[0]=='content-type' && hd[1].indexOf('image')==0){
-                            isImage = true;
-                        }
-                        ext = hd[1];
-                    }
+                if(!url){
+                    return false
+                }
 
-                }catch{}
+                return url.toLowerCase().match(/\.(bmp|svg|jpg|jpeg|png|webp)$/);
+            },
+            getThumbName(url) {
 
-                if(!isImage)
-                    return _.capitalize(ext)
-                else
-                    return true
+                if(!url){
+                    return null
+                }
+
+                return _.upperCase(url.split('.').pop())
             }
         }
     }

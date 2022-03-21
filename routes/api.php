@@ -41,6 +41,8 @@ foreach ( Lava::getPanels() as $panel ) {
         Route::post( 'media/get-content', 'MediaController@getContent' );
         Route::post( 'media/edit-content', 'MediaController@editContent' );
         Route::post( 'media/get-statics', 'MediaController@getStatics' );
+
+        Route::post( 'metric/get-metric-data', 'MetricsController@getMetricData' );
         
         Route::post( 'check-license', 'ResourceController@checkLicense' );
 

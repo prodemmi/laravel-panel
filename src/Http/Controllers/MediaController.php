@@ -99,9 +99,9 @@ class MediaController extends Controller
             $response[$key]['uploaded'] = TRUE;
             $response[$key]['url']      = rtrim($this->url, '/') . '/' . $uploadedFile;
 
-            if (isset($field) && isset($field->afterUpload) && $field->afterUpload) {
+            if (isset($field) && isset($field->onUpload) && $field->onUpload) {
 
-                $newResponse    = call_user_func($field->afterUpload, $response[$key]);
+                $newResponse    = call_user_func($field->onUpload, $response[$key]);
                 $response[$key] = $newResponse ?? $response[$key];
             }
 
@@ -353,14 +353,16 @@ class MediaController extends Controller
 
         $files = $request->input('files');
 
-        foreach ($files as $file) {
+        if(filled($files)){
+            foreach ($files as $file) {
 
-            if ($file['type'] === 'dir') {
-                Storage::disk($file['disk'])->deleteDirectory($file['path']);
-            } else {
-                Storage::disk($file['disk'])->delete($file['path']);
+                if ($file['type'] === 'dir') {
+                    Storage::disk($file['disk'])->deleteDirectory($file['path']);
+                } else {
+                    Storage::disk($file['disk'])->delete($file['path']);
+                }
+    
             }
-
         }
 
         return $this->getMedia($request);

@@ -2,32 +2,28 @@
 
     <div class="flex flex-col">
         
-        <div v-if="model.length < data.maxFiles" class="flex items-end mb-5">
+        <div v-if="model.length < data.maxFiles" class="flex flex-col mb-5">
 
-            <div class="mx-1">
-                <div v-if="data.acceptTypes">
-
-                    Accepts: {{data.acceptTypes}}
-
-                </div>
-
-                <div v-if="data.maxFiles > 1">
-
-                    Limit: {{data.maxFiles - model.length}}
-
-                </div>
-            </div>
-
-            <lava-button v-if="max > 0 && !loading" small rounded :no-padding="true">
+            <lava-button v-if="max > 0 && !loading" small rounded :no-padding="true" style="max-width: 120px">
                 <FileInput placeholder="Add file"
                             @on-change="change"
                             :accept="data.acceptTypes"
                             :multiple="data.multiple"/>
             </lava-button>
 
+            <div>
+
+                <div v-if="data.maxFiles > 1 && data.maxFiles <= Number.MAX_SAFE_INTEGER">
+
+                    Limit: {{data.maxFiles - model.length}}
+
+                </div>
+
+            </div>
+
         </div>
 
-        <FileDetail class="ltr:mr-2 rtl:ml-2" :data="data" :value="_.isArray(model) ? model: [model]" :removable="true" :deletable="true" @remove-all="removeAll" @on-delete="i => removeFile(i)"/>
+        <FileDetail v-if="!_.isEmpty(model)" class="ltr:mr-2 rtl:ml-2" :data="data" :value="model" :removable="true" :deletable="true" @remove-all="removeAll" @on-delete="i => removeFile(i)"/>
 
     </div>
 
@@ -41,7 +37,7 @@
     export default {
         data() {
             return {
-                model: _.isArray(this.value) ? this.value: [this.value],
+                model: this.value === null || this.value === undefined ? [] : _.isArray(this.value) ? this.value: [this.value],
                 loading: false
             }
         },
@@ -80,9 +76,10 @@
                     Lava.showLoading(false)
 
                     this.$emit('on-change', {
-                        value: this.model, 
+                        value: this.data?.multiple ? this.model : _.first(this.model), 
                         column: this.data.column,
-                        file: true
+                        file: true,
+                        multiple: this.data?.multiple || false
                     })
 
                 }).catch((error) => {
@@ -93,14 +90,17 @@
                 })
 
             },
-            removeFile(i) {
-
-                this.$delete(this.model, i)
+            removeFile(url) {
+                
+                this.$delete(this.model, _.findIndex(this.model, (m) => m === url))
                 Lava.showLoading(false)
                 this.$emit('on-change', {
-                    value: this.model, 
+                    value: _.isEmpty(this.model) ? null : this.model, 
                     column: this.data.column,
-                    file: true
+                    all: this.value === null || this.value === undefined ? [] : _.isArray(this.value) ? this.value: [this.value],
+                    file: true,
+                    multiple: this.data.multiple,
+                    delete: true
                 })
 
             },
@@ -111,9 +111,10 @@
                     this.model = []
                     Lava.showLoading(false)
                     this.$emit('on-change', {
-                        value: this.model, 
+                        value: null, 
                         column: this.data.column,
-                        file: true
+                        file: true,
+                        deleteAll: true
                     })
 
                 })

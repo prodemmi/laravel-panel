@@ -107,56 +107,57 @@ import "codemirror/addon/hint/xml-hint.js";
 import { FormMixin } from "../../../mixins";
 
 export default {
-  props: ["data", "value", 'extenstion'],
+  props: ["data", "value", 'extenstion', 'mimeType'],
   mixins: [FormMixin],
   data: () => ({ codemirror: null }),
-
   mounted() {
-    const config = {
-      tabSize: 4,
-      indentWithTabs: true,
-      lineWrapping: true,
-      lineNumbers: true,
-      theme: this.data?.theme || 'darcula',
-      viewportMargin: Infinity,
-      mode: !this.data?.mode && this.extenstion ? this.detectMode() : this.data.mode,
-      readOnly: this.data?.readonly || false,
-      autoCloseBrackets: true,
-      matchBrackets: true,
-      matchTags: true,
-      autoCloseTags: true,
-      foldGutter: true,
-      styleActiveLine: true,
-      styleActiveSelected: true,
-      highlightSelectionMatches: {
-        minChars: 2,
-        showToken: /\w/,
-        style: "matchhighlight",
-        annotateScrollbar: true,
-      },
-      gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-      extraKeys: {"Ctrl-Space": "autocomplete"},
-      ...this.data?.options
-    };
+    
+    this.$nextTick(() => {
 
-    this.codemirror = CodeMirror.fromTextArea(this.$refs.code, config);
+      const config = {
+        tabSize: 4,
+        indentWithTabs: true,
+        lineWrapping: true,
+        lineNumbers: true,
+        theme: this.data?.theme || 'darcula',
+        viewportMargin: Infinity,
+        mode: this.data?.mode || ((this.extenstion || this.mimeType) ? this.detectMode() : null),
+        readOnly: this.data?.readonly || false,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        matchTags: true,
+        autoCloseTags: true,
+        foldGutter: true,
+        styleActiveLine: true,
+        styleActiveSelected: true,
+        highlightSelectionMatches: {
+          minChars: 2,
+          showToken: /\w/,
+          style: "matchhighlight",
+          annotateScrollbar: true,
+        },
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+        extraKeys: {"Ctrl-Space": "autocomplete"},
+        ...this.data?.options
+      };
 
-    this.doc.on("change", (code, changeObj) => {
-      this.model = _.trim(code.getValue());
-      this.onChange(this.model);
-    });
+      this.codemirror = CodeMirror.fromTextArea(this.$refs.code, config);
 
-    this.doc.setValue(_.trim(this.value));
-  },
+      let doc = this.codemirror.getDoc()
 
-  computed: {
-    doc() {
-      return this.codemirror.getDoc();
-    },
+      doc.on("change", (code, changeObj) => {
+          this.model = code.getValue();
+          this.onChange(this.model);
+      });
+
+      doc.setValue(this.value);
+    
+    })
+
   },
   methods: {
     detectMode() {
-      return CodeMirror.findModeByExtension(this.extenstion)?.mode || ''
+      return CodeMirror.findModeByExtension(this.extenstion)?.mode || CodeMirror.findModeByMIME(this.mimeType)?.mode || null
     }
   }
 };

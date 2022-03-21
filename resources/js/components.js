@@ -17,6 +17,8 @@ Vue.component("lava-search-bar", require("./components/SearchBar.vue").default);
 Vue.component("lava-breadcrumb", require("./components/Header/Breadcrumb.vue").default);
 Vue.component("resource-table", require("./components/Table/ResourceTable.vue").default);
 
+Vue.component("value-metric", require("./components/Metrics/ValueMetric.vue").default);
+
 Vue.component("form-error", require("./components/FormError.vue").default);
 
 const fields = require.context("./components/Fields", true, /\.vue$/);

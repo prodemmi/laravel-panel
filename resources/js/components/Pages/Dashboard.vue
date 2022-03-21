@@ -1,8 +1,8 @@
 <template>
 
-    <div class="flex flex-col">
+    <div class="flex flex-wrap w-full">
 
-        Dashboard
+        <component v-for="metric in $store.getters.getConfig.metrics" :is="metric.component" :key="metric.component" :metric="metric"></component>
 
     </div>
 

@@ -7,7 +7,8 @@
                :class="$store.getters.getConfig.rtl ? 'ri-arrow-right-line': 'ri-arrow-left-line'"></i>
 
             <div class="flex justify-end">
-                <lava-button @click="store" :disabled="!couldCreate">Create</lava-button>
+                <lava-button @click="store(true)" :disabled="!couldCreate">Create and back</lava-button>
+                <lava-button @click="store()" :disabled="!couldCreate">Create</lava-button>
             </div>
             
         </div>
@@ -60,7 +61,7 @@
                 this.newData = _.uniqBy(this.newData.reverse(), 'column')
 
             },
-            store() {
+            store(back = false) {
                 this.$http
                     .post("/api/store", {
                         resource: this.resource.resource,
@@ -69,13 +70,16 @@
                     .then((res) => {
                         if (res) {
                             Lava.toast(res.data.message, "success");
-                            // this.canCreate = false;
-                            // this.newData = []
+                            this.canCreate = false;
+                            this.newData = []
+                            if(back){
+                                this.goToBack()
+                            }
                         }
                     })
                     .catch((error) => {
                         this.errors = error.response.data.errors || [];
-                        // this.canCreate = false;
+                        this.canCreate = false;
                     });
             },
         },

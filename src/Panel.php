@@ -136,7 +136,7 @@ class Panel
      */
     public function metrics(array $metrics)
     {
-        $this->metrics = array_unique( array_merge( $this->metrics, $metrics ) );
+        $this->metrics = array_unique( array_merge( $this->metrics, $metrics ) , SORT_REGULAR);
 
         return $this;
     }
@@ -294,6 +294,16 @@ class Panel
         
     }
 
+    /**
+     * @return array
+     */
+    public function getMetrics()
+    {
+
+        return $this->metrics;
+        
+    }
+
     public function disableDashboard()
     {
         $this->showDashboard = TRUE;
@@ -331,9 +341,9 @@ class Panel
             'rtl'           => $this->getRTL() === 'rtl',
             'showDashboard' => $this->showDashboard,
             'resources'     => $this->getResources(),
+            'metrics'       => $this->getMetrics(),
             'sidebarItems'  => $this->sideBarItems(),
             'tools'         => [],
-            'metrics'       => [],
             'config'        => config( 'lava' ),
             'debug'         => config('app.debug')
         ];

@@ -33,11 +33,9 @@ export default {
   },
   computed: {
     attriubtes(){
-      if(this.data && data.attributes){
-        return data.attributes
+      if(this.data && this.data.attributes){
+        return this.data.attributes
       }
-
-
       return {}
     }
   }

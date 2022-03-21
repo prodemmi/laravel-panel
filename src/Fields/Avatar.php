@@ -2,15 +2,17 @@
 
 namespace Prodemmi\Lava\Fields;
 
-class Avatar extends Field
+class Avatar extends File
 {
 
-    public $component = 'avatar';
-    
-    public function rounded()
+    public $maxFiles = 1;
+
+    public function __construct($name, $column = NULL)
     {
 
-        return $this->classes('rounded-full');
+        parent::__construct($name, $column);
+        
+        $this->image()->classes('rounded-full');
 
     }
 

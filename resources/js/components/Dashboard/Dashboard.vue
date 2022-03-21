@@ -17,9 +17,9 @@
 
       <Header />
 
-      <main class="content w-auto h-full" :class="activeTool().tool ? 'overflow-hidden' : 'overflow-y-auto'">
-        <transition name="fade" mode="out-in">
-          <div v-show="!$store.getters.getChangingRoute"><router-view :key="$route.fullPath"></router-view></div>
+      <main class="content w-auto h-full" :class="isTool ? 'overflow-hidden' : 'overflow-y-auto'">
+        <transition name="fade" mode="in-out">
+          <div v-if="!$store.getters.getChangingRoute"><router-view :key="$route.fullPath"></router-view></div>
         </transition>
       </main>
 
@@ -43,6 +43,15 @@ export default {
       checkLicense: true,
       noLicense: false
     }
+  },
+  computed:{
+
+    isTool(){
+
+      return this.activeTool()?.tool
+      
+    }
+
   },
   mounted(){
 

@@ -6,6 +6,7 @@
       @input="change"
       :multiple="multiple"
       :options="ops"
+      :clearable="nullable"
       :selectable="
         () => (multiple ? (_.isArray(model) ? model.length : [model].length) < data.limit : true)
       "
@@ -38,6 +39,9 @@ export default {
       },
       label: {
         default: null
+      },
+      nullable: {
+        default: true
       }
   },
   mixins: [FormMixin],
@@ -68,7 +72,7 @@ export default {
       
       let value = this.multiple
         ? this.model
-        : _.indexOf(this.ops, this.model);
+        : this.model.value;
 
       this.$emit("on-change", value);
 

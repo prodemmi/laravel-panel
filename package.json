@@ -24,6 +24,7 @@
     "@ckeditor/ckeditor5-build-decoupled-document": "^31.1.0",
     "@ckeditor/ckeditor5-html-support": "^31.1.0",
     "@ckeditor/ckeditor5-vue2": "^1.0.5",
+    "apexcharts": "^3.33.2",
     "axios": "^0.24.0",
     "codemirror": "^5.65.0",
     "cross-env": "^7.0.3",
