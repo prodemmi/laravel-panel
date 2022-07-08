@@ -63,13 +63,21 @@ class Relation extends Field
 
             $update_column = $function?->getLocalKeyName();
             
-        }elseif($relationType === 'BelongsTo'){
+        }elseif($relationType === 'BelongsTo' || $relationType === 'HasMany'){
 
             $update_column = $function?->getForeignKeyName();
 
+        }else{
+
+            $update_column = $function?->getForeignPivotKeyName();
+
+        }
+
+        if(!isset($update_column)){
+            dd($relationType);
         }
         
-        $this->update_column     = $update_column ?? null;
+        $this->update_column     = $update_column;
         $this->relationType      = $relationType;
 
         return $this;

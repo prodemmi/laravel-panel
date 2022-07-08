@@ -49,7 +49,7 @@ abstract class Action implements Arrayable
     {
 
         return [
-            'action'      => static::class,
+            'class'      => static::class,
             'name'        => $this->name,
             'help'        => $this->help,
             'icon'        => $this->getIcon() ?? $this->icon,

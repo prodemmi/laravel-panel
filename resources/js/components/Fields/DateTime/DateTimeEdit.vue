@@ -6,10 +6,10 @@
                 v-bind="data.attributes"
                 class="w-full"
                 v-model="model"
-                popover
                 color="#212f3c"
                 type="datetime"
                 auto-submit
+                simple
                 :format="data.format"
                 :display-format="data.jalali ? 'jYYYY/jMM/jDD HH:mm:ss' : 'YYYY-MM-DD HH:mm:ss'"
                 :locale="data.local"
@@ -65,9 +65,9 @@
                 }
 
                 this.$emit('on-change', {
-                        column: event.format('YYYY-MM-DD HH:mm:ss'),
-                        value: null
-                    });
+                    column: this.data.column,
+                    value: event.format('YYYY-MM-DD HH:mm:ss')
+                });
 
             },
             setNull() {

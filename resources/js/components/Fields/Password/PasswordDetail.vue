@@ -1,26 +1,13 @@
 <template>
 
-    <div v-bind="data.attributes" class="truncate" v-bind.prop="getValue"></div>
+    <div v-bind="data.attributes">Secret</div>
 
 </template>
 
 <script>
 
-    import {asHtmlMixin} from '../../../mixins'
-
     export default {
-        props: ['data', 'value'],
-        mixins: [asHtmlMixin],
+        props: ['data', 'value']
     }
+    
 </script>
-
-<style scoped>
-
-    .truncate{
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 400px;
-    }
-
-</style>

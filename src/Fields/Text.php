@@ -33,7 +33,7 @@ class Text extends Field
 
         $regex = $this->callableValue( $regex );
 
-        $this->displayValue( function ($value, $row, $env, $export) use ($regex, $blank) {
+        $this->display( function ($value, $row, $env, $export) use ($regex, $blank) {
 
             if($export){
                 return $value;

@@ -7,6 +7,8 @@ class Avatar extends File
 
     public $maxFiles = 1;
 
+    public $avatar   = true;
+
     public function __construct($name, $column = NULL)
     {
 

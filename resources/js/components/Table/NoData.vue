@@ -2,12 +2,13 @@
 
     <div class="flex flex-col justify-center items-center w-full h-full m-auto">
 
-        <div class="flex flex-col justify-center items-center border-solid border-2 border-black p-4 rounded-md"
+        <div class="flex flex-col justify-center items-center border-solid border-2 border-black p-8 rounded-md"
              style="min-width: 280px;">
-            <i class="ri-emotion-unhappy-line mb-4 text-primary" style="font-size: 4em"></i>
-            <b class="mb-4">There is nothing to show.</b>
+            <i class="ri-emotion-unhappy-line mb-4 text-primary text-6xl"></i>
+            <b >There is nothing to show.</b>
             <lava-button
                     v-if="resource.creatable"
+                    class="mt-8 px-4"
                     @click="goToRoute('create', { resource: resource.route })">
                 Create {{ resource.singularLabel }}
             </lava-button>

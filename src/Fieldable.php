@@ -3,8 +3,7 @@
 namespace Prodemmi\Lava;
 
 
-trait Fieldable
-{
+trait Fieldable {
 
     use CallableValue;
 
@@ -12,114 +11,103 @@ trait Fieldable
 
     public $showOnDetail = TRUE;
 
-    public $showOnForm = TRUE;
+    public $showOnForms = TRUE;
 
-    public $hideDefault = FALSE;
+    public $hide = FALSE;
 
-    public function showOnAll($showOnAll = TRUE)
+    public function showOnAll ($showOnAll = TRUE)
     {
 
-        if($showOnAll){
+        if ( $showOnAll ) {
 
-            $this->showOnIndex = true;
-            $this->showOnDetail = true;
-            $this->showOnForm = true;
+            $this->showOnIndex = TRUE;
+            $this->showOnDetail = TRUE;
+            $this->showOnForms = TRUE;
 
         }
 
         return $this;
-        
+
     }
 
-    public function setOnIndex($setOnIndex = TRUE)
+    public function hideOnAll ($hideOnAll = TRUE)
     {
 
-        $this->showOnIndex = $this->callableValue( $setOnIndex );
+        if ( $hideOnAll ) {
+
+            $this->showOnIndex = FALSE;
+            $this->showOnDetail = FALSE;
+            $this->showOnForms = FALSE;
+
+        }
 
         return $this;
     }
 
-    public function setOnDetail($setOnDetail = TRUE)
+    public function onlyOnIndex ()
     {
 
-        $this->showOnDetail = $this->callableValue( $setOnDetail );
-
-
-        return $this;
-    }
-
-    public function setOnForm($setOnForm = TRUE)
-    {
-
-        $this->showOnForm = $this->callableValue( $setOnForm );
-
-        return $this;
-    }
-
-    public function onlyOnIndex()
-    {
-
-        $this->showOnIndex  = TRUE;
+        $this->showOnIndex = TRUE;
         $this->showOnDetail = FALSE;
-        $this->showOnForm   = FALSE;
+        $this->showOnForms = FALSE;
 
         return $this;
     }
 
-    public function onlyOnDetail()
+    public function onlyOnDetail ()
     {
 
-        $this->showOnIndex  = FALSE;
+        $this->showOnIndex = FALSE;
         $this->showOnDetail = TRUE;
-        $this->showOnForm   = FALSE;
+        $this->showOnForms = FALSE;
 
         return $this;
     }
 
-    public function onlyOnForms()
+    public function onlyOnForms ()
     {
 
-        $this->showOnIndex  = FALSE;
+        $this->showOnIndex = FALSE;
         $this->showOnDetail = FALSE;
-        $this->showOnForm   = TRUE;
+        $this->showOnForms = TRUE;
 
         return $this;
     }
 
-    public function exceptOnDetail()
+    public function exceptOnDetail ()
     {
 
-        $this->showOnIndex  = TRUE;
+        $this->showOnIndex = TRUE;
+        $this->showOnDetail = FALSE;
+        $this->showOnForms = TRUE;
+
+        return $this;
+    }
+
+    public function exceptOnForms ()
+    {
+
+        $this->showOnIndex = TRUE;
         $this->showOnDetail = TRUE;
-        $this->showOnForm   = FALSE;
+        $this->showOnForms = FALSE;
 
         return $this;
     }
 
-    public function exceptOnForms()
+    public function exceptOnIndex ()
     {
 
-        $this->showOnIndex  = TRUE;
+        $this->showOnIndex = FALSE;
         $this->showOnDetail = TRUE;
-        $this->showOnForm   = FALSE;
+        $this->showOnForms = TRUE;
 
         return $this;
     }
 
-    public function exceptOnIndex()
+    public function hide ($hide = TRUE)
     {
 
-        $this->showOnIndex  = FALSE;
-        $this->showOnDetail = TRUE;
-        $this->showOnForm   = TRUE;
-
-        return $this;
-    }
-
-    public function hideDefault($hideDefault = TRUE)
-    {
-
-        $this->hideDefault = $this->callableValue( $hideDefault );
+        $this->hide = $this->callableValue($hide);
 
         return $this;
     }

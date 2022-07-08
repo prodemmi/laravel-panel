@@ -4,16 +4,16 @@
 
     <div class="flex flex-col items-start justify-start" v-else-if="data.all > 0">
 
-        <lava-dialog :show="selected_action && selected_action.fields.length > 0"
+        <lava-dialog :show="selected_action_dialog"
                      :disabled="canDoAction"
-                     :danger="selected_action && selected_action.danger"
-                     @on-continue="doAction(selected_action)"
+                     :danger="selected_action_dialog && selected_action_dialog.danger"
+                     @on-continue="doAction(selected_action_dialog, temp_selected_rows)"
                      @on-cancel="hideDialog"
                      @on-close="hideDialog">
 
             <template v-slot:header>
 
-                {{ selected_action.name }}
+                {{ selected_action_dialog.name }}
 
             </template>
 
@@ -23,7 +23,7 @@
 
                     <fields :data="[]"
                             class="w-full"
-                            :fields="selected_action.fields"
+                            :fields="selected_action_dialog.fields"
                             :errors="[]"
                             @on-change="changeActionField"
                             env="edit"/>
@@ -34,106 +34,26 @@
 
         </lava-dialog>
 
-        <div v-if="(relation && data.all > 1) || !relation">Total: {{data.total || _.size(data.rows)}}</div>
+        <div v-if="(relation && data.all > 1) || !relation" class="flex-center mb-1">Total: {{ data.total || _.size(data.rows) }}</div>
+
+        <!-- Options -->
 
         <div v-if="!relation" class="flex justify-between items-center w-full my-1">
 
-                        <div class="flex justify-between items-center">
-                
-                <lava-search-bar :search-in="resource.searches"
-                            @on-search="search"/>
+            <div class="flex justify-between items-center mb-2">
 
-                <lava-button @click="getData(true)"
-                            :no-padding="true">
+                <lava-search-bar class="ltr:mr-1 rtl:ml-1" :search-in="resource.searches" @on-search="search"/>
 
-                    <i class="ri-refresh-line"></i>
+                <columns-option class="mx-1" :resource="resource" :headers="data.headers" :shows="shows"
+                                @on-change="value => shows = value"/>
 
-                </lava-button>
+                <filters-option class="mx-1" :resource="resource" @set-filter="doFilter" @on-limit="limit"/>
 
-                <div class="relative" v-click-outside="hideVisibility">
-
-                    <lava-button @click="show_visibility = true" :no-padding="true">
-
-                        <i class="ri-eye-line"></i>
-
-                    </lava-button>
-
-                    <div v-show="show_visibility"
-                        class="absolute z-100 rounded bg-white shadow-md p-2"
-                        style="width: max-content">
-
-                        <div v-for="(column, index) in data.headers"
-                            :key="index"
-                            class="flex flex-wrap">
-
-                            <span style="min-width: 120px">{{ column.name }}</span>
-
-                            <input v-model="shows[index].show"
-                                type="checkbox"
-                                class="my-0.5"
-                                :disabled="(shows[index].show && index <= 2) || column.column === resource.primaryKey"/>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <filters :resource="resource" @set-filter="doFilter"/>
-                
-            </div>
-
-            <div class="flex">
-
-                <ActionBar  v-if="selected.length"
-                    :actions="resource.actions"
-                    :selected="selected"
-                    :showClose="false"
-                    @handle-action="handleAction"/>
-
-                <div v-show="!selected.length" class="relative" v-click-outside="hideActions">
-
-                    <lava-button @click="show_actions = true" :no-padding="true">
-
-                        <i class="ri-router-line"></i>
-
-                    </lava-button>
-
-                    <div v-show="show_actions"
-                            class="absolute ltr:right-0 rtl:left-0 z-100 rounded bg-white shadow-md p-2"
-                            style="width: max-content">
-
-                        <ActionBar
-                            :actions="resource.actions"
-                            :selected="null"
-                            :showClose="false"
-                            @handle-action="handleAction"/>
-
-                    </div>
-
-                </div>
-
-                <div class="relative" v-click-outside="hideExport">
-
-                    <lava-button @click="show_export = true" :no-padding="true">
-
-                        <i class="ri-download-2-line"></i>
-
-                    </lava-button>
-
-                    <div v-show="show_export"
-                        class="absolute z-100 ltr:right-0 rtl:left-0 rounded bg-white shadow-md p-2"
-                        style="width: max-content">
-
-                        <div v-for="type in ['EXCEL', 'JSON', 'PRINT']" :key="type">
-                            <lava-button @click="exportData(type)">{{ type }}</lava-button>
-                        </div>
-
-                    </div>
-
-                </div>
+                <export-option class="mx-1" :resource="resource" @on-export="type => exportData(type)"/>
 
             </div>
+
+            <actions-option class="mx-1" :selected="selected" :actions="resource.actions" @handle-action="(action, rows) => {temp_selected_rows = rows; handleAction(action, rows)}"/>
 
         </div>
 
@@ -141,7 +61,7 @@
 
             <div class="rounded-lg overflow-x-auto whitespace-nowrap"
                  style="width: 100%"
-                 :style="{ 'min-height': relation ? 'auto' : '64vh' }">
+                 :style="{ 'min-height': relation ? 'auto' : '62vh' }">
 
                 <div class="relative">
 
@@ -171,31 +91,32 @@
 
                                 <th :key="index"
                                     v-if="shows[index].show"
+                                    :style="{width: index == 0 ? '64px' : '120px'}"
                                     class="resource-table__th">
 
-                                    <div class="flex items-center" >
+                                    <div class="flex items-center">
 
                                         <span>{{ header.name }}</span>
 
                                         <span v-if="header.sortable"
-                                            @click="setSort(header.column)"
-                                            class="cursor-pointer ltr:ml-2 rtl:mr-2">
+                                              @click="setSort(header.column)"
+                                              class="cursor-pointer ltr:ml-2 rtl:mr-2">
 
-                                            <template v-if="query.sort.column === header.column">
+                                                <template v-if="query.sort.column === header.column">
 
-                                                <i v-if="query.sort.direction === 'DESC'"
-                                                    class="ri-arrow-up-line">
-                                                </i>
+                                                    <i v-if="query.sort.direction === 'DESC'"
+                                                       class="ri-arrow-up-line">
+                                                    </i>
 
-                                                <i v-else-if="query.sort.direction === 'ASC'"
-                                                      class="ri-arrow-down-line">
-                                                </i>
+                                                    <i v-else-if="query.sort.direction === 'ASC'"
+                                                       class="ri-arrow-down-line">
+                                                    </i>
 
-                                            </template>
+                                                </template>
 
-                                            <i v-else class="ri-arrow-drop-down-line"></i>
+                                                <i v-else class="ri-arrow-drop-down-line"></i>
 
-                                        </span>
+                                            </span>
 
                                     </div>
 
@@ -213,10 +134,10 @@
 
                         <tbody class="border-solid border-1 border-gray-300">
 
-                        <tr v-for="(row, index) in _.map(data.rows, 'rows')"
+                        <tr v-for="(row, index) in data.rows"
                             :key="index"
                             class="border-solid border-b-1 border-gray-200"
-                            :class="_.includes(selected, row) ? 'bg-white' : ''">
+                            :class="_.includes(selected, row.rows) ? 'bg-white' : ''">
 
                             <td class="resource-table__td">
 
@@ -224,7 +145,7 @@
                                        type="checkbox"
                                        class="checkbox"
                                        v-model="selected"
-                                       :value="row"/>
+                                       :value="row.rows"/>
 
                             </td>
 
@@ -234,39 +155,18 @@
                                     :key="i"
                                     class="resource-table__td">
 
-                                    <component v-if="getField(!!relation ? relationResource : resource, header.column)"
-                                               :is="getField(!!relation ? relationResource : resource, header.column).component +
-                                               '-index'"
-                                               :data="getField(!!relation ? relationResource : resource, header.column)"
-                                               :value="resourceValue(row, header)"/>
+                                    <component v-if="getField(getOriginalResource, header.column)"
+                                               :is="getField(getOriginalResource, header.column).component + (getField(getOriginalResource, header.column).component === 'div' ? '' : '-index')"
+                                               :data="getField(getOriginalResource, header.column)"
+                                               :value="resourceValue(row.rows, header)">
+                                        <div v-if="getField(getOriginalResource, header.column).component === 'div'" v-html="resourceValue(row.rows, header)"></div>
+                                    </component>
 
                                 </td>
 
                             </template>
 
-                            <th v-if="(!!relation ? relationResource : resource).actions.length && showActions"
-                                :class="selected.length > 0 ? 'pointer-events-none opacity-20' : ''"
-                                class="resource-table__td">
-
-                                <div class="flex items-center justify-start text-lg">
-
-                                    <lava-tooltip
-                                            v-for="action in (!!relation ? relationResource : resource).actions"
-                                            :text="_.find(data.rows[index].actions, {name: action.action}).show ? action.name : null"
-                                            :key="action.name">
-
-                                        <div v-html="icon(action.icon)"
-                                             @click="handleAction(action, [row])"
-                                             style="height: 100%"
-                                             :class="[`text-${action.color}` , _.find(data.rows[index].actions, {name: action.action}).show ? '' : 'pointer-events-none opacity-30']"
-                                             class="cursor-pointer pr-1 hover:text-gray-400">
-                                        </div>
-
-                                    </lava-tooltip>
-
-                                </div>
-
-                            </th>
+                            <table-actions v-if="showActions" :class="{'opacity-50 pointer-events-none': selected.length}" :row="row" :actions="getOriginalResource.actions" @handle-action="(action, row) => {temp_selected_rows = row ; handleAction(action, row)}" />
 
                         </tr>
 
@@ -278,7 +178,7 @@
 
             </div>
 
-            <pagination v-if="(data.all > data.per_page) && !this.disablePagination"
+            <pagination v-if="(data.all > data.per_page) && paginate"
                         :data="data"
                         @change-page="changePage"
                         @change-per-page="changePerPage"
@@ -294,433 +194,521 @@
 
 <script>
 
-    import Pagination from "./Pagination";
-    import ActionBar from "../Table/ActionBar";
-    import Filters from "../Table/Filters";
-    import NoData from "../Table/NoData";
-    import Fields from "../Pages/Fields";
+import Pagination    from "./Pagination";
+import ActionBar     from "../Table/ActionBar";
+import FiltersOption from "../Table/FiltersOption";
+import ColumnsOption from "../Table/ColumnsOption";
+import ActionsOption from "../Table/ActionsOption";
+import ExportOption  from "../Table/ExportOption";
+import TableActions  from "../Table/TableActions";
+import NoData        from "../Table/NoData";
+import Fields        from "../Pages/Fields";
 
-    export default {
-        components: {
-            Pagination,
-            ActionBar,
-            Filters,
-            NoData,
-            Fields
+export default {
+    components: {
+        Pagination,
+        ActionBar,
+        FiltersOption,
+        ColumnsOption,
+        ActionsOption,
+        ExportOption,
+        TableActions,
+        NoData,
+        Fields
+    },
+    props: {
+        resource: {
+            type: Object,
+            required: true
         },
-        props: {
-            resource: {
-                type: Object,
-                required: true
-            },
-            relationResource: {
-                type: Object,
-                required: false
-            },
-            relation: {
-                type: String,
-                required: false
-            },
-            disablePagination: {
-                type: Boolean,
-                required: false,
-                default: false
-            },
-            column: {
-                type: String,
-                required: false
-            },
-            env: {
-                type: String,
-                required: false
-            },
-            showActions: {
-                type: Boolean,
-                default: true
-            }
+        relationResource: {
+            type: Object,
+            required: false
         },
-        data() {
-            return {
-                data: [],
-                selected: [],
-                temp_selected: [],
-                query: {
-                    page: 1,
-                    per_page: _.first(this.resource.perPages),
-                    sort: {
-                        column: this.resource.sort[0],
-                        direction: this.resource.sort[1],
-                    }
-                },
-                show_visibility: false,
-                show_export: false,
-                show_actions: false,
-                loading: false,
-                selected_action: undefined,
-                primaryKey: this.resource.primaryKey,
-                shows: undefined
-            };
+        relation: {
+            type: String,
+            required: false
         },
-        mounted() {
+        paginate: {
+            type: Boolean,
+            default: true
+        },
+        column: {
+            type: String,
+            required: false
+        },
+        env: {
+            type: String,
+            required: false
+        },
+        showActions: {
+            type: Boolean,
+            default: true
+        }
+    },
+    data() {
+        return {
+            data: [],
+            selected: [],
+            temp_selected: [],
+            query: {
+                page: 1,
+                per_page: _.first(this.resource.perPages),
+                sort: {
+                    column: this.resource.sort[0],
+                    direction: this.resource.sort[1],
+                }
+            },
+            show_visibility: false,
+            loading: false,
+            primaryKey: this.resource.primaryKey,
+            selected_action_dialog: null,
+            temp_selected_rows: null,
+            shows: undefined,
+            getOriginalResource: !!this.relation ? this.relationResource : this.resource
+        };
+    },
+    mounted() {
 
-            this.getData();
+        this.query.limit = !!this.relation ? null : this.resource.limit
 
+        this.getData();
+
+    },
+    watch: {
+        selected() {
+            this.checkIndeterminate();
         },
-        watch: {
-            selected() {
-                this.checkIndeterminate();
+    },
+    computed: {
+        selectAll: {
+            get: function () {
+                return _.intersectionBy(_.map(this.data.rows, 'rows'), this.selected, this.primaryKey).length;
             },
-        },
-        computed: {
-            selectAll: {
-                get: function () {
-                    return _.intersectionBy(_.map(this.data.rows, 'rows'), this.selected, this.primaryKey).length;
-                },
-                set: function (value) {
-                    if (value) {
-                        this.selected = _.uniqBy(
-                            _.concat(this.selected, _.map(this.data.rows, 'rows')),
-                            this.primaryKey
-                        );
-                        return;
-                    }
-
-                    this.selected = _.differenceBy(
-                        this.selected,
-                        _.map(this.data.rows, 'rows'),
+            set: function (value) {
+                if (value) {
+                    this.selected = _.uniqBy(
+                        _.concat(this.selected, _.map(this.data.rows, 'rows')),
                         this.primaryKey
                     );
-                }
-            },
-            canDoAction() {
-
-                if (_.isEmpty(this.selected_action?.fields)) {
-
-                    return false
-
+                    return;
                 }
 
-                let newFields = this.flattenFields(this.selected_action.fields)
+                this.selected = _.differenceBy(
+                    this.selected,
+                    _.map(this.data.rows, 'rows'),
+                    this.primaryKey
+                );
+            }
+        },
+        canDoAction() {
 
-                for (let i = 0; i < newFields.length; i++) {
-
-                    if (newFields[i].rules.includes('required')) {
-
-                        let value = _.find(this.selected_action.values, {
-                            column:
-                            newFields[i].column
-                        })?.value
-
-                        if (value === undefined || value === null) {
-                            return true
-                        }
-
-                    }
-
-                }
+            if (_.isEmpty(this.selected_action_dialog?.fields)) {
 
                 return false
 
             }
-        },
-        methods: {
-            hideDialog() {
-                this.selected_action = undefined;
-            },
-            getData(reset = false) {
 
-                    if (reset) {
-                        this.query.filter = null;
+            let newFields = this.flattenFields(this.selected_action_dialog.fields)
+
+            for (let i = 0; i < newFields.length; i++) {
+
+                if (newFields[i].rules.includes('required')) {
+
+                    let value = _.find(this.selected_action_dialog.values, {
+                        column:
+                        newFields[i].column
+                    })?.value
+
+                    if (value === undefined || value === null) {
+                        return true
                     }
 
-                    this.setLoading(true);
+                }
 
-                    this.updateConfig( () => {
+            }
 
-                        this.$http
-                            .post("/api/" + (this.relation ? 'relation-table' : 'table'), {
-                                resource: this.resource,
-                                relation: this.relation,
-                                relationResource: this.relationResource?.resource,
-                                query: this.query,
-                                column: this.column,
-                                search: decodeURIComponent(this.$route.params.primaryKey)
-                            })
-                            .then( (res) =>  {
-                                
-                                if (!this.shows) {
-                                    this.shows = res.data.headers;
-                                }
+            return false
 
-                                this.data = res.data
+        }
+    },
+    methods: {
+        limit: _.debounce(function (value){
 
-                                this.checkIndeterminate();
+            this.query.limit = value
+            this.getData()
 
-                                this.setLoading(false);
+        }, 400),
+        handleAction(action, rows = null, goback = false) {
 
-                            })
+            if ( !_.isEmpty(action.fields) ) {
 
-                    }, this.relation)
-                
-            },
-            checkIndeterminate() {
-                if (this.$refs.selectAllCheckbox) {
-                    if (
-                        this.selected < _.map(this.data.rows, 'rows') &&
-                        _.intersectionBy(this.selected, _.map(this.data.rows, 'rows'), this.primaryKey)
-                            .length
-                    ) {
-                        this.$refs.selectAllCheckbox.indeterminate = true;
+                this.selected_action_dialog = action
+                return
+
+            }
+
+            this.doAction(action, rows, goback)
+
+        },
+        doAction(action = null, rows = null, goback = false){
+
+            if ( action.danger ) {
+                Lava.confirm(action.name, action.help, action.danger).then(res => {
+                    if ( res.isConfirmed ) this.action(action, rows, goback)
+                });
+                return
+            }
+
+            this.action(action, rows, goback)
+
+        },
+        action(action = null, rows = null, goback = false) {
+
+            Lava.showLoading(-1)
+
+            return this.$http
+                .post("/api/action", {
+                    action: action || this.selected_action_dialog,
+                    values: _.flatten(action.values),
+                    rows  : rows || this.temp_selected_rows
+                })
+                .then((res) => {
+
+                    Lava.showLoading(false)
+
+                    this.temp_selected_rows     = null
+                    this.selected_action_dialog = null
+
+                    if ( this.goback ) {
+                        this.goToBack()
+                        return
+                    }
+
+                    if ( res.data.type === "newWindow" ) {
+                        window.open(res.data.url, res.data.blank ? "_blank" : "_self");
                         return;
                     }
 
-                    this.$refs.selectAllCheckbox.indeterminate = false;
-                }
-            },
-            setLoading(status) {
+                    if ( res.data.type === "dialog" ) {
+                        Lava.confirm(res.data.title, res.data.view, false, {
+                            showCancelButton : false,
+                            confirmButtonText: 'Ok', ...res.data.options
+                        })
+                        return;
+                    }
 
-                this.loading = status;
 
-                if(!this.relation){
-                    Lava.showLoading(status ? -1 : false);
-                }
+                    if ( res.data.type === "route" ) {
+                        this.goToRoute(res.data.name, res.data.params);
+                        return;
+                    }
 
-            },
-            setSort(column = null) {
-                this.query.sort = {
-                    column,
-                    direction: this.query.sort.direction === "DESC" ? "ASC" : "DESC",
-                };
+                    Lava.toast(res.data.message, res.data.type)
+                    this.updateConfig(this.getData())
 
-                this.getData();
-            },
-            changePage(page) {
-                this.query.page = page;
-                this.getData();
-                this.checkIndeterminate();
-            },
-            changePerPage(event) {
-                this.query.page = 1;
-                this.query.per_page = event.target.value;
-                this.getData();
-                this.checkIndeterminate();
-            },
-            changeActionField(val) {
+                });
+        },
+        hideDialog() {
+            this.selected_action_dialog = undefined;
+        },
+        getData(reset = false) {
 
-                let data = _.cloneDeep(this.selected_action)
+            if (reset) {
+                this.query.filter = null;
+            }
 
-                if (_.isEmpty(data.values)) {
-                    data.values = []
-                }
+            this.setLoading(true);
 
-                let f = _.find(data.values, {column: val.column})
-
-                if (f) {
-                    f.value = val.value
-                } else {
-                    data.values.push({
-                        column: val.column,
-                        value: val.value
-                    })
-                }
-
-                this.selected_action = data
-
-            },
-            doFilter(filter) {
-
-                this.query.filter = filter
-                this.getData();
-
-            },
-            search(search) {
-                this.query.search = search;
-                this.query.page = 1;
-
-                this.getData();
-            },
-            hideVisibility() {
-                this.show_visibility = false;
-            },
-            hideExport() {
-                this.show_export = false;
-            },
-            hideActions() {
-                this.show_actions = false;
-            },
-            exportData(type) {
-
-                this.hideExport()
-                this.loading = true;
+            this.updateConfig(() => {
 
                 this.$http
-                    .post("/api/export", {
+                    .post("/api/" + (this.relation ? 'relation-table' : 'table'), {
                         resource: this.resource,
-                        selected: this.selected,
-                        headers: _.filter(this.shows, {show: true}),
-                        query: this.query
+                        relation: this.relation,
+                        relationResource: this.relationResource?.resource,
+                        query: this.query,
+                        column: this.column,
+                        paginate: this.paginate,
+                        search: decodeURIComponent(this.$route.params.primaryKey)
                     })
                     .then((res) => {
 
-                        this.$nextTick(() => {
+                        if (!this.shows) {
+                            this.shows = res.data.headers;
+                        }
 
-                            this.createExport(res.data, type)
+                        this.data = res.data
 
-                        });
+                        this.checkIndeterminate();
 
-                    }).catch(error => {
+                        this.setLoading(false);
 
-                    this.loading = false;
+                        if(!this.relation && !this.loading && this.data.all === 0){
+                            this.$emit('on-no-data', true)
+                        }
 
-                });
-
-            },
-            createExport(data, type) {
-
-                try {
-
-                    var filename = moment().utc().format('MMMM Do YYYY, h:mm:ss a');
-                    
-                    switch (type) {
-                        case 'EXCEL':
-                            this.exportExcel(filename, data)
-                            break
-                        case 'JSON':
-                            this.exportJson(filename, data)
-                            break
-                        case 'PRINT':
-                            this.exportPrint(filename, data)
-                            break
-                    }
-                    
-                    this.loading = false;
-
-                } catch (e) {
-
-                    console.error(e);
-                    Lava.toast(e, 'error', {
-                        timer: 10000
                     })
-                    this.loading = false
 
+            }, this.relation)
+
+        },
+        checkIndeterminate() {
+            if (this.$refs.selectAllCheckbox) {
+                if (
+                    this.selected < _.map(this.data.rows, 'rows') &&
+                    _.intersectionBy(this.selected, _.map(this.data.rows, 'rows'), this.primaryKey)
+                        .length
+                ) {
+                    this.$refs.selectAllCheckbox.indeterminate = true;
+                    return;
                 }
 
-            },
-            exportExcel(filename, data) {
+                this.$refs.selectAllCheckbox.indeterminate = false;
+            }
+        },
+        setLoading(status) {
 
-                let xlsx = require('json-as-xlsx')
+            this.loading = status;
 
-                let exportData = [
-                    {
-                        sheet: this.resource.pluralLabel,
-                        columns: _.map(data.headers, (header, i) => {
+            if (!this.relation) {
+                Lava.showLoading(status ? -1 : false);
+            }
 
-                            return {
-                                label: header,
-                                value: _.find(this.shows, {name: header}).column
-                            }
+        },
+        setSort(column = null) {
+            this.query.sort = {
+                column,
+                direction: this.query.sort.direction === "DESC" ? "ASC" : "DESC",
+            };
 
-                        }),
-                        content: data.data
-                    }
-                ]
+            this.getData();
+        },
+        changePage(page) {
+            this.query.page = page;
+            this.getData();
+            this.checkIndeterminate();
+        },
+        changePerPage(event) {
+            this.query.page = 1;
+            this.query.per_page = event.target.value;
+            this.getData();
+            this.checkIndeterminate();
+        },
+        changeActionField(val) {
 
-                let settings = {
-                    fileName: filename, // Name of the resulting spreadsheet
-                    extraLength: 3, // A bigger number means that columns will be wider
-                    writeOptions: {} // Style options from https://github.com/SheetJS/sheetjs#writing-options
+            let data = _.cloneDeep(this.selected_action_dialog)
+
+            if (_.isEmpty(data.values)) {
+                data.values = []
+            }
+
+            let f = _.find(data.values, {column: val.column})
+
+            if (f) {
+                f.value = val.value
+            } else {
+                data.values.push({
+                    column: val.column,
+                    value: val.value
+                })
+            }
+
+            this.selected_action_dialog = data
+
+        },
+        doFilter(filter) {
+
+            if (filter || (!filter && this.query.filter)) {
+
+                this.getData();
+
+            }
+
+            this.query.filter = filter
+
+        },
+        search(search) {
+            this.query.search = search;
+            this.query.page = 1;
+
+            this.getData();
+        },
+        hideVisibility() {
+            this.show_visibility = false;
+        },
+        exportData(type) {
+
+            this.loading = true;
+
+            this.$http
+                .post("/api/export", {
+                    resource: this.resource,
+                    selected: this.selected,
+                    headers: _.filter(this.shows, {show: true}),
+                    query: this.query
+                })
+                .then((res) => {
+
+                    this.$nextTick(() => {
+
+                        this.createExport(res.data, type)
+
+                    });
+
+                }).catch(error => {
+
+                this.loading = false;
+
+            });
+
+        },
+        createExport(data, type) {
+
+            try {
+
+                var filename = moment().utc().format('MMMM Do YYYY, h:mm:ss a');
+
+                switch (type) {
+                    case 'EXCEL':
+                        this.exportExcel(filename, data)
+                        break
+                    case 'JSON':
+                        this.exportJson(filename, data)
+                        break
+                    case 'PRINT':
+                        this.exportPrint(filename, data)
+                        break
                 }
 
-                xlsx(exportData, settings) // Will download the excel file
+                this.loading = false;
 
-            },
-            exportJson(filename, data) {
-                
-                var download = document.createElement('a');
+            } catch (e) {
 
-                var file = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data.data));
-
-                download.setAttribute("href", file);
-                download.setAttribute("download", `${filename}.json`);
-                download.click();
-
-            },
-            exportPrint(filename, data) {
-
-                var root = document.createElement('div');
-
-                if(this.$store.getters.getConfig.rtl){
-
-                    root.style.direction = 'rtl'
-
-                }
-
-                var header = document.createElement('h3');
-                header.innerHTML = this.resource.pluralLabel
-
-                root.appendChild(header)
-                
-                var date = document.createElement('h4')
-                date.innerHTML = filename
-
-                root.appendChild(date)
-                
-                const tbl = document.createElement('table');
-
-                tbl.style.width = '100%'
-                tbl.style.textAlign = 'left'
-                tbl.style.borderCollapse = 'collapse'
-                var tr = document.createElement('tr');
-
-                // Create Header
-                var thead = document.createElement('thead');
-                for (var i = 0; i < data.headers.length; i++) {
-
-                    var th = document.createElement('th');
-                    th.style.padding = '8px 4px 8px 4px';
-                    th.style.border = '1px solid black';
-                    var text = document.createTextNode(data.headers[i]);
-                    th.appendChild(text);
-                    tr.appendChild(th);
-
-                }
-                thead.appendChild(tr)
-
-                tbl.appendChild(thead);
-
-                // Create Rows
-                var tbody = document.createElement('tbody');
-                for (var i = 0; i < data.data.length; i++) {
-
-                    var tr = document.createElement('tr');
-
-                    for (let j = 0; j < _.values(data.headers).length; j++) {
-                        
-                        var td = document.createElement('td');
-                        td.style.padding = '8px 4px 8px 4px';
-                        td.style.border = '1px solid black';
-                        var text = document.createTextNode(_.values(data.data[i])[j]);
-                        td.appendChild(text);
-                        tr.appendChild(td);
-                        
-                    }
-
-                    tbody.appendChild(tr)
-
-                }
-
-                tbl.appendChild(tbody);
-
-                root.appendChild(tbl)
-
-                var x=window.open();
-                    x.document.open();
-                    x.document.write(root.outerHTML);
-                    x.document.close();
+                console.error(e);
+                Lava.toast(e, 'error', {
+                    timer: 10000
+                })
+                this.loading = false
 
             }
 
         },
-    };
+        exportExcel(filename, data) {
+
+            let xlsx = require('json-as-xlsx')
+
+            let exportData = [
+                {
+                    sheet: this.resource.pluralLabel,
+                    columns: _.map(data.headers, (header, i) => {
+
+                        return {
+                            label: header,
+                            value: _.find(this.shows, {name: header}).column
+                        }
+
+                    }),
+                    content: data.data
+                }
+            ]
+
+            let settings = {
+                fileName: filename, // Name of the resulting spreadsheet
+                extraLength: 3, // A bigger number means that columns will be wider
+                writeOptions: {} // Style options from https://github.com/SheetJS/sheetjs#writing-options
+            }
+
+            xlsx(exportData, settings) // Will download the excel file
+
+        },
+        exportJson(filename, data) {
+
+            var download = document.createElement('a');
+
+            var file = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data.data));
+
+            download.setAttribute("href", file);
+            download.setAttribute("download", `${filename}.json`);
+            download.click();
+
+        },
+        exportPrint(filename, data) {
+
+            var root = document.createElement('div');
+
+            if (this.$store.getters.getConfig.rtl) {
+
+                root.style.direction = 'rtl'
+
+            }
+
+            var header = document.createElement('h3');
+            header.innerHTML = this.resource.pluralLabel
+
+            root.appendChild(header)
+
+            var date = document.createElement('h4')
+            date.innerHTML = filename
+
+            root.appendChild(date)
+
+            const tbl = document.createElement('table');
+
+            tbl.style.width = '100%'
+            tbl.style.textAlign = 'left'
+            tbl.style.borderCollapse = 'collapse'
+            var tr = document.createElement('tr');
+
+            // Create Header
+            var thead = document.createElement('thead');
+            for (var i = 0; i < data.headers.length; i++) {
+
+                var th = document.createElement('th');
+                th.style.padding = '8px 4px 8px 4px';
+                th.style.border = '1px solid black';
+                var text = document.createTextNode(data.headers[i]);
+                th.appendChild(text);
+                tr.appendChild(th);
+
+            }
+            thead.appendChild(tr)
+
+            tbl.appendChild(thead);
+
+            // Create Rows
+            var tbody = document.createElement('tbody');
+            for (var i = 0; i < data.data.length; i++) {
+
+                var tr = document.createElement('tr');
+
+                for (let j = 0; j < _.values(data.headers).length; j++) {
+
+                    var td = document.createElement('td');
+                    td.style.padding = '8px 4px 8px 4px';
+                    td.style.border = '1px solid black';
+                    var text = document.createTextNode(_.values(data.data[i])[j]);
+                    td.appendChild(text);
+                    tr.appendChild(td);
+
+                }
+
+                tbody.appendChild(tr)
+
+            }
+
+            tbl.appendChild(tbody);
+
+            root.appendChild(tbl)
+
+            var x = window.open();
+            x.document.open();
+            x.document.write(root.outerHTML);
+            x.document.close();
+
+        }
+
+    },
+};
 
 </script>

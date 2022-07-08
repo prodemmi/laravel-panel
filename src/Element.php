@@ -4,6 +4,7 @@ namespace Prodemmi\Lava;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use JsonSerializable;
 
 class Element implements JsonSerializable, Arrayable
@@ -21,21 +22,18 @@ class Element implements JsonSerializable, Arrayable
         return $this->authenticated($request);
     }
 
-    public function attributes($attributes)
+    protected function attributes($key, $value, $seperator = ';')
     {
 
-        $attributes = $this->callableValue($attributes);
+        $data = data_get($this->attributes, $key) . $seperator . $this->callableValue($value);
 
-        if (is_array($attributes)) {
-
-            $this->attributes = array_merge($this->attributes, $attributes);
-        }
+        data_set($this->attributes, $key, trim($data, $seperator));
 
         return $this;
     }
 
 
-    public function styles($styles)
+    public function styles(...$styles)
     {
 
         $styles = $this->callableValue( $styles );
@@ -46,12 +44,10 @@ class Element implements JsonSerializable, Arrayable
 
         }
 
-        return $this->attributes( [
-            'style' => $styles
-        ] );
+        return $this->attributes( 'style', $styles);
     }
 
-    public function classes($classes)
+    public function classes(...$classes)
     {
 
         $classes = $this->callableValue( $classes );
@@ -62,11 +58,7 @@ class Element implements JsonSerializable, Arrayable
 
         }
 
-        $this->attributes( [
-            'class' => $classes
-        ] );
-
-        return $this;
+        return $this->attributes( 'class', $classes, ' ');
     }
 
     public function jsonSerialize()

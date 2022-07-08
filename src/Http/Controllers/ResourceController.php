@@ -2,27 +2,22 @@
 
 namespace Prodemmi\Lava\Http\Controllers;
 
-use DirectoryIterator;
 use Exception;
-use FilesystemIterator;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Prodemmi\Lava\Facades\Lava;
 use Prodemmi\Lava\Table;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 
 class ResourceController extends Controller
 {
 
     use Table;
 
-    protected $resource, $model, $search, $filter, $sort, $page, $per_page, $records, $env, $last;
+    protected $resource, $model, $search, $filter, $limit, $sort, $page, $per_page, $records, $env, $last;
 
     public function table(Request $request)
     {
@@ -36,6 +31,28 @@ class ResourceController extends Controller
         $this->search   = $request->input('query.search');
         $this->sort     = $request->input('query.sort');
         $this->filter   = $request->input('query.filter');
+        $this->limit    = $request->input('query.limit');
+
+        $limitKey  = basename(str_replace('\\', '/', $this->resource));
+        $lastLimit = DB::table('lava_options')->where('key', $limitKey)->first()?->value;
+
+        if($this->limit !== $lastLimit){
+
+            $limit = DB::table('lava_options')->where('key', "$limitKey.limit");
+
+            if($limit->exists()){
+                $limit->update([
+                    'key'   => "$limitKey.limit",
+                    'value' => $this->limit
+                ]);
+            }else{
+                $limit->insert([
+                    'key'   => "$limitKey.limit",
+                    'value' => $this->limit
+                ]);
+            }
+
+        }
 
         $resource = $this->resource();
 
@@ -61,8 +78,6 @@ class ResourceController extends Controller
         }
 
         $this->total = $this->records->count();
-
-        $this->sort();
 
         return response()->json($this->sort()->pagination($this->records->select($resource->selects())));
     }
@@ -241,9 +256,9 @@ class ResourceController extends Controller
     public function action(Request $request)
     {
 
-        $action         = $request->input('action');
+        $action         = $request->input('action.class');
         $values         = $request->input('values', []);
-        $resource       = resolve($request->input('resource'));
+        $resource       = resolve($request->input('action.resource'));
         $rows           = $request->input('rows');
 
         if ($rows) {
@@ -367,14 +382,17 @@ class ResourceController extends Controller
                     return $query->orWhere($subtitle, 'like', "%$search%");
                 })
                 ->take(15);
+
         }
 
         if (isset($subtitle)) {
 
             $label    = DB::raw("CONCAT($primaryKey, ' - ', $subtitle) as label");
+
         } else {
 
             $label = "$primaryKey as label";
+
         }
 
         if (!$init) {
@@ -382,6 +400,7 @@ class ResourceController extends Controller
             $created_at = Schema::hasColumn($model->getTable(), 'created_at');
 
             $options->latest($created_at ? 'created_at' : $primaryKey);
+
         }
 
         return response()->json($options->get([
@@ -415,7 +434,7 @@ class ResourceController extends Controller
 
             $active_actions = collect($resource->getActions())->map(function ($action) use ($row, $resource) {
 
-                if (resolve($action['action'])->showOn($row, $resource))
+                if (resolve($action['class'])->showOn($row, $resource))
                     return ($action);
 
                 return null;
@@ -444,17 +463,18 @@ class ResourceController extends Controller
 
         $validator = Validator::make($newData, array_intersect_key($rules, array_flip(array_keys($newData))));
 
-        // if ($validator->fails()) {
-        //     return response()->json([
-        //         'errors' => $validator->errors()
-        //     ], 422);
-        // }
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
         try {
 
             $model = $resource->getModelInstance()->where($primaryKey, $search)->first();
 
-            foreach (array_filter($data, fn ($d) => (isset($d['file']) && $d['multiple'])) as $row) {
+            // File field on upload event
+            foreach (array_filter($data, fn ($d) => isset($d['file']) && $d['multiple']) as $row) {
 
                 $field = $resource->findField($row['column']);
                 if($row['file'] ?? false){
@@ -466,13 +486,14 @@ class ResourceController extends Controller
                     }
 
                 }
-                
+
             }
 
             $toUpdate = [];
-            foreach (array_filter($data, fn ($d) => isset($d['update_column']) || (isset($d['file']) && $d['file'] && !$d['multiple'])) as $row) {
+            foreach (array_filter($data, fn ($d) => (isset($d['update_column']) && isset($d['update_column'])) || (isset($d['file']) && $d['file'] && !$d['multiple']) || !isset($d['update_column'])) as $row) {
 
                 $field = $resource->findField($row['column']);
+
                 if($row['file'] ?? false){
 
                     if(isset($row['all']) && !empty($row['all']) && empty($row['value']) && isset($field->onDelete)){
@@ -488,9 +509,11 @@ class ResourceController extends Controller
                     $toSave = $this->toSave($row);
                     $key = resolve($row['relationModel'])->getKeyName();
                     $toUpdate[$row['update_column']] = $toSave->{$key};
+                    
                 } else {
 
                     $toUpdate[$row['column']] = $row['value'];
+                    
                 }
             }
 
@@ -541,15 +564,16 @@ class ResourceController extends Controller
         collect($data)->each(function ($d) use (&$newData) {
 
             $newData[$d['column']] = $d['value'] ?? null;
+            
         });
 
         $validator = Validator::make($newData, $rules);
 
-        // if ($validator->fails()) {
-        //     return response()->json([
-        //         'errors' => $validator->errors()
-        //     ], 422);
-        // }
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
         try {
 
@@ -557,17 +581,20 @@ class ResourceController extends Controller
 
             $toUpdate = [];
             foreach (array_filter($data, fn ($d) => isset($d['update_column']) || !isset($d['relationType'])) as $row) {
-
                 if (isset($row['relationModel'])) {
 
                     $toSave = $this->toSave($row);
                     $key = resolve($row['relationModel'])->getKeyName();
                     $toUpdate[$row['update_column']] = $toSave->{$key};
+
                 } else {
 
                     $toUpdate[$row['column']] = $row['value'];
+
                 }
+
             }
+
 
             $model = $model->create($toUpdate);
 
@@ -587,7 +614,7 @@ class ResourceController extends Controller
 
                 $model->{$relation}()->{$method}($toSave);
             }
-            
+
             foreach(array_filter($data, fn ($d) => isset($d['file']) && $d['file']) as $file){
 
                 $field = $resource->findField($file['column']);
@@ -599,7 +626,7 @@ class ResourceController extends Controller
 
             }
 
-            return response()->json(['message' => "Store successfully."]);
+            return response()->json(['message' => "Store successfully.", 'data' => $model]);
 
 
         } catch (\Exception $e) {
@@ -639,7 +666,7 @@ class ResourceController extends Controller
 
         $resource   = $request->input('resource');
         $title      = $request->input('title');
-        $filters    = $request->input('filters');
+        $filters    = Arr::only($request->input('filters'), ['con', 'name', 'value', 'where', 'column', 'component']);
         $edit_model = $request->input('edit');
         $id         = $request->input('id');
 
@@ -705,5 +732,5 @@ class ResourceController extends Controller
 
         return response()->json($hasKey && $hasUsername && $hasPassword);
     }
-    
+
 }

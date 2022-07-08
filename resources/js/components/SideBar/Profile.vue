@@ -9,15 +9,15 @@
       alt=""
     />
 
-    <div class="flex flex-col w-full mx-1">
-      <div v-if="user.username">
-          <span>{{ user.username }}</span>
+    <div class="flex flex-col w-full mx-1 truncate">
+      <div v-if="resource.primaryKey">
+          <span>{{ resource.primaryKey }}</span>
         </div>
         <div v-else>
           <span>{{ user.first_name }}</span>
           <span>{{ user.last_name }}</span>
         </div>
-        <span>{{ user.email }}</span>
+        <span class="text-sm">{{ user.email }}</span>
       </div>
     </div>
 

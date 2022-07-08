@@ -4,15 +4,14 @@
          class="badge"
          :class="data.types[data.data[value]]"
          v-bind.prop="getValue">
-
     </div>
 </template>
 
 <script>
 
-    import {asHtmlMixin} from '../../../mixins'
+import { asHtmlMixin } from '../../../mixins'
 
-    export default {
+export default {
         props: ['data', 'value'],
         mixins: [asHtmlMixin]
     }

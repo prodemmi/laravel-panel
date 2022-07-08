@@ -2,7 +2,7 @@
 
 namespace Prodemmi\Lava\Metrics;
 
-trait Trend
+trait Partition
 {
 
     public function count($modelClass){

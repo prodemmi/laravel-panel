@@ -10,7 +10,7 @@ use Prodemmi\Lava\Resolvable;
 use Illuminate\Support\Str;
 use Prodemmi\Lava\Facades\Lava;
 
-class Metric extends Element implements Arrayable, JsonSerializable
+abstract class Metric extends Element implements Arrayable, JsonSerializable
 {
 
     use Resolvable;
@@ -26,11 +26,14 @@ class Metric extends Element implements Arrayable, JsonSerializable
 
     protected $timezone;
 
+    public abstract function calculate();
+    public abstract function ranges();
+
     public function __construct(){
 
         $this->timezone = Lava::getActivePanel()?->getTimezone() ?: config('app.timezone');
 
-        $this->width('100%');
+        $this->width('100%')->styles('min-width: 220px');
 
     }
 
@@ -60,6 +63,11 @@ class Metric extends Element implements Arrayable, JsonSerializable
 
     public function width($with)
     {
+
+        if(str_contains($with, '%')){
+            $with = (explode('%', $with)[0] - 3.4) . '%';
+        }
+
         return $this->styles("width: $with;");
     }
 
@@ -91,7 +99,7 @@ class Metric extends Element implements Arrayable, JsonSerializable
 
     protected function getRange(){
 
-        return $this->range ?: ($this->defaultRange ?: Arr::first(array_keys($this->ranges())));
+        return $this->defaultRange ?? Arr::first(array_keys($this->ranges()));
 
     }
 
@@ -99,13 +107,13 @@ class Metric extends Element implements Arrayable, JsonSerializable
     {
 
         return array_merge(parent::toArray(), [
-            'name'     => get_class($this),
-            'title'     => $this->getTitle(),
-            'helpText'  => $this->helpText,
-            'prefix'    => $this->prefix,
-            'suffix'    => $this->suffix,
-            'range'     => $this->getRange(),
-            'ranges'    => $this->ranges()
+            'name'         => get_class($this),
+            'title'        => $this->getTitle(),
+            'helpText'     => $this->helpText,
+            'prefix'       => $this->prefix,
+            'suffix'       => $this->suffix,
+            'defaultRange' => $this->getRange(),
+            'ranges'       => $this->ranges()
         ]);
         
     }

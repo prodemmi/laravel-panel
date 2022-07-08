@@ -2,7 +2,7 @@
   <div
     v-bind="data.attributes"
     class="badge"
-    :class="data.types[data.data[value]]"
+    :class="data.types[data.data[value]] || 'info'"
     v-bind.prop="getValue"
   ></div>
 </template>

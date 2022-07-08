@@ -4,7 +4,7 @@
 
         <DatePicker
                 v-bind="data.attributes"
-                class="w-full date-picker"
+                class="w-full"
                 v-model="model"
                 popover
                 color="#212f3c"

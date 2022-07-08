@@ -29,21 +29,20 @@ class DesignField extends Element
 
         $this->fields = $this->callableValue($fields);
 
-        $this->showOnAll();
     }
 
     public function toArray()
     {
-        
+
         return array_merge(parent::toArray(), [
             'title'        => $this->title,
             'fields'       => $this->fields,
             'forDesign'    => $this->forDesign,
-            'showOnForm'   => $this->showOnForm,
+            'showOnForms'   => $this->showOnForms,
             'showOnIndex'  => $this->showOnIndex,
             'showOnDetail' => $this->showOnDetail
         ]);
-        
+
     }
 
 }

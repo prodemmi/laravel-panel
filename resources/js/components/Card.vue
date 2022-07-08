@@ -1,19 +1,25 @@
 <template>
 
-  <div v-bind="attriubtes" class="card">
+  <div v-if="visible" v-bind="attriubtes" class="card">
 
-    <h4 class="card--header" v-if="!!$slots.header">
+    <div class="flex-center px-1">
 
-      <slot name="header"></slot>
+      <div class="card__header">
 
-    </h4>
+        <slot name="header"></slot>
 
-    <div class="card--body">
+      </div>
+
+      <i v-if="closable" @click="close" class="cursor-pointer text-white ri-close-line"></i>
+
+    </div>
+
+    <div class="card__body">
 
       <slot name="body"></slot>
 
-      <div class="card--footer" v-if="!!$slots.footer">
-
+      <div class="card__footer" v-if="!!$slots.footer">
+        
         <slot name="footer"></slot>
 
       </div>
@@ -25,19 +31,35 @@
 </template>
 
 <script>
-export default {
-  props: {
-    data: {
-      default: () => {}
-    }
-  },
-  computed: {
-    attriubtes(){
-      if(this.data && this.data.attributes){
-        return this.data.attributes
+  export default {
+    props: {
+      data: {
+        default: () => {}
+      },
+      closable: {
+        default: false
       }
-      return {}
-    }
+    },
+    data() {
+      return {
+        visible: true,
+      }
+    },
+    computed: {
+      attriubtes(){
+        if(this.data && this.data.attributes){
+          return this.data.attributes
+        }
+        return null
+      }
+    },
+    methods: {
+      close() {
+
+        this.visible = false
+        this.$emit('on-close', this.data)
+
+      }
+    },
   }
-}
 </script>

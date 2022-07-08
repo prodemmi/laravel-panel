@@ -10,18 +10,19 @@ abstract class ValueMetric extends Metric
 
     public $component = 'value-metric';
 
-    public abstract function calculate();
-    public abstract function ranges();
+    public function __construct(){
+        $this->width('33%')->styles('min-height: 100px');
+    }
 
-    protected function count($modelClass, $column = NULL, $dateColumn = null){
+    protected function count($modelClass){
 
-        return $this->calculateAggregate($modelClass, __FUNCTION__, $column, $dateColumn);
+        return $this->calculateAggregate($modelClass, __FUNCTION__, NULL, NULL);
 
     }
 
-    protected function average($modelClass, $column, $dateColumn = NULL){
+    protected function avg($modelClass, $column, $dateColumn = NULL){
 
-        return $this->calculateAggregate($modelClass, 'avg', $column, $dateColumn);
+        return $this->calculateAggregate($modelClass, __FUNCTION__, $column, $dateColumn);
 
     }
 
@@ -48,7 +49,7 @@ abstract class ValueMetric extends Metric
         $model = $modelClass instanceof Builder ? $modelClass->getModel() : resolve($modelClass);
         
         $dateColumn = $dateColumn ?? $model->getCreatedAtColumn();
-        
+
         $previousValue = with(clone $model)->whereBetween(
             $dateColumn,
             $this->previousRange()
@@ -61,25 +62,36 @@ abstract class ValueMetric extends Metric
 
         if($function === 'count') {
 
-            $previousValue = $previousValue->count();
-            $value = $value->count();
+            $previousValue = (float)$previousValue->count();
+            $value = (float)$value->count();
 
         }else{
-            $previousValue = $previousValue->{$function}($column);
-            $value = $value->{$function}($column);
+            $previousValue = (float)$previousValue->{$function}($column);
+            $value = (float)$value->{$function}($column);
         }
 
-        if (empty($previousValue))
+        if (!$previousValue && $value > 0){
+
             return [
-                'percent' => (float)number_format(0, 2, '.', ''),
-                'value'   => (float)$previousValue,
-                'previous'=> (float)$previousValue
+                'percent' => number_format($value * 100 , 2, '.', ''),
+                'value'   => $value,
+                'previous'=> $previousValue
+            ];
+            
+        }elseif (!$previousValue){
+
+            return [
+                'percent' => number_format(0, 2, '.', ''),
+                'value'   => $value,
+                'previous'=> $previousValue
             ];
 
+        }
+
         return [
-            'percent' => (float)number_format((($value - $previousValue) / $previousValue) * 100, 2, '.', ''),
-            'value'   => (float)$value,
-            'previous'=> (float)$previousValue
+            'percent' => number_format((($value - $previousValue) / $previousValue) * 100, 2, '.', ''),
+            'value'   => $value,
+            'previous'=> $previousValue
         ];
 
     }

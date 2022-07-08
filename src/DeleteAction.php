@@ -60,7 +60,7 @@ class DeleteAction extends Action
 
             $collection->each(function ($row) use ($model, $primaryKey, $forceDelete) {
 
-                $model->where($primaryKey, $row[$primaryKey])->first()->{$forceDelete ? 'forceDelete' : 'delete'}();
+                @$model->where($primaryKey, $row[$primaryKey])->first()->{$forceDelete ? 'forceDelete' : 'delete'}();
 
             });
 

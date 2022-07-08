@@ -12,7 +12,7 @@ instance.interceptors.response.use(
     response => {
 
         if(window.debug && _.isString(response.data) && response.data?.includes('Sfdump')){
-            Lava.confirm('Dump', response.data, false, {
+            window.Lava.confirm('Dump', response.data, false, {
                 showCancelButton: false,
                 confirmButtonText: 'Ok',
                 cancelButtonText: null,
@@ -21,7 +21,7 @@ instance.interceptors.response.use(
             return
         }
 
-        Lava.showLoading(false)
+        window.Lava.showLoading(false)
 
         return response
 
@@ -42,7 +42,7 @@ instance.interceptors.response.use(
         // Handle Token Timeouts
         else if (status === 419) {
 
-            Lava.confirm("Sorry, your session has expired.", "error").then(() => {
+            window.Lava.confirm("Sorry, your session has expired.", "error").then(() => {
 
                 window.location = '/auth/logout'
 
@@ -70,7 +70,7 @@ instance.interceptors.response.use(
 
                 }
 
-                Lava.confirm('Error', _.isObject(message) ? JSON.stringify(message, null, 2) : message, false, {
+                window.Lava.confirm('Error', _.isObject(message) ? JSON.stringify(message, null, 2) : message, false, {
                     showCancelButton: false,
                     confirmButtonText: 'Ok',
                     cancelButtonText: null,
@@ -79,7 +79,7 @@ instance.interceptors.response.use(
 
             }
 
-            Lava.showLoading(false)
+            window.Lava.showLoading(false)
 
         }
 

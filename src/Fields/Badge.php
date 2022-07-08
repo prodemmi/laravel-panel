@@ -14,23 +14,22 @@ class Badge extends Field
     public $options      = [];
     public $types
     = [
-        'danger'  => 'bg-red-600',
-        'success' => 'bg-lime-600',
-        'info'    => 'bg-blue-600',
-        'warning' => 'bg-yellow-600'
+        'danger'  => 'danger',
+        'success' => 'success',
+        'info'    => 'info',
+        'warning' => 'warning'
     ];
 
     public function __construct($name, $column = NULL)
     {
         parent::__construct($name, $column);
 
-        $this->displayValue(function ($value) {
+        $this->display(function ($value) {
 
             return $this->options[$value];
         });
 
-        $this->setOnIndex();
-        $this->setOnDetail();
+        $this->exceptOnForms();
     }
 
     public function map(array $map)

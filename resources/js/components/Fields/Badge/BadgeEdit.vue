@@ -6,6 +6,22 @@
       @input="change"
       :options="_.values(data.options)"
       :reduce="(option) => option">
+
+    <template #spinner="{ loading }">
+
+      <lava-spinner style="width: 60px" v-if="loading" color="primary"></lava-spinner>
+        
+    </template>
+
+    <template #option="{ label, subtitle }">
+
+        <div class="flex flex-col px-2 py-1">
+            <span class="text-lg">{{ label }}</span>
+            <span v-if="subtitle" class="text-sm">{{ subtitle }}</span>
+        </div>
+
+    </template>
+
   </VueSelect>
 
 </template>

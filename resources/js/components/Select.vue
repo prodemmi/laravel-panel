@@ -6,6 +6,7 @@
       @input="change"
       :multiple="multiple"
       :options="ops"
+      :placeholder="placeholder"
       :clearable="nullable"
       :selectable="
         () => (multiple ? (_.isArray(model) ? model.length : [model].length) < data.limit : true)
@@ -15,9 +16,23 @@
       label="label"
       class="w-full"
     >
-      <slot name="spinner">
-        <lava-spinner />
-      </slot>
+    
+      <template #open-indicator><span></span></template>
+
+          <template #option="{ label, danger }">
+
+              <div class="w-full truncate px-2 py-1" :class="{'text-danger': danger}" v-html="label"></div>
+
+          </template>
+
+          <template #spinner="{ loading }">
+
+            <lava-spinner style="width: 60px" v-if="loading" color="primary">
+
+          </lava-spinner>
+              
+      </template>
+
     </VueSelect>
 
   </label>
@@ -35,9 +50,12 @@ export default {
           default: false
       },
       options: {
-        reqiored: true
+        required: true
       },
       label: {
+        default: null
+      },
+      placeholder: {
         default: null
       },
       nullable: {
@@ -57,22 +75,32 @@ export default {
   mounted() {
     this.$nextTick(() => {
 
-      if(this.multiple){
+      if(_.isArray(this.options) && this.options.every(option => typeof option === 'object')){
         this.ops = this.options
-        this.model = this.value
       }else{
         this.ops = _.map(this.options , (op, index) => ({label: op, value: index}))
-        this.model = _.find(this.ops, { value: this.model })
       }
+
+      this.model = this.multiple
+        ? this.value
+        : _.find(this.ops, (o) => o.value == this.value);
 
     });
   },
   methods: {
+    clear(){
+      this.model = null
+      this.change(this.model)
+    },
     change(e) {
+
+      if(e === null || e === undefined || e.length === 0 ) {
+        this.$emit('on-clear')
+      }
       
       let value = this.multiple
-        ? this.model
-        : this.model.value;
+        ? e
+        : e?.value;
 
       this.$emit("on-change", value);
 

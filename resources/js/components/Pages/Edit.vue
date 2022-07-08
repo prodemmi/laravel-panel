@@ -10,7 +10,8 @@
 
             <div class="flex justify-end">
 
-                <lava-button @click="update" :disabled="couldUpdate" :loading="updating">Update</lava-button>
+                <lava-button v-if="!fullscreen" class="ltr:mr-1 rtl:ml-1 px-4" @click="update(true)" :disabled="couldUpdate">Edit and back</lava-button>
+                <lava-button class="ltr:mr-1 rtl:ml-1 px-4" @click="update()" :disabled="couldUpdate">Edit</lava-button>
 
             </div>
 
@@ -91,7 +92,7 @@
                 this.newData = _.uniqBy(this.newData.reverse(), 'column')
 
             },
-            update() {
+            update(goback = false) {
                 this.updating = true
                 this.$http
                     .post("/api/update", {
@@ -105,6 +106,11 @@
                             Lava.toast(res.data.message, "success");
                             this.updating = false
                             this.newData = []
+
+                            if(goback){
+                                setTimeout(() => this.goToBack(), 400);
+                            }
+
                             // this.canUpdate = false;
                         }
                     })

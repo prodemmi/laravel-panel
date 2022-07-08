@@ -141,7 +141,7 @@ export default {
         ...this.data?.options
       };
 
-      this.codemirror = CodeMirror.fromTextArea(this.$refs.code, config);
+      this.codemirror = CodeMirror.fromTextArea(this.$refs.code || '', config);
 
       let doc = this.codemirror.getDoc()
 
@@ -150,7 +150,7 @@ export default {
           this.onChange(this.model);
       });
 
-      doc.setValue(this.value);
+      doc.setValue(this.value === null || this.value === undefined ? '' : this.value);
     
     })
 

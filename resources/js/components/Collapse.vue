@@ -1,34 +1,36 @@
 <template>
 
-    <div class="card">
+  <div class="card">
 
-        <h3 class="card--header" v-if="!!$slots.header">
+    <div class="flex-center px-1">
 
-            <div class="flex justify-between">
+      <div class="card__header w-full cursor-pointer" @click="opened = !opened">
 
-                <slot name="header"></slot>
+        <div class="flex justify-between ">
 
-                <i class="cursor-pointer"
-                   @click="opened = !opened"
-                   :class="opened ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>
+            <slot name="header"></slot>
 
-            </div>
-
-        </h3>
-
-        <div class="card--body" v-show="opened">
-
-            <slot name="body"></slot>
-
-            <div class="card--footer" v-if="!!$slots.footer">
-
-                <slot name="footer"></slot>
-
-            </div>
+            <i :class="opened ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>
 
         </div>
 
+      </div>
+
     </div>
+
+    <div class="card__body" v-show="opened">
+
+      <slot name="body"></slot>
+
+      <div class="card__footer" v-if="!!$slots.footer">
+        
+        <slot name="footer"></slot>
+
+      </div>
+
+    </div>
+
+  </div>
 
 </template>
 

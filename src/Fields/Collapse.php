@@ -10,9 +10,7 @@ class Collapse extends DesignField
     public function defaultOpened($defaultOpened = TRUE)
     {
 
-        return $this->attributes( [
-            'default-opened' => $this->callableValue( $defaultOpened )
-        ] );
+        return $this->attributes( 'default-opened' , $this->callableValue( $defaultOpened ) );
 
     }
 

@@ -53,7 +53,7 @@ export default {
 
       var hasPath = this.path !== undefined
 
-      var path = (hasPath ? this.path || '' : this.$route.matched[0]?.path)
+      var path = (hasPath ? this.path || '' : this.$route.matched[0]?.path).replaceAll("/detail", '').replaceAll("/create", '').replaceAll("/edit", '')
 
       const routes = (path && path.length && !_.startsWith(path, '/') ? '/' + path : path)?.split("/");
       let breadcrumbs = [];
@@ -61,12 +61,12 @@ export default {
       for (const route of routes) {
         temp += route + "/";
         const index = routes.indexOf(route)
-        const route_object = _.find(this.$router.options.routes, { path: _.trimEnd(temp, "/") || '/' })
-        const label = this.$route.params[route.replaceAll(':', '').replaceAll('/', '')]
+        const route_object = _.find(this.$router?.options.routes, { path: _.trimEnd(temp, "/") || '/' })
+        const label = this.$route?.params[route.replaceAll(':', '').replaceAll('/', '')]
         
         breadcrumbs.push({
           label: _.startCase(label || route),
-          goTo: () => hasPath ? this.$emit('on-change', route) : this.goToRoute(route_object.name, this.$route.params),
+          goTo: () => hasPath ? this.$emit('on-change', route) : this.goToRoute(route_object.name, this.$route?.params),
           is_root: index === 0,
           icon: index === 0 ? '<i class="ri-home-2-line"></i>' : this.icon(_.find(this.$store.getters.getConfig.resources, { route : label })?.icon)
         })

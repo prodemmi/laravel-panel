@@ -3,20 +3,22 @@
     <div class="header">
 
         <transition name="fade">
-            <Loading v-show="$store.getters.getLoading"
-                     :percent="$store.getters.getLoading"/>
+            <lava-loading class="absolute left-0 top-0 right-0 h-loading" v-show="$store.getters.getLoading" :percent="$store.getters.getLoading"/>
         </transition>
 
-        <div class="flex items-center">
+        <div class="flex items-center justify-between w-full h-full px-2">
 
-            <lava-button v-if="isMobile" 
-                         class="mx-1"
-                         @click="toggleSidebar" 
-                         no-padding>
-                <i class="ri-menu-line"></i>
-            </lava-button>
+            <div class="flex items-center w-full">
 
-            <Breadcrumb/>
+                <lava-button v-if="isMobile" 
+                        class="mx-1"
+                        @click="toggleSidebar">
+                    <i class="ri-menu-line"></i>
+                </lava-button>
+
+                <lava-search ref="search" :initable="false" @on-change="onGlobalSearchChange" style="width: 240px" :multiple="false" placeholder="Global search" :disabled="false" uri="api/global-search"></lava-search>
+
+            </div>
 
         </div>
 
@@ -25,15 +27,14 @@
 </template>
 
 <script>
+export default {
+    methods: {
+        onGlobalSearchChange(option){
 
-    import Breadcrumb from './Breadcrumb'
-    import Loading from "../Loading";
+            this.goToRoute(option.name, option.params)
+            this.$refs.search.clear()
 
-    export default {
-        components:{
-            Breadcrumb,
-            Loading
         }
     }
-
+}
 </script>

@@ -20,7 +20,7 @@ class Date extends Field
 
         parent::__construct( $name, $column );
 
-        $this->displayValue( function ($value) {
+        $this->display( function ($value) {
 
             if(blank($value)){
                 return null;
@@ -68,18 +68,14 @@ class Date extends Field
     public function min($min)
     {
 
-        return $this->attributes( [
-            'min' => $this->callableValue( $min )
-        ] );
+        return $this->attributes( 'min', $this->callableValue( $min ) );
 
     }
 
     public function max($max)
     {
 
-        return $this->attributes( [
-            'max' => $this->callableValue( $max )
-        ] );
+        return $this->attributes('max', $this->callableValue( $max ));
 
     }
 

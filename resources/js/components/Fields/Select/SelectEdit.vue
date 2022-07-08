@@ -1,4 +1,5 @@
 <template>
+
   <VueSelect
     v-bind="data.attributes"
     v-model="model"
@@ -7,16 +8,26 @@
     @search:focus="fetchOptions"
     :multiple="data.multiple && !data.searchable"
     :options="options"
-    :selectable="
-      () => (data.attributes.multiple ? (_.isArray(model) ? model.length : [model].length) < data.limit : true)
-    "
+    :selectable="() => (data.attributes.multiple ? (_.isArray(model) ? model.length : [model].length) < data.limit : true)"
     :push-tags="data.attributes.multiple"
     :reduce="(option) => option"
-    label="label"
-  >
-    <slot name="spinner">
-      <lava-spinner />
-    </slot>
+    label="label">
+    
+    <template #spinner="{ loading }">
+
+        <lava-spinner style="width: 60px" v-if="loading" color="primary"></lava-spinner>
+        
+    </template>
+
+    <template #option="{ label, subtitle }">
+
+        <div class="flex flex-col px-2 py-1">
+            <span class="text-lg">{{ label }}</span>
+            <span v-if="subtitle" class="text-sm">{{ subtitle }}</span>
+        </div>
+
+    </template>
+
   </VueSelect>
 </template>
 

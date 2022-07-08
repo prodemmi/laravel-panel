@@ -1,30 +1,27 @@
 <template>
     <div class="flex items-center">
-      
-      <VueSelect style="width: 220px;height: 40px;"
-                 :style="{ direction: $store.getters.getConfig.rtl ? 'rtl': 'ltr'}"
-                 class="ltr:mr-1 rtl:ml-1"
-                 placeholder="Select an action"
-                 v-model="selected_action"
-                 :options="getOptions"
-                 :reduce="(option) => option">
-      </VueSelect>
-      
+
+      <lava-select ref="select"
+                   style="width: 220px"
+                   class="ltr:mr-1 rtl:ml-1"
+                   :placeholder="getLabel"
+                   :value="selected_action"
+                   @on-clear="selected_action = null"
+                   @on-change="(value) => selected_action = getOptions[value]"
+                   :style="{ direction: $store.getters.getConfig.rtl ? 'rtl': 'ltr'}"
+                   :options="getOptions" />
+
       <lava-button
-        @click="$emit('handle-action', getAction, selected)"
+        @click="handleButton"
         :disabled="!selected_action"
-        :color="getAction && getAction.danger ? 'danger' : 'primary'"
-        no-padding
-        >Go
-      </lava-button>
+        :color="getAction && getAction.danger ? 'danger' : 'primary'">Go</lava-button>
 
       <lava-button
         v-if="showClose"
         @click="$emit('on-close')"
-        no-padding
         ><i class="ri-close-line cursor-pointer" ></i>
       </lava-button>
-      
+
     </div>
 </template>
 
@@ -41,7 +38,7 @@ export default {
       default: () => [],
     },
     selected :{
-      type: Array,
+      type: [Object, Array],
       required: false,
       default: () => [],
     },
@@ -56,16 +53,26 @@ export default {
     };
   },
   computed: {
+    getLabel(){
+        return "Select an action" + ( _.isEmpty(this.selected) ? ' for all' : ( this.selected.length > 1 ? ' (' + this.selected.length + ' items ) ' : ''))
+    },
     getAction(){
-        return _.find(this.actions, { name: _.trimEnd(this.selected_action?.label, ' all') })
+        return _.find(this.actions, { name: this.selected_action?.label })
     },
     getOptions(){
-      
-      return _.filter(this.actions, { onlyOnTable: false }).map((action, index) => ({
-                value: index,
-                label: action.name + (_.isEmpty(this.selected) ? ' all' : '')
-              }))
 
+      return _.filter(this.actions, { onlyOnTable: false }).map((action, index) => ({
+              value: index,
+              label: action.name,
+              danger: action.danger
+            }))
+
+    }
+  },
+  methods: {
+    handleButton(){
+      this.$emit('handle-action', this.getAction, this.selected )
+      this.$refs.select.clear()
     }
   }
 };

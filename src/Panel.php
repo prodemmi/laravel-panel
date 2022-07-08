@@ -2,8 +2,6 @@
 
 namespace Prodemmi\Lava;
 
-use Prodemmi\Lava\MediaTool;
-
 class Panel
 {
 
@@ -136,7 +134,7 @@ class Panel
      */
     public function metrics(array $metrics)
     {
-        $this->metrics = array_unique( array_merge( $this->metrics, $metrics ) , SORT_REGULAR);
+        $this->metrics = ( array_merge( $this->metrics, $metrics ) );
 
         return $this;
     }
@@ -234,8 +232,8 @@ class Panel
     public function getStyles()
     {
         return collect($this->getTools())->map(function($tool){
-            return $tool['styles'];
-        })->flatten()->merge($this->styles)->toArray();
+            return $tool['styles'] ?? null;
+        })->filter()->flatten()->merge($this->styles)->toArray();
     }
 
     /**
@@ -243,16 +241,25 @@ class Panel
      */
     public function getScripts()
     {
-        
         return collect($this->getTools())->map(function($tool){
-            return $tool['scripts'];
-        })->flatten()->merge($this->scripts)->toArray();
-        
+            return $tool['scripts'] ?? null;
+        })->filter()->flatten()->merge($this->scripts)->toArray();
     }
 
     protected function getTools(){
 
-        return collect($this->getResources())->where('tool', TRUE)->toArray();
+
+        return collect($this->tools)->unique()->map(function($tool){
+
+            $tool = resolve($tool);
+
+            if($tool->getIsTool()){
+                return $tool;
+            }
+
+            return null;
+
+        })->filter()->toArray();
 
     }
 
@@ -285,13 +292,19 @@ class Panel
      */
     public function getResources()
     {
-       
-        return collect($this->resources)->push(MediaTool::class)->unique()->map(function($resource){
 
-            return resolve($resource);
+        return collect($this->resources)->unique()->map(function($resource){
 
-        })->toArray();
-        
+            $resource = resolve($resource);
+
+            if($resource->getIsTool()){
+                return null;
+            }
+
+            return $resource;
+
+        })->filter()->toArray();
+
     }
 
     /**
@@ -301,7 +314,7 @@ class Panel
     {
 
         return $this->metrics;
-        
+
     }
 
     public function disableDashboard()
@@ -314,22 +327,22 @@ class Panel
     protected function sideBarItems()
     {
 
-        return collect( $this->getResources() )->groupBy( 'group' )->sortKeys();
+        return collect( $this->getResources() )->merge($this->getTools())->groupBy( 'group' )->sortKeys();
 
     }
 
     public function getBaseUrl()
     {
 
-        return $this->route;
-        
+        return rtrim($this->route, '/');
+
     }
 
     public function getDebug()
     {
 
-        return config('app.debug');
-        
+        return config('lava::lava.debug_mode');
+
     }
 
     public function getConfig()
@@ -340,14 +353,13 @@ class Panel
             'baseUrl'       => $this->route,
             'rtl'           => $this->getRTL() === 'rtl',
             'showDashboard' => $this->showDashboard,
-            'resources'     => $this->getResources(),
+            'resources'     => array_merge($this->getResources(), $this->getTools()),
             'metrics'       => $this->getMetrics(),
             'sidebarItems'  => $this->sideBarItems(),
-            'tools'         => [],
             'config'        => config( 'lava' ),
             'debug'         => config('app.debug')
         ];
-        
+
     }
 
     public function getLicense()

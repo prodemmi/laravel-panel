@@ -2,10 +2,6 @@
 
 namespace Prodemmi\Lava\Fields;
 
-
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-
 class Boolean extends Field
 {
 
@@ -19,7 +15,7 @@ class Boolean extends Field
     {
         parent::__construct( $name, $column );
 
-        $this->displayValue( function ($value) {
+        $this->display( function ($value) {
 
             if ( $value === $this->trueValue ) {
 
@@ -39,15 +35,16 @@ class Boolean extends Field
 
     }
 
-    public function displayValue($callback)
+    public function display($callback)
     {
 
-        parent::displayValue($callback);
+        parent::display($callback);
 
         $this->asHtml();
 
         return $this;
     }
+
     public function trueValue($value)
     {
         $this->trueValue = $this->callableValue( $value );
@@ -58,6 +55,16 @@ class Boolean extends Field
     public function falseValue($value)
     {
         $this->falseValue = $this->callableValue( $value );
+
+        return $this;
+    }
+
+    public function switchDisplay($switch = true)
+    {
+
+        if($this->callableValue( $switch )){
+            $this->component = 'switch';
+        }
 
         return $this;
     }

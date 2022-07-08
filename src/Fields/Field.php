@@ -2,7 +2,6 @@
 
 namespace Prodemmi\Lava\Fields;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Prodemmi\Lava\Element;
 use Prodemmi\Lava\Fieldable;
@@ -38,6 +37,8 @@ class Field extends Element
     public $select = TRUE;
 
     public $asHtml = false;
+
+    public $help;
 
     protected $is_export = TRUE;
 
@@ -105,7 +106,7 @@ class Field extends Element
         return $this;
     }
 
-    public function displayValue($callback)
+    public function display($callback)
     {
 
         array_unshift( $this->displayCallbacks, $callback );
@@ -155,6 +156,12 @@ class Field extends Element
 
     }
 
+    public function help($text)
+    {
+        $this->help = $this->callableValue($text);
+
+        return $this;
+    }
 
     public function toArray()
     {
@@ -167,11 +174,12 @@ class Field extends Element
             'rules'        => $this->rules,
             'link'         => $this->link,
             'asHtml'       => $this->asHtml,
+            'help'         => $this->help,
             'attributes'   => $this->attributes,
             'showOnIndex'  => $this->showOnIndex,
             'showOnDetail' => $this->showOnDetail,
-            'showOnForm'   => $this->showOnForm,
-            'hideDefault'  => $this->hideDefault,
+            'showOnForms'   => $this->showOnForms,
+            'hide'  => $this->hide,
             'forDesign'    => $this->forDesign
         ] );
     }

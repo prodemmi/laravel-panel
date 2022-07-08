@@ -3,16 +3,13 @@
             @click="$emit('click')"
             :disabled="(disabled || loading)"
             :class="[
-              `button--normal bg-${color}`,
-              disabled ? 'button--disabled' : '',
-              loading  ? 'button--loading'  : '',
-              block    ? 'button--block'    : '',
-              small    ? 'button--small'    : '',
-              rounded  ? 'button--rounded'  : '',
-              !(disabled || loading) ? `button--hover`    : '',
-              noPadding ? 'p-2 w-element h-element': 'min-w-button h-element py-2 px-4'
-            ]">
-        <lava-spinner v-if="loading" :dot="noPadding"></lava-spinner>
+              `button ${color}`,
+              disabled ? 'button--disabled'  : '',
+              loading  ? 'button--loading'   : '',
+              block    ? 'mx-0 block w-full' : '',
+              rounded  ? 'rounded-full'   : '',
+              (disabled || loading) ? `pointer-events-none` : null]">
+        <lava-spinner v-if="loading"></lava-spinner>
         <slot v-else></slot>
     </button>
 </template>
@@ -20,7 +17,12 @@
 <script>
     export default {
         props: {
-            small: {
+            color: {
+                type: String,
+                required: false,
+                default: "primary",
+            },
+            rounded: {
                 type: Boolean,
                 required: false,
                 default: false,
@@ -35,23 +37,9 @@
                 required: false,
                 default: false,
             },
-            color: {
-                type: String,
-                required: false,
-                default: "primary",
-            },
-            rounded: {
-                type: Boolean,
-                required: false,
-                default: false,
-            },
             disabled: {
                 type: Boolean,
                 required: false,
-                default: false,
-            },
-            noPadding:{
-                type: Boolean,
                 default: false,
             }
         }

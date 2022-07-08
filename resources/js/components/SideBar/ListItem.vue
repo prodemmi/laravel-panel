@@ -2,12 +2,16 @@
 
     <div>
 
-        <div v-if="$store.getters.getConfig.showDashboard"
+        <div v-if="showDashboard"
              class="side-bar__item"
-             :class="{ 'side-bar__item--active': activeSidebar === '/' }"
-             @click="goToRoute('dashboard');toggleSidebar()">
+             :class="{ 'side-bar__item--active': _.isEmpty(selectedItem) }"
+             @click="goToDashboard()">
 
-            <i class="ri-home-2-line w-4"></i>
+            <div class="w-6">
+
+                <i class="ri-home-2-line"></i>
+
+            </div>
 
             <span>
                    Dashboard
@@ -15,31 +19,34 @@
 
         </div>
 
-        <div v-for="(resource, group) in $store.getters.getConfig.sidebarItems" :key="group">
+        <div v-for="(subitems, group) in items" :key="group">
+            <div v-if="group && subitems.length" class="side-bar-collapse">
 
-            <side-bar-collapse v-if="group"
-                               :defaultOpened="defaultOpened(resource)"
-                               :index="group"
-                               :parentOpened="openedIndex !== undefined ? openedIndex == group : undefined"
-                               @on-opened="index => openedIndex = index">
+                <h4 class="side-bar-collapse--header" @click="toggleGroup(group)">
 
-                <template v-slot:header>
+                    <div class="flex items-center justify-between">
 
-                    <div class="side-bar__group">
-                        {{ group }}
+                        <div class="side-bar__group">
+                            {{ group }}
+                        </div>
+
+                        <i :class="openedGroup === group ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>
+
                     </div>
-            
-                </template>
 
-                <template v-slot:body>
+                </h4>
 
-                    <div v-for="item in resource"
-                        :key="item.route"
-                        class="side-bar__item pl-4"
-                        :class="{ 'side-bar__item--active': activeSidebar === item.route }"
-                        @click="route(item)">
+                <div ref="container"
+                     class="side-bar-collapse--body overflow-hidden transition-all" 
+                     :style="{'height': openedGroup === group ? (height * _.filter(subitems, {show: true}).length) + 'px' : '0' }">
 
-                        <div class="w-4">
+                    <template v-for="(item, index) in _.filter(subitems, {show: true})">
+                        <div  :key="index"
+                         class="side-bar-collapse--item"
+                         :class="{ 'side-bar__item--active': _.isMatch(selectedItem, item) }"
+                         @click="onItemClick(item)">
+                        
+                        <div class="w-6">
 
                             <div v-if="item.icon" v-html="icon(item.icon)"></div>
 
@@ -54,34 +61,37 @@
                         </span>
 
                     </div>
-            
-                </template>
+                    </template>
 
-            </side-bar-collapse>
+                </div>
+
+            </div>
 
             <template v-else>
 
-                <div v-for="item in resource"
-                    :key="item.route"
-                    class="side-bar__item pl-2"
-                    :class="{ 'side-bar__item--active': activeSidebar === item.route }"
-                    @click="route(item)">
+                <template v-for="item in subitems">
+                    <div v-if="item.show"
+                         :key="item.route"
+                         class="side-bar__item"
+                         :class="{ 'side-bar__item--active': _.isMatch(selectedItem, item) , 'ltr:pl-2 rtl:pr-2' : item.group}"
+                         @click="onItemClick(item)">
 
-                    <div class="w-4">
+                        <div class="w-6">
 
-                        <div v-if="item.icon" v-html="icon(item.icon)"></div>
+                            <div v-if="item.icon" v-html="icon(item.icon)"></div>
+
+                        </div>
+
+                        <span v-if="item.tool">
+                            {{ item.singularLabel }}
+                        </span>
+
+                        <span v-else>
+                            {{ item.pluralLabel }}
+                        </span>
 
                     </div>
-
-                    <span v-if="item.tool">
-                        {{ item.singularLabel }}
-                    </span>
-
-                    <span v-else>
-                        {{ item.pluralLabel }}
-                    </span>
-
-                </div>
+                </template>
 
             </template>
 
@@ -93,45 +103,71 @@
 
 <script>
 
-    import SideBarCollapse from './SideBarCollapse'
-
     export default {
-        components: {
-            SideBarCollapse
+        props: {
+            items: [Array, Object],
+            showDashboard: {
+                default: false
+            },
+            defaultItem: {
+                default: null
+            }
         },
         data(){
             return {
-                openedIndex: undefined
+                selectedItem: null,
+                openedGroup: null,
+                height: 32
             }
         },
+        mounted() {
+
+            this.$nextTick(() => {
+
+                this.height       = _.first(this.$refs.container)?.scrollHeight / 2 
+                this.selectedItem = this.defaultItem
+                this.openedGroup  = this.activeGroup
+                
+            })
+
+        },
         computed: {
-            activeSidebar() {
-
-                if (this.activeTool()) {
-
-
-                    return this.activeTool().route
-
-                }
-
-                return this.$route.path
-
+            activeGroup(){
+                return _.findKey(this.items, subitems => _.some(subitems, this.selectedItem))
             }
         },
         methods: {
-            route(item) {
+            collapseAll(){
 
-                if(_.isEmpty(item.group)){
-                    this.openedIndex = null
-                }
-
-                this.goToRoute(item.tool ? 'tool' : 'index', {name: item.route, resource: item.route});
-                this.toggleSidebar()
+                this.openedGroup = null
 
             },
-            defaultOpened(resources){
+            toggleGroup(group){
 
-                return !!_.find(resources, {route: this.activeSidebar})
+                if(this.openedGroup === group){
+
+                    this.openedGroup = null
+
+                }else{
+
+                    this.openedGroup = group
+
+                }
+
+                this.$emit('on-group-click', group)
+
+            },
+            goToDashboard() {
+
+                this.goToRoute('dashboard');
+                this.toggleSidebar()
+                this.selectedItem = null
+
+            },
+            onItemClick(item){
+
+                this.selectedItem = item
+                this.$emit('on-item-click', item)
 
             }
         }

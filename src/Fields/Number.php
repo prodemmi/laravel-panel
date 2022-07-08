@@ -3,9 +3,6 @@
 namespace Prodemmi\Lava\Fields;
 
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-
 class Number extends Field
 {
 
@@ -24,21 +21,21 @@ class Number extends Field
     public function min($min = 0)
     {
 
-        $this->attributes( [ 'min' => $this->callableValue( $min ) ] );
+        $this->attributes( 'min' , $this->callableValue( $min ));
 
         return $this;
     }
 
     public function max($max = NULL)
     {
-        $this->attributes( [ 'max' => $this->callableValue( $max ) ] );
+        $this->attributes( 'max' , $this->callableValue( $max ));
 
         return $this;
     }
 
     public function step($step = 1)
     {
-        $this->attributes( [ 'step' => $this->callableValue( $step ) ] );
+        $this->attributes( 'step' , $this->callableValue( $step ));
 
         return $this;
     }

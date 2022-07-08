@@ -2,69 +2,101 @@
 
     <div>
 
-        <template v-for="(field, index) in fields">
+        <template v-for="(field, index) in fields" v-if="show(field)">
 
-            <template v-if="field.showOnForm">
+            <template v-if="field.forDesign">
 
-                <template v-if="field.forDesign">
+                <component :key="index"
+                           :data="field"
+                           :is="field.component"
+                           v-if="field.component === 'lava-tab'"
+                           :env="env"
+                           v-bind="field.attributes">
 
-                    <component :key="index" 
-                            :data="field"
-                            :is="field.component" 
-                            v-bind="field.attributes"
-                            :style="{ width: isMobile && field.component !== 'lava-card' ? '100%' : null }">
+                    <div v-for="(tab, tabIndex) in field.tabs_data"
+                         :tab="tabIndex"
+                         :tabText="tab.title"
+                         :key="tabIndex">
 
-                        <template v-slot:header>{{ field.title }}</template>
-
-                        <template v-slot:body>
-
-                            <fields :data="data"
-                                    :fields="field.fields"
-                                    :class="{ 'flex justify-start items-stretch': (field.stack && !isMobile),
-                                            'flex-col' : (field.stack && !isMobile) && field.direction === 'column' }"
-                                    :errors="errors"
-                                    :env="env"
-                                    @on-change="changed"/>
-
-                        </template>
-
-                    </component>
-
-                </template>
-
-                <div :key="index" 
-                    class="flex justify-start items-start my-2 px-1 text-lg" 
-                    :class="nextLine(field) ? 'flex-col' : ''" 
-                    v-else>
-
-                    <div style="width: 140px">
-
-                        <span>{{ field.name }}</span> <span v-if="isMobile">:</span>
-
-                        <span v-if="field.rules.includes('required') && env !== 'detail'" class="text-danger">*</span>
-
-                    </div>
-
-                    <div class="flex flex-col justify-start w-full" 
-                        :class="[ env === 'detail' ? 'overflow-hidden' : 'overflow-visible', isMobile ? '' : 'px-2']">
-                        
-                        <component v-bind="field.attributes"
-                                v-if="field.showOnForm"
-                                :is="field.component + component"
-                                :data="field"
-                                :value="resourceValue(data, field, env === 'edit')"
+                        <fields v-for="(tabField, fieldsIndex) in tab.fields"
+                                :key="fieldsIndex"
+                                :data="data"
+                                :fields="tabField.fields && tabField.fields.length ? tabField.fields : [tabField]"
+                                :errors="errors"
                                 :env="env"
-                                :dir="$store.getters.getConfig.rtl ? 'rtl': 'ltr'"
-                                :resource="field.resource"
                                 @on-change="changed"/>
 
-                        <form-error v-if="errors[field.column]" :errors="errors[field.column]"/>
-
                     </div>
+
+                </component>
+
+                <component :key="index"
+                           :data="field"
+                           :is="field.component"
+                           v-else
+                           v-bind="field.attributes">
+
+                    <template v-slot:header>{{ field.title }}</template>
+
+                    <template v-slot:body>
+
+                        <fields :data="data"
+                                :fields="field.fields"
+                                :errors="errors"
+                                :env="env"
+                                @on-change="changed"/>
+
+                    </template>
+
+                </component>
+
+            </template>
+
+            <div :key="index"
+                 class="flex justify-start items-start my-2 px-1 text-lg"
+                 :class="nextLine(field) ? 'flex-col' : ''"
+                 v-else>
+
+                <div class="inline-flex"
+                     style="width: 140px">
+
+                    <span>{{ field.name }}</span> <span v-if="isMobile">:</span>
+
+                    <span v-if="field.rules.includes('required') && env !== 'detail'"
+                          class="text-danger"> * </span>
+
+                    <lava-tooltip v-if="field.help"
+                                  :text="field.help"
+                                  class="ltr:ml-2 rtl:mr-2">
+                        <i class="ri-information-line cursor-help"></i>
+                    </lava-tooltip>
 
                 </div>
 
-            </template>
+                <div class="flex flex-col justify-start w-full"
+                     :class="[ env === 'detail' ? 'overflow-hidden' : 'overflow-visible', isMobile ? '' : 'px-2']">
+
+                    <div v-if="field.custom" v-html="resourceValue(data, field, false)">
+
+                    </div>
+                     
+                    <component v-else
+                               v-bind="field.attributes"
+                               :is="field.component + component"
+                               :data="field"
+                               :value="resourceValue(data, field, env === 'edit')"
+                               :env="env"
+                               :first-search="true"
+                               :dir="$store.getters.getConfig.rtl ? 'rtl': 'ltr'"
+                               :resource="field.resource"
+                               @on-change="changed"/>
+
+                    <!-- <form-error v-if="errors[field.column]"
+                                :errors="errors[field.column]"/> -->
+
+                </div>
+
+            </div>
 
         </template>
 
@@ -74,26 +106,42 @@
 
 <script>
 
-    export default {
-        name: 'fields',
-        props: ['data', 'fields', 'errors', 'env'],
-        computed: {
-            component() {
+export default {
+    name    : 'fields',
+    props   : [ 'data', 'fields', 'errors', 'env' ],
+    computed: {
+        component() {
 
-                if (this.env === 'create') {
-                    return '-edit'
-                }
-
-                return '-' + this.env
+            if ( this.env === 'create' ) {
+                return '-edit'
             }
+
+            return '-' + this.env
+        }
+    },
+    methods : {
+        show(field) {
+
+            if ( field.showOnDetail && this.env === 'detail' )
+                return true
+            else if ( field.showOnIndex && this.env === 'index' )
+                return true
+            else if ( field.showOnForms && _.includes(['edit', 'create'], this.env) )
+                return true
+            else
+                return false
+
         },
-        methods: {
-            changed(data) {
-                this.$emit('on-change', data)
-            },
-            nextLine(field){
-                return this.isMobile && (this.resourceValue(this.data, field, this.env === 'edit')?.length > 12 || (field.relation && !_.isEmpty(this.resourceValue(this.data, field, this.env === 'edit'))))
-            }
+        changed(data) {
+            this.$emit('on-change', data)
+        },
+        nextLine(field) {
+            return this.isMobile && (
+                this.resourceValue(this.data, field, this.env === 'edit')?.length > 12 || (
+                    field.relation && !_.isEmpty(this.resourceValue(this.data, field, this.env === 'edit'))
+                )
+            )
         }
     }
+}
 </script>

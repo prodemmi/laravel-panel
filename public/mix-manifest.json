@@ -2,5 +2,7 @@
     "/app.js": "/app.js",
     "/app.css": "/app.css",
     "/public/lava/hot": "/public/lava/hot",
+    "/public/lava/lava.png": "/public/lava/lava.png",
+    "/public/lava/loading.webp": "/public/lava/loading.webp",
     "/public/lava/mix-manifest.json": "/public/lava/mix-manifest.json"
 }

@@ -12,7 +12,7 @@
         <div v-if="show"
              class="fixed inset-0 flex items-center z-100 justify-center h-full w-full">
 
-                <div 
+                <div
                      class="overflow-visible rounded-lg shadow-xl bg-white p-4"
                      style="min-width: 440px;" :style="{ width, height }">
 
@@ -31,12 +31,14 @@
 
                     <!-- Modal footer -->
                     <div v-if="showButtons" class="flex items-center justify-end mt-4">
-                        <lava-button v-if="confirmLabel" 
+                        <lava-button v-if="confirmLabel"
+                                     class="px-4 ltr:mr-1 rtl:ml-1"
                                      @click="$emit('on-continue')"
                                      :disabled="disabled"
                                      :loading="loading"
                                      :color="danger ? 'danger' : 'primary' ">{{ confirmLabel }}</lava-button>
-                        <lava-button v-if="cancelLabel" 
+                        <lava-button v-if="cancelLabel"
+                                     class="px-4"
                                      @click="$emit('on-cancel')">{{ cancelLabel }}</lava-button>
                     </div>
 
@@ -94,15 +96,6 @@
                 }
             });
 
-        },
-        methods: {
-            clickOutside(){
-
-                if(this.closeOnClickOutside && this.show){
-                    this.$emit('on-close');
-                }
-
-            }
         }
     }
 </script>

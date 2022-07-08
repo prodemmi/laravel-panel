@@ -23,7 +23,7 @@ class Select extends Field
     {
         parent::__construct( $name, $column );
 
-        $this->displayValue( function ($value) {
+        $this->display( function ($value) {
 
             return $this->options[$value]['label'] ?? $value;
 
@@ -63,9 +63,7 @@ class Select extends Field
     public function multiple($limit = 1, $multiple = TRUE)
     {
 
-        $this->attributes( [
-            'multiple' => $this->callableValue( $multiple )
-        ] );
+        $this->attributes( 'multiple', $this->callableValue( $multiple ) );
 
         $this->limit = $limit;
 

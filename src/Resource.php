@@ -4,8 +4,9 @@ namespace Prodemmi\Lava;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-abstract class Resource extends Tools
+abstract class Resource extends Tool
 {
 
     public $group = 'Resources';
@@ -30,6 +31,12 @@ abstract class Resource extends Tools
     public abstract function editableWhen(): bool;
 
     public abstract function deletableWhen(): bool;
+
+    public function __construct(){
+
+        $this->tool = false;
+
+    }
 
     public function getPrimaryKey()
     {
@@ -64,11 +71,11 @@ abstract class Resource extends Tools
                     break;
             }
 
-            $show = ( $field->showOnIndex ?? FALSE ) || ( $field->showOnDetail ?? FALSE ) || ( $field->showOnForms ?? FALSE );
+            $show = ( $field->showOnIndex ?? FALSE ) || ( $field->showOnDetail ?? FALSE ) || ( $field->showOnFormss ?? FALSE );
 
-            return $show && !str_contains( $field->column, '.' );
+            return $show && !str_contains( $field->column ?? '', '.' );
 
-        } )->pluck( 'column' )->toArray();
+        } )->pluck( 'column' )->filter()->toArray();
     }
 
     public function headers()
@@ -87,7 +94,7 @@ abstract class Resource extends Tools
                 'column'    => $field->column ?? NULL,
                 'stack'     => $field->stack ?? FALSE,
                 'sortable'  => $field->sortable ?? FALSE,
-                'show'      => $key <=2 ? true : !$field->hideDefault,
+                'show'      => $key <=2 ? true : !$field->hide,
                 'headers'   => $field->fields ?? [],
                 'direction' => $field->direction ?? NULL
             ];
@@ -104,6 +111,16 @@ abstract class Resource extends Tools
 
     }
 
+    public function hasAvatar()
+    {
+
+        return $this->getFieldsOfForDesign()->first( function ($field, $key) {
+
+            return isset( $field->avatar ) && $field->avatar;
+        } );
+
+    }
+
     public function getWith()
     {
 
@@ -113,7 +130,7 @@ abstract class Resource extends Tools
 
         } )->map( function ($field) {
 
-            return Arr::first( explode( '.', $field->column ) );
+            return Arr::first( explode( '.', $field->column ?? [] ) );
 
         } )->values()->toArray();
     }
@@ -123,7 +140,7 @@ abstract class Resource extends Tools
 
         if ( count( $this->searches ) === 1 && head( $this->searches ) === '*' ) {
 
-            return $this->getFieldsOfForDesign()->pluck( 'column' )->toArray();
+            return Schema::getColumnListing($this->getModelInstance()->getTable());
         }
 
         return $this->searches;
@@ -146,12 +163,15 @@ abstract class Resource extends Tools
 
             if ( is_string( $action ) ) {
 
-                return resolve( $action )->toArray();
+                $ac = resolve( $action )->toArray();
+            } else{
+                $ac = $action->toArray();
             }
 
+            $ac['resource'] = get_class($this);
 
-            return $action->toArray();
-            
+            return $ac;
+
         } )->toArray();
 
     }
@@ -161,18 +181,22 @@ abstract class Resource extends Tools
 
         $fields = $fields ?? $this->fields();
 
-        foreach ( $fields as $key => $field ) {
+        $f = [];
 
-            $field = $fields[$key];
+        foreach ( $fields as $field ) {
 
-            if ( $field->forDesign ?? FALSE ) {
+            if ( $field->forDesign ) {
 
-                $fields[$key] = $this->getFieldsOfForDesign( $field->fields ?? [] );
+                $f [] = $this->getFieldsOfForDesign( $field->fields );
+
+            }else{
+
+                $f [] = $field;
             }
 
         }
 
-        return collect( $fields )->flatten( 1 )->unique( 'column' );
+        return collect( $f )->flatten();
     }
 
     public function getRules()
@@ -212,12 +236,12 @@ abstract class Resource extends Tools
         return $sort;
     }
 
+
+
     public function toArray()
     {
-        $parent         = parent::toArray();
-        $parent['tool'] = FALSE;
 
-        return array_merge( $parent, [
+        return array_merge( parent::toArray(), [
             'resource'   => get_class($this),
             'model'      => $this->model,
             'selectable' => $this->selectable,
@@ -233,7 +257,8 @@ abstract class Resource extends Tools
             'active'     => TRUE,
             'creatable'  => $this->creatableWhen(),
             'editable'   => $this->editableWhen(),
-            'deletable'  => $this->deletableWhen()
+            'deletable'  => $this->deletableWhen(),
+            'limit'      => DB::table('lava_options')->where('key', basename(str_replace('\\', '/', get_class($this))) . '.limit')->first()?->value ?? 0
         ] );
     }
 

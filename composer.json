@@ -15,6 +15,7 @@
   "require"      : {
     "brick/money"        : "^0.5.3",
     "hekmatinasser/verta": "^1.12.4",
+    "symfony/intl"       : "^6.1.0",
     "ext-zip": "*" 
   } ,
   "autoload"     : {

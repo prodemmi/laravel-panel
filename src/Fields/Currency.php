@@ -4,6 +4,8 @@ namespace Prodemmi\Lava\Fields;
 
 
 use Brick\Money\Money;
+use NumberFormatter;
+use Symfony\Component\Intl\Currencies;
 
 class Currency extends Number
 {
@@ -25,7 +27,7 @@ class Currency extends Number
         $this->locale   = config( 'app.locale', 'en' );
         $this->currency = config( 'nova.currency', 'USD' );
 
-        $this->step( '0.01' )->displayValue( function ($value) {
+        $this->step( '0.01' )->min('0.01')->display( function ($value) {
 
             return $this->format( $value );
 
@@ -59,6 +61,15 @@ class Currency extends Number
         $this->currencySymbol = $this->callableValue( $symbol );
 
         return $this;
+    }
+
+    public function toArray()
+    {
+        return array_merge( parent::toArray(), [
+            'currencySymbol'  => $this->currencySymbol,
+            'currency'        => $this->currency,
+            'locale'          => $this->locale,
+        ] );
     }
 
 }

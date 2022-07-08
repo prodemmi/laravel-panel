@@ -6,14 +6,14 @@
             
             <template v-for="(url, i) in getValue.slice(0, 6 * page)">
 
-                <div class="relative mx-0.5" :key="i">
+                <div class="relative mx-1" :key="i">
                  
                     <lava-tooltip :text="url">
 
-                        <div v-if="url" @click="copyToClipboard(url)" class="flex items-center justify-center h-8 w-8 shadow-lg text-3xl rounded cursor-pointer border-solid border-2 border-slate-300" v-bind="data.attributes">
+                        <div v-if="url" @click="copyToClipboard(url)" class="flex items-center justify-center h-24 w-24 text-3xl rounded cursor-pointer border-solid border-2 border-slate-300" v-bind="data.attributes">
                             <img v-if="urlIsImage(url)"
                                 v-bind="data.attributes"
-                                class="object-cover w-full h-full"
+                                class="shadow-lg object-cover w-full h-full"
                                 v-lazy="url" alt="">
                             <div v-else
                                 v-bind="data.attributes">
@@ -26,7 +26,7 @@
                     <span v-if="deletable"
                         @click="$emit('on-delete', url)"
                         style="width: 28px;height: 28px"
-                        class="ri-close-line absolute z-60 -top-2 ltr:-right-0.5 rtl:-left-0.5 cursor-pointer rounded-full bg-primary text-white flex items-center justify-center"></span>
+                        class="ri-close-line absolute z-60 -top-2 ltr:-right-1 rtl:-left-1 cursor-pointer rounded-full bg-primary text-white flex items-center justify-center"></span>
 
                 </div>
             

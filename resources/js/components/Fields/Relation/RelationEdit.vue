@@ -1,16 +1,22 @@
 <template>
 
-    <lava-search 
-        class="w-full"
-        :multiple="data.multiple"
-        :column="data.column"
-        :value="getValue"
-        :resource="findResource"
-        :placeholder="getlabel"
-        :firstSearch="env !== 'create'"
-        :disabled="disabled"
-        @on-change="changed"
-        uri="api/select-search"/>
+    <div class="inline-flex">
+        <lava-search 
+            class="w-full ltr:mr-1 rtl:ml-1"
+            ref="search"
+            :multiple="data.multiple"
+            :column="data.column"
+            :value="getValue"
+            :resource="findResource"
+            :placeholder="getlabel"
+            :first-search="env !== 'create'"
+            :disabled="disabled"
+            :clearable="!dialog"
+            @on-change="changed"
+            uri="api/select-search"/>
+            
+            <lava-button class="px-2" @click="openPop">Attach</lava-button>
+    </div>
 
 </template>
 
@@ -28,6 +34,11 @@
             env: String,
             resource: String,
             disabled: Boolean
+        },
+        data() {
+            return {
+                dialog: false
+            }
         },
         computed: {
             getValue() {
@@ -57,6 +68,22 @@
 
             }
         },
+        mounted() {
+
+            this.$nextTick(() => {
+                var relation = Object.fromEntries(new URLSearchParams(this.$route.query?.relation))
+                
+                if(this.fullscreen && relation && relation.class === this.resource){
+
+                    delete relation.class
+
+                    this.$refs.search.append(relation)
+                    this.dialog = true
+
+                }
+            })
+
+        },
         methods: {
             changed(value, column) {
 
@@ -69,6 +96,53 @@
                     value
                 })
 
+            },
+            openPop(){
+
+                var relation = null
+
+                if(this.env === 'edit' && !this.data.relationType.includes('To')){
+
+                    var activeTool = this.activeTool()
+
+                    var vv = _.get(this.$parent.$parent.data, activeTool.primaryKey + '.value')
+                    var sb = activeTool.subtitle ? _.get(this.$parent.$parent.data, activeTool.subtitle + '.value') : null
+
+                    var value = {
+                        label: sb ? vv + ' - ' + sb : vv,
+                        value: vv
+                    }
+                    console.log(value)
+
+                    relation = new URLSearchParams({
+                        class: activeTool.class,
+                        ...value
+                    }).toString()
+
+                }
+
+                let routeData = this.$router.resolve({name: 'create', params: {resource: this.findResource.route}, query: {fullscreen: true, title: 'Create ' + this.findResource.singularLabel, relation}});
+                var win = this.openPopup(routeData.href)
+
+                win.addEventListener('beforeunload', (event) => {
+                    var val = $('div#send-data-value')
+                    var created_data = JSON.parse(val.html() || '{}')
+
+                    var vv = _.get(created_data, this.findResource.primaryKey)
+                    var sb = this.findResource.subtitle ? _.get(created_data, this.findResource.subtitle) : null
+
+                    var value = {
+                        label: sb ? vv + ' - ' + sb : vv,
+                        value: vv
+                    }
+                    
+                    if(created_data){
+                        this.$refs.search.append(value)
+                    }
+
+                    val.remove()
+                }, false)
+                
             }
         }
     }

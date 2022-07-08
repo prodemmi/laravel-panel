@@ -5,7 +5,7 @@
         <lava-dialog :show="selected_action && selected_action.fields.length > 0"
                      :disabled="canDoAction"
                      :danger="selected_action && selected_action.danger"
-                     @on-continue="doAction(selected_action)"
+                     @on-continue="doAction(selected_action, temp_selected_rows)"
                      @on-cancel="hideDialog"
                      @on-close="hideDialog">
 
@@ -39,13 +39,14 @@
                 <i @click="goToBack()"
                 class="cursor-pointer text-lg w-fit" :class="$store.getters.getConfig.rtl ? 'ri-arrow-right-line': 'ri-arrow-left-line'"></i>
 
-                <ActionBar 
+                <action-bar 
                     v-if="!_.isEmpty(active_actions)"
                     class="ltr:ml-2 rtl:mr-2"
                     :actions="active_actions"
+                    :resource="resource"
                     :selected="[data]"
                     :showClose="false"
-                    @handle-action="ha"/>
+                    @handle-action="(action, rows) => {temp_selected_rows = rows; handleAction(action, rows)}"/>
                     
             </div>
 
@@ -54,12 +55,12 @@
                             id: $route.params.id,
                             resource: $route.params.resource
                         })">
-                Edit
+                <span class="px-6">Edit</span>
             </lava-button>
 
         </div>
-        
-        <div v-if="data" class="p-2 text-lg bg-white shadow rounded-md my-2">
+        <!-- bg-white shadow  -->
+        <div v-if="data" class="p-2 text-lg rounded-md my-2">
 
             <fields :data="data" :fields="resource.fields" :errors="[]" env="detail"/>
 
@@ -82,6 +83,7 @@
             return {
                 data: null,
                 active_actions: [],
+                temp_selected_rows: null,
                 selected_action: undefined,
                 resource: this.activeTool(),
             };
@@ -124,6 +126,76 @@
             }
         },
         methods: {
+            handleAction(action, rows = null, goback = true) {
+
+                if ( !_.isEmpty(action.fields) ) {
+
+                    this.selected_action = action
+                    return
+
+                }
+
+                this.doAction(action, rows, goback)
+
+            },
+            doAction(action = null, rows = null, goback = false){
+
+                if ( action.danger ) {
+                    Lava.confirm(action.name, action.help, action.danger).then(res => {
+                        if ( res.isConfirmed ) this.action(action, rows, goback)
+                    });
+                    return
+                }
+
+                this.action(action, rows, goback)
+
+            },
+            action(action = null, rows = null, goback = false) {
+
+                Lava.showLoading(-1)
+
+                return this.$http
+                    .post("/api/action", {
+                        action: action || this.selected_action,
+                        values: _.flatten(action.values),
+                        rows  : rows || this.temp_selected_rows
+                    })
+                    .then((res) => {
+
+                        Lava.showLoading(false)
+
+                        this.temp_selected_rows     = null
+                        this.selected_action = null
+
+                        if ( this.goback ) {
+                            this.goToBack()
+                            return
+                        }
+
+                        if ( res.data.type === "newWindow" ) {
+                            window.open(res.data.url, res.data.blank ? "_blank" : "_self");
+                            return;
+                        }
+
+                        if ( res.data.type === "dialog" ) {
+                            Lava.confirm(res.data.title, res.data.view, false, {
+                                showCancelButton : false,
+                                confirmButtonText: 'Ok', ...res.data.options
+                            })
+                            return;
+                        }
+
+
+                        if ( res.data.type === "route" ) {
+                            this.goToRoute(res.data.name, res.data.params);
+                            return;
+                        }
+
+                        Lava.toast(res.data.message, res.data.type)
+                        this.updateConfig(this.getData())
+
+                    });
+            },
             async getData(){
 
                 Lava.showLoading(-1)
@@ -160,12 +232,6 @@
                     .then((res) => {
                         this.active_actions = res.data
                     });
-
-            },
-            async ha(action, rows){
-
-                if(action)
-                    await this.handleAction(action, rows )
 
             },
             hideDialog() {

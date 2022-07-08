@@ -23,6 +23,15 @@ class File extends Field
 
     public $file = True;
 
+    public function __construct($name, $column = NULL)
+    {
+
+        parent::__construct($name, $column);
+        
+        $this->hideFromExport();
+
+    }
+
     public function disk($disk)
     {
 

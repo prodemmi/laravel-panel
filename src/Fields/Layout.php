@@ -5,20 +5,18 @@ namespace Prodemmi\Lava\Fields;
 use Prodemmi\Lava\Element;
 use Prodemmi\Lava\Fieldable;
 
-class Stack extends Element
+class Layout extends Element
 {
 
     use  Fieldable;
 
     public $fields = [];
 
-    public $forDesign = TRUE;
+    public $forDesign = true;
 
-    public $component = 'lava-stack';
+    public $component = 'lava-layout';
 
-    public $direction = 'column';
-
-    public $stack = TRUE;
+    protected $direction = 'row';
 
     public static function create($fields)
     {
@@ -32,14 +30,12 @@ class Stack extends Element
 
         $this->fields = $this->callableValue( $fields );
 
-        $this->showOnAll();
-
     }
 
-    public function row()
+    public function column()
     {
 
-        $this->direction = 'row';
+        $this->direction = 'column';
 
         return $this;
 
@@ -50,10 +46,9 @@ class Stack extends Element
 
         return array_merge( parent::toArray(), [
             'fields'       => $this->fields,
-            'stack'        => TRUE,
             'direction'    => $this->direction,
-            'forDesign'    => $this->forDesign,
-            'showOnForm'   => $this->showOnForm,
+            'forDesign'    => true,
+            'showOnForms'   => $this->showOnForms,
             'showOnIndex'  => $this->showOnIndex,
             'showOnDetail' => $this->showOnDetail
         ] );

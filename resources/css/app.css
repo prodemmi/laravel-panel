@@ -1,21 +1,32 @@
+@tailwind base;
 @tailwind components;
 
 @import "~sweetalert2/dist/sweetalert2.min.css";
-@import "~vue-js-modal/dist/styles.css";
+/* @import "~vue-js-modal/dist/styles.css"; */
 @import "~vue-select/dist/vue-select.css";
 
 :root {
+
+    /* Main Variables */
+
+    --sidebar-width       : 260px;
+    --loading-bar-height  : 2px;
+    --header-height       : 54px;
+    --min-element-size    : 32px;
+
+    /* Colors */
+
     --transparent         : transparent;
     --white               : white;
-    --black               : #141f28;
+    --black               : #000000;
 
-    --primary             : rgb(25, 35, 52);
-    --warning             : rgb(255, 255, 43);
-    --success             : rgb(9, 158, 9);
+    --primary             : rgb(24, 35, 54);
+    --warning             : rgb(251, 255, 0);
+    --success             : rgb(35, 149, 0);
     --danger              : rgb(255, 24, 24);
-    --info                : rgb(73, 194, 255);
+    --info                : #009bf6;
 
-    --primary-light       : rgb(24, 34, 50);
+    --primary-light       : rgb(42, 54, 73);
     --warning-light       : yellow;
     --success-light       : green;
     --danger-light        : red;
@@ -33,7 +44,11 @@
     --sidebar-menu-active : #151e2d;
     --sidebar-icon        : var(--white);
 
-    --header              : var(--primary);
+    /* Packages Variable */
+    --vs-dropdown-option-padding: 0 !important;
+    --vs-dropdown-option--active-bg: var(--primary-light) !important;
+    --vs-dropdown-option--active-color: var(--white) !important;
+
 }
 
 /*@formatter:off*/
@@ -49,15 +64,51 @@ body {
 }
 
 .info {
-    @apply bg-info !important;
+    @apply bg-info text-black !important;
 }
 
 .warning {
-    @apply bg-warning !important;
+    @apply bg-warning text-black !important;
 }
 
 .danger {
     @apply bg-danger !important;
+}
+
+.success {
+    @apply bg-success text-black !important;
+}
+
+.w-sidebar {
+    width: var(--sidebar-width) !important;
+}
+
+.w-element {
+    width: var(--min-element-size) !important;
+}
+
+.h-element {
+    height: var(--min-element-size) !important;
+}
+
+.h-header {
+    height: var(--header-height) !important;
+}
+
+.min-w-element {
+    min-width: var(--min-element-size) !important;
+}
+
+.min-h-element {
+    min-height: var(--min-element-size) !important;
+}
+
+.h-loading {
+    height: var(--loading-bar-height) !important;
+}
+
+.flex-center {
+    @apply flex items-center justify-between !important;
 }
 
 /* Loading */
@@ -93,7 +144,7 @@ body {
     left: 0;
     bottom: 0;
     will-change: left, right;
-    animation: indeterminate-short 3.0s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+    animation: indeterminate-short 3.0s cubic-bezier(0.165, 0.84, 14, 1) infinite;
     animation-delay: 1.4s;
 }
 
@@ -112,13 +163,13 @@ body {
 /* Header */
 
 .header {
-    @apply flex flex-col items-start h-header bg-white shadow-lg;
+    @apply flex flex-col items-start relative h-header;
 }
 
 /* Breadcrumbs */
 
 .breadcrumb {
-    @apply select-none inline-flex items-center list-none p-2 m-0;
+    @apply select-none inline-flex items-center list-none p-0 m-0;
 }
 
 .breadcrumb__item {
@@ -136,7 +187,7 @@ body {
 /* Header */
 
 .content {
-    @apply overflow-x-hidden bg-main p-2 w-full h-full;
+    @apply overflow-x-hidden bg-main px-4 py-2 w-full h-full;
 }
 
 /* Sidebar */
@@ -147,7 +198,7 @@ body {
 }
 
 .side-bar__group {
-    @apply text-gray-300 font-bold;
+    @apply text-gray-300 font-bold py-1;
 }
 
 .side-bar__item {
@@ -158,20 +209,28 @@ body {
     @apply text-white bg-sidebar-menu-active;
 }
 
+.side-bar-collapse--item {
+    @apply side-bar__item ltr:pl-2 rtl:pr-2;
+}
+
 .side-bar__item--active {
     @apply text-white bg-sidebar-menu-active !important;
 }
 
+.side-bar__lava {
+    @apply text-white m-0;
+}
+
 .side-bar__text {
-    @apply pl-2;
+    @apply text-white text-lg m-0;
 }
 
 .side-bar__logo {
-    @apply w-full bg-cover;
+    @apply p-2 object-contain;
 }
 
 .side-bar__profile {
-    @apply flex justify-between items-start text-white bg-sidebar-menu-active rounded m-2 p-2 cursor-pointer;
+    @apply flex justify-between items-start text-white bg-sidebar-menu-active rounded m-1 mb-2 p-1 cursor-pointer;
 }
 
 .side-bar__profile--avatar {
@@ -179,11 +238,11 @@ body {
 }
 
 .side-bar-collapse {
-    @apply text-white;
+    @apply my-1 text-white;
 }
 
 .side-bar-collapse--header {
-    @apply cursor-pointer py-1 mx-1 my-0 rounded-md hover:bg-gray-600 hover:text-white;
+    @apply cursor-pointer p-2 m-0 hover:bg-gray-600 hover:text-white;
 }
 
 .side-bar-collapse--body {}
@@ -192,70 +251,51 @@ body {
 
 .card{
 
-    @apply flow-root my-2 mx-1 shadow-lg h-full rounded-md bg-primary-light;
+    @apply mx-0 my-4 shadow-lg rounded-md h-full bg-primary-light !important;
 
 }
 
-.card--header{
+.card__header{
 
-    @apply text-gray-200 leading-3 px-2;
-
-}
-
-.card--body{
-
-    @apply bg-white p-2 rounded-md;
+    @apply text-gray-200 leading-9 font-bold px-1;
 
 }
 
-.card--footer{
+.card__body{
 
-    @apply p-2 pt-4;
+    @apply bg-white p-1 h-full rounded-md !important;
+
+}
+
+.card__footer{
+
+    @apply text-gray-700 text-sm p-2 pt-3;
 
 }
 
 /* Badge */
 
 .badge {
+    min-width: 80px;
     max-width: 100px;
-    @apply text-white text-center rounded py-0.5 px-3;
+    @apply text-white uppercase text-center shadow rounded px-1;
 }
 
 /* Button */
 
 .button {
-    @apply text-center transition-all duration-150 ease-in-out border-none cursor-pointer m-0.5 outline-none rounded;
-}
-
-.button--hover {
-    @apply hover:text-gray-200 hover:shadow-lg;
-}
-
-.button--normal {
-    @apply button shadow font-bold text-white;
-}
-
-.button--rounded {
-    @apply rounded-full !important;
-}
-
-.button--small {
-    @apply py-1 px-2 !important;
-}
-
-.button--block {
-    @apply mx-0 block w-full !important;
+    @apply shadow text-white text-center transition-all duration-150 ease-in-out border-none cursor-pointer p-1 m-0 min-w-element h-element outline-none rounded hover:opacity-90 hover:shadow-md;
 }
 
 .button--disabled {
-    @apply cursor-not-allowed opacity-60 !important;
+    @apply pointer-events-none cursor-not-allowed opacity-60 !important;
 }
 
 .button--loading {
     @apply cursor-wait !important;
 }
 
-/* Button */
+/* Dropdown */
 
 .dropdown{
     @apply relative;
@@ -276,14 +316,13 @@ body {
 /* Spinner */
 
 .spinner {
-    margin: auto;
-    width: fit-content;
-    text-align: center;
+    @apply flex items-center justify-between m-auto text-center h-full w-full overflow-hidden !important;
 }
 
 .spinner > div {
     width: 8px;
     height: 8px;
+    margin: 0 2px;
     border-radius: 100%;
     display: inline-block;
     -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
@@ -324,10 +363,10 @@ body {
     }
 }
 
-/* Spinner */
+/* Tooltip */
 
 .tooltip {
-  @apply bg-tooltip text-tooltip-text m-0.5 px-2 py-1 rounded text-sm shadow-lg leading-normal;
+  @apply bg-tooltip text-tooltip-text m-1 px-2 py-1 rounded text-sm shadow-lg leading-normal;
 }
 
 .tooltip {
@@ -362,6 +401,20 @@ body {
   opacity: 0;
 }
 
+/* Resource Page */
+
+.resource-header {
+    @apply font-bold m-0;
+}
+
+.resource-create-button {
+    @apply font-bold px-3;
+}
+
+.options-filter {
+    @apply flex flex-col justify-start w-full p-1 cursor-pointer hover:text-gray-800;
+}
+
 /* Resource Table */
 
 .resource-table{
@@ -369,11 +422,11 @@ body {
 }
 
 .resource-table__th{
-    @apply text-sm font-medium text-white p-1;
+    @apply text-sm font-medium text-white px-2 py-1;
 }
 
 .resource-table__td{
-    @apply p-1 whitespace-nowrap text-sm font-medium text-gray-900;
+    @apply resource-table__th whitespace-nowrap text-gray-900 !important;
 }
 
 .resource-table__loading{
@@ -396,22 +449,45 @@ body {
     @apply text-sm py-1 px-2 cursor-pointer mx-1 bg-gray-100 rounded hover:bg-gray-200;
 }
 
+.resource-option__button {}
+
+.resource-option__window {
+    min-width: 180px;
+    @apply absolute z-100 rounded bg-white shadow-md mt-2 p-2;
+}
+
 /* Form */
 
 .form-element{
-    @apply transition ease-in-out shadow m-0 p-1 bg-white border-solid border-2 border-gray-300 text-gray-800 rounded leading-tight block focus:border-gray-800 focus:outline-none focus:bg-gray-100 focus:shadow-md;
+    @apply transition ease-in-out shadow mx-1 p-1 bg-white border-solid border-2 border-gray-300 text-gray-800 rounded outline-none leading-tight block focus:border-primary focus:shadow-md;
 }
 
 .select {
-    @apply form-element;
+    @apply form-element h-element !important;
 }
 
 .checkbox{
-    @apply form-element mr-2 leading-tight;
+    @apply form-element p-1 cursor-pointer border-none accent-slate-500 accent-primary-light outline-none !important;
+}
+
+.radio-input{
+    @apply form-element p-1 cursor-pointer border-none accent-slate-500 accent-primary-light outline-none !important;
 }
 
 .text-input{
-    @apply form-element;
+    @apply form-element h-element px-1 py-0 !important;
+}
+
+.switch-input{
+    @apply w-8 h-4 flex items-center bg-gray-300 rounded-full p-1 duration-300 ease-in-out;
+}
+
+.switch-input__container {
+    @apply cursor-pointer bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ease-in-out;
+}
+
+.color-input{
+    @apply form-element cursor-pointer h-element px-1 py-0 !important;
 }
 
 .text-area-input{
@@ -419,12 +495,12 @@ body {
 }
 
 .number-input{
-    @apply form-element;
+    @apply form-element h-element px-1 py-0 appearance-none !important;
 }
 
 .date-picker input{
     margin-left: -4px;
-    @apply form-element !important;
+    @apply form-element h-element !important;
 }
 
 .ck-editor {
@@ -435,19 +511,45 @@ body {
     @apply form-element !important;
 }
 
+/* Search input */
+
+.search-input {
+    @apply relative;
+}
+
+.search-input__input {
+    @apply form-element h-element ltr:pl-8 rtl:pr-8 mx-0 !important;
+}
+
+.search-input__icon {
+    @apply absolute top-1/2 left-3 transform -translate-y-1/2 text-lg;
+}
+
 /* Select */
+
+.v-select, .v-select > * , v-select input {
+    @apply hover:cursor-pointer !important;
+}
 
 .vs__dropdown-toggle {
   height: 100%;
   @apply bg-transparent !important;
 }
 
+.vs__search {
+    @apply m-0 !important;
+}
+
+.vs--searchable {
+    @apply min-h-element hover:cursor-pointer !important;
+}
+
 .vs__selected {
-    @apply bg-transparent text-black !important;
+    @apply my-0 bg-transparent text-black !important;
 }
 
 .vs__deselect {
-    @apply fill-current text-primary px-1 !important;
+    @apply my-0 fill-current text-primary px-1 !important;
 }
 
 /* Dialog */

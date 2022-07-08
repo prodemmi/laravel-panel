@@ -1,15 +1,12 @@
 <template>
-
-    <div v-bind="data.attributes" v-bind.prop="getValue"></div>
-
+  <div v-bind="data.attributes"
+       class="rounded-full w-3 h-3"
+       :class="value ? 'bg-green-600' : 'bg-red-600'"></div>
 </template>
 
 <script>
 
-    import {asHtmlMixin} from '../../../mixins'
-
-    export default {
-        props: ['data', 'value'],
-        mixins: [asHtmlMixin]
-    }
+export default {
+  props: ["data", "value"],
+};
 </script>

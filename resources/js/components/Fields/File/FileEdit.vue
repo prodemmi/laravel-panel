@@ -4,7 +4,7 @@
         
         <div v-if="model.length < data.maxFiles" class="flex flex-col mb-5">
 
-            <lava-button v-if="max > 0 && !loading" small rounded :no-padding="true" style="max-width: 120px">
+            <lava-button v-if="max > 0 && !loading" small rounded style="max-width: 120px">
                 <FileInput placeholder="Add file"
                             @on-change="change"
                             :accept="data.acceptTypes"

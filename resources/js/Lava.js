@@ -5,13 +5,13 @@ import VTooltip from "v-tooltip"
 import swal from "sweetalert2"
 import ClickOutside from 'vue-click-outside'
 import VueLazyload from "vue-lazyload"
-import {HelperMixin, RouteMixin, ActionMixin} from "./mixins"
+import {HelperMixin, RouteMixin} from "./mixins"
 import CKEditor from '@ckeditor/ckeditor5-vue2';
 import _ from "lodash"
 
 Vue.use(VTooltip)
 Vue.use(VueLazyload, {
-    loading: 'https://media2.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif?cid=ecf05e47fku4z3nedjhyhyu3d4pl7cijwlsoezdy85s13jeq&rid=giphy.gif&ct=g',
+    loading: '/lava/loading.webp',
     attempt: 1
   })
 Vue.use(CKEditor)
@@ -19,21 +19,48 @@ Vue.use(CKEditor)
 VTooltip.options.defaultHtml = true
 
 Vue.directive('click-outside', ClickOutside)
- 
+
 Vue.mixin(HelperMixin)
 Vue.mixin(RouteMixin)
-Vue.mixin(ActionMixin)
 
 export default class Lava {
 
-    constructor(id = "#app", options = null) {
+    constructor(){
+        this.app = null
+        this.tools = []
+        this.components = []
+    }
 
+    createApp(id) {
+
+        // _.forEach(this.tools, tool => router.addRoute(tool) )
+        // _.forEach(this.components, ({name, component}) => Vue.component(name, component) )
+        router.addRoutes(this.tools)
         this.app = new Vue({
             router,
-            store,
-            ...options
+            store
         }).$mount(id)
 
+        return this
+
+    }
+
+    addComponent(name, component){
+        
+        this.components.push({
+            name,
+            component
+        })
+
+        return this
+
+    }
+
+    addTool(route){
+        
+        this.tools.push(route)
+
+        return this
     }
 
     /**
@@ -71,8 +98,8 @@ export default class Lava {
 
         const swalWithBootstrapButtons = swal.mixin({
             customClass: {
-                confirmButton: 'button--normal min-w-button py-2 px-4 ' + (danger ? 'bg-danger' : 'bg-primary'),
-                cancelButton: 'button--normal bg-primary min-w-button py-2 px-4'
+                confirmButton: 'button min-w-button py-2 px-4 mx-1 ' + (danger ? 'danger' : 'primary'),
+                cancelButton: 'button primary min-w-button py-2 px-4 mx-1'
             },
             buttonsStyling: false
         })
@@ -85,7 +112,7 @@ export default class Lava {
             confirmButtonText: 'Do',
             cancelButtonText: 'Cancel',
             reverseButtons: false,
-            allowOutsideClick: false,
+            allowOutsideClick: true,
             showClass: {
                 popup: 'animate__animated animate__fadeInDown animate__faster'
             },
@@ -103,17 +130,14 @@ export default class Lava {
      * @memberof Lava
      */
     showLoading(loading) {
-        if (this.app){
 
-            if(loading == false){
-                setTimeout(() => this.app.$store.commit('setLoading', loading), 1000)
-                return
-            }
-
-            this.app.$store.commit('setLoading', loading)
-
+        if(loading == false){
+            setTimeout(() => this.app.$store.commit('setLoading', loading), 1000)
+            return
         }
-            
+
+        this.app.$store.commit('setLoading', loading)
+
     }
 
 }

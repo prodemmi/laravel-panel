@@ -11,27 +11,30 @@
 
   <div class="flex overflow-hidden" style="width: 100vw;height: 100vh;" v-else>
 
-    <SideBar />
+    <SideBar v-if="!fullscreen"/>
 
     <div class="flex flex-col overflow-auto w-full h-full">
 
-      <Header />
+      <Header v-if="!fullscreen"/>
 
       <main class="content w-auto h-full" :class="isTool ? 'overflow-hidden' : 'overflow-y-auto'">
         <transition name="fade" mode="in-out">
-          <div v-if="!$store.getters.getChangingRoute"><router-view :key="$route.fullPath"></router-view></div>
+          <div class="w-full h-full">
+            <lava-breadcrumb v-if="!fullscreen" class="mb-2"/>
+            <div class="w-full h-full"><router-view :key="$route.fullPath"></router-view></div>
+          </div>
         </transition>
       </main>
 
     </div>
-    
+
   </div>
 
 </template>
 
 <script>
-import Header from "../Header/Header";
-import SideBar from "../SideBar/SideBar";
+import Header  from "./Header/Header";
+import SideBar from "./SideBar/SideBar";
 
 export default {
   components: {
@@ -49,7 +52,7 @@ export default {
     isTool(){
 
       return this.activeTool()?.tool
-      
+
     }
 
   },
@@ -60,7 +63,7 @@ export default {
       username: license.username,
       password:license.password
     }).then((res) => {
-        
+
         if(!res.data){
 
           setTimeout(() => {
@@ -71,8 +74,12 @@ export default {
 
         }
 
+        if(this.windowTitle){
+          $(document).prop('title', this.windowTitle);
+        }
+
         this.updateConfig(() => {
-          this.checkLicense = false 
+          this.checkLicense = false
           this.noLicense = false
         })
 

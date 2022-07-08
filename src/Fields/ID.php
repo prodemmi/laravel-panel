@@ -3,20 +3,25 @@
 namespace Prodemmi\Lava\Fields;
 
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-
 class ID extends Number
 {
 
     public $component = 'number';
+    public $id        = true;
 
     public function __construct($name, $column)
     {
         parent::__construct( $name ?? 'ID', $column );
 
-        $this->sortable()->setOnForm( FALSE );
+        $this->sortable()->exceptOnForms( );
 
+    }
+
+    public function toArray()
+    {
+        return array_merge( parent::toArray(), [
+            'id' => true
+        ] );
     }
 
 }

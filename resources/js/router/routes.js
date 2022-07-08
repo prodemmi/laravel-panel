@@ -1,11 +1,13 @@
 let routes = []
 
 import Dashboard from '../components/Pages/Dashboard'
-import Tool from '../components/Pages/Tool'
 import Resource from '../components/Pages/Resource'
 import Detail from '../components/Pages/Detail'
 import Edit from '../components/Pages/Edit'
 import Create from '../components/Pages/Create'
+
+import Tools from '../components/Pages/Tools'
+import Resources from '../components/Pages/Resources'
 
 routes.push({
     path: '/',
@@ -14,31 +16,37 @@ routes.push({
 })
 
 routes.push({
-    path: '/tool/:name',
-    name: 'tool',
-    component: Tool
+    path: '/tools',
+    name: 'tools',
+    component: Tools
 })
 
 routes.push({
-    path: '/:resource',
+    path: '/resources',
+    name: 'resources',
+    component: Resources
+})
+
+routes.push({
+    path: '/resources/:resource',
     name: 'index',
     component: Resource
 })
 
 routes.push({
-    path: '/:resource/:primaryKey',
+    path: '/resources/:resource/:primaryKey/detail',
     name: 'detail',
     component: Detail
 })
 
 routes.push({
-    path: '/:resource/:primaryKey/edit',
+    path: '/resources/:resource/:primaryKey/edit',
     name: 'edit',
     component: Edit
 })
 
 routes.push({
-    path: '/:resource/create',
+    path: '/resources/:resource/create',
     name: 'create',
     component: Create
 })

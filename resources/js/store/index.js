@@ -8,7 +8,7 @@ export default new Vuex.Store({
         loading: false,
         config: [],
         sidebar_collapsed: true,
-        changing_route: false
+        // changing_route: false
     },
     getters: {
         getLoading: state => {
@@ -20,9 +20,9 @@ export default new Vuex.Store({
         getSidebarCollapsed: state => {
             return state.sidebar_collapsed
         },
-        getChangingRoute: state => {
-            return state.changing_route
-        }
+        // getChangingRoute: state => {
+        //     return state.changing_route
+        // }
     },
     mutations: {
         setLoading(state, loading) {
@@ -38,10 +38,10 @@ export default new Vuex.Store({
             state.sidebar_collapsed = toggle
 
         },
-        setChangingRoute(state, changing) {
+        // setChangingRoute(state, changing) {
 
-            state.changing_route = changing
+        //     state.changing_route = changing
 
-        }
+        // }
     }
 })
