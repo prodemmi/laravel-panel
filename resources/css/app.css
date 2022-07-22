@@ -498,6 +498,17 @@ body {
     @apply form-element h-element px-1 py-0 appearance-none !important;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .date-picker input{
     margin-left: -4px;
     @apply form-element h-element !important;

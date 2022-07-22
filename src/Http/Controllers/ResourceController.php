@@ -33,20 +33,24 @@ class ResourceController extends Controller
         $this->filter   = $request->input('query.filter');
         $this->limit    = $request->input('query.limit');
 
-        $limitKey  = basename(str_replace('\\', '/', $this->resource));
-        $lastLimit = DB::table('lava_options')->where('key', $limitKey)->first()?->value;
+        $limitKey    = basename(str_replace('\\', '/', $this->resource));
+        $limitRecord = DB::table('lava_options')->where('key', "$limitKey.limit");
+        $lastLimit   = $limitRecord->first()?->value;
 
-        if($this->limit !== $lastLimit){
+        if (!$this->limit){
 
-            $limit = DB::table('lava_options')->where('key', "$limitKey.limit");
+            $limitRecord = $limitRecord->orderBy('id')->limit(1);
+            $limitRecord->delete();
 
-            if($limit->exists()){
-                $limit->update([
+        }elseif($this->limit !== $lastLimit){
+
+            if($limitRecord->exists()){
+                $limitRecord->update([
                     'key'   => "$limitKey.limit",
                     'value' => $this->limit
                 ]);
             }else{
-                $limit->insert([
+                $limitRecord->insert([
                     'key'   => "$limitKey.limit",
                     'value' => $this->limit
                 ]);

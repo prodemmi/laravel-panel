@@ -341,7 +341,7 @@ class Panel
     public function getDebug()
     {
 
-        return config('lava::lava.debug_mode');
+        return config('lava.debug_mode');
 
     }
 

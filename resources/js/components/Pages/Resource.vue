@@ -6,7 +6,7 @@
 
             <h2 class="resource-header">{{ resource.pluralLabel }}</h2>
 
-            <lava-button v-if="resource.creatable && !noData"
+            <lava-button v-if="hasData && resource.creatable"
                          class="resource-create-button"
                          @click="goToRoute('create', { resource: resource.route })">
                     Create {{ resource.singularLabel }}
@@ -14,7 +14,7 @@
 
         </div>
 
-        <resource-table :resource="resource" env="index" :key="$route.fullPath" @on-no-data="data => noData = data"/>
+        <resource-table :resource="resource" env="index" :key="$route.fullPath" @get-data="data => hasData = data.all > 0"/>
 
     </div>
 
@@ -24,7 +24,7 @@
 export default {
     data(){
         return {
-            noData: false
+            hasData: false
         }
     },
     computed: {

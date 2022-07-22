@@ -2,7 +2,7 @@
     <div class="flex items-center">
 
       <lava-select ref="select"
-                   style="width: 220px"
+                   style="width: 240px"
                    class="ltr:mr-1 rtl:ml-1"
                    :placeholder="getLabel"
                    :value="selected_action"
@@ -54,7 +54,7 @@ export default {
   },
   computed: {
     getLabel(){
-        return "Select an action" + ( _.isEmpty(this.selected) ? ' for all' : ( this.selected.length > 1 ? ' (' + this.selected.length + ' items ) ' : ''))
+        return "Select an action" + ( _.isEmpty(this.selected) ? ' for all' : ( this.selected.length > 1 ? ' (' + this.selected.length + ' selected) ' : ''))
     },
     getAction(){
         return _.find(this.actions, { name: this.selected_action?.label })

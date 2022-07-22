@@ -21,9 +21,4 @@ foreach (\Prodemmi\Lava\Facades\Lava::getPanels() as $dashboard) {
 
 Route::get('test', function () {
 
-    return SmsTemplate::first()->realText(User::find(1)->toArray(), [
-        'order_at' => \Carbon\Carbon::now(),
-        'reagent_id' => 12
-    ]);
-
 });

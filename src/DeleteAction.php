@@ -58,11 +58,11 @@ class DeleteAction extends Action
 
         try {
 
-            $collection->each(function ($row) use ($model, $primaryKey, $forceDelete) {
-
-                @$model->where($primaryKey, $row[$primaryKey])->first()->{$forceDelete ? 'forceDelete' : 'delete'}();
-
+            $toDelete = $collection->map(function($row) use ($primaryKey) {
+                return $row[$primaryKey];
             });
+
+            $model->whereIn($primaryKey, $toDelete)->{$forceDelete ? 'forceDelete' : 'delete'}();
 
             $counts = $collection->count();
 

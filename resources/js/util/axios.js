@@ -11,23 +11,17 @@ instance.defaults.baseURL = `/${window.baseUrl}`
 instance.interceptors.response.use(
     response => {
 
-        if(window.debug && _.isString(response.data) && response.data?.includes('Sfdump')){
-            window.Lava.confirm('Dump', response.data, false, {
-                showCancelButton: false,
-                confirmButtonText: 'Ok',
-                cancelButtonText: null,
-                allowOutsideClick: true,
-            })
-            return
-        }
-
         window.Lava.showLoading(false)
+
+        showDumpError(response.data)
 
         return response
 
     },
     error => {
         const {status} = error.response
+
+        window.Lava.showLoading(false)
 
         // Handle Session Timeouts
         if (status === 401) {
@@ -48,17 +42,17 @@ instance.interceptors.response.use(
 
             })
 
-        }else{
-
-            var message = error.response.data.message;
-
-            if(_.isString(error.response.data) && error.response.data?.includes('Sfdump')){
-
-                message = error.response.data
-
-            }
+        }else if (status === 500){
         
             if(window.debug){
+
+                var message = error.response.data.message;
+
+                if(_.isString(error.response.data) && error.response.data?.includes('Sfdump')){
+    
+                    message = error.response.data
+    
+                }
 
                 if(error.response.data?.file){
 
@@ -70,21 +64,30 @@ instance.interceptors.response.use(
 
                 }
 
-                window.Lava.confirm('Error', _.isObject(message) ? JSON.stringify(message, null, 2) : message, false, {
-                    showCancelButton: false,
-                    confirmButtonText: 'Ok',
-                    cancelButtonText: null,
-                    allowOutsideClick: true
-                })
+                showDumpError(_.isObject(message) ? JSON.stringify(message, null, 2) : message)
 
             }
-
-            window.Lava.showLoading(false)
 
         }
 
         return Promise.reject(error)
     }
 )
+
+function showDumpError(data){
+
+    if(window.debug && _.isString(data) && data?.includes('Sfdump')){
+        window.Lava.confirm('Dump', data, false, {
+            showCancelButton: false,
+            confirmButtonText: 'Ok',
+            cancelButtonText: null,
+            allowOutsideClick: true,
+        })
+        return true
+    }
+
+    return false
+
+}
 
 export default instance

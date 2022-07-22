@@ -10,8 +10,8 @@
             <div v-if="fullscreen"></div>
 
             <div class="flex justify-end">
-                <lava-button v-if="!fullscreen" class="ltr:mr-1 rtl:ml-1 px-4" @click="store(true)" :disabled="!couldCreate">Create and back</lava-button>
-                <lava-button class="px-4" @click="store()" :disabled="!couldCreate">Create</lava-button>
+                <lava-button :loading="loadingCreateAndBack" v-if="!fullscreen" class="ltr:mr-1 rtl:ml-1 px-4" @click="store(true)" :disabled="!canCreate">Create and back</lava-button>
+                <lava-button :loading="loadingCreate" class="px-4" @click="store()" :disabled="!canCreate">Create</lava-button>
             </div>
 
         </div>
@@ -36,6 +36,8 @@
                 resource: this.activeTool(),
                 errors: [],
                 canCreate: false,
+                loadingCreate: false,
+                loadingCreateAndBack: false,
             };
         },
         mounted() {
@@ -52,19 +54,27 @@
         computed: {
             couldCreate() {
 
-                return this.newData.length > 0;
+                return !this.errors.length && this.newData.length > 0;
 
             },
         },
         methods: {
             changed(value) {
 
-                this.canUpdate = true;
+                this.canCreate = true;
                 this.newData.push(value)
                 this.newData = _.uniqBy(this.newData.reverse(), 'column')
 
             },
             store(back = false) {
+
+                if(back){
+                    this.loadingCreateAndBack = true
+                }else{
+                    this.loadingCreate = true
+                }
+
+
                 this.$http
                     .post("/api/store", {
                         resource: this.resource.resource,
@@ -75,6 +85,9 @@
                             Lava.toast(res.data.message, "success");
                             this.canCreate = false;
                             this.newData = []
+
+                            this.loadingCreateAndBack = false
+                            this.loadingCreate = false
 
                             if(this.fullscreen){
 
@@ -103,6 +116,8 @@
                     .catch((error) => {
                         this.errors = error.response.data.errors || [];
                         this.canCreate = false;
+                        this.loadingCreate = false;
+                        this.loadingCreateAndBack = false;
                     });
             },
         },

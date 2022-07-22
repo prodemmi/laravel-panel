@@ -25,6 +25,7 @@
               :resource="filter.resource"
               :disabled="filter.where.where === 'NULL'"
               @on-change="changed"
+              :show-attach="false"
             />
 
           <div class="flex items-center justify-end ltr:ml-2 rtl:mr-2">
@@ -93,10 +94,10 @@
           </div>
         </div>
 
-        <lava-button v-if="!show_fields" class="my-1" @click="show_fields = true" block>+</lava-button>
+        <lava-button v-show="!show_fields" class="my-1" @click="showFields()" block>+</lava-button>
 
         <VueSelect
-          v-if="show_fields"
+          v-show="show_fields"
           v-model="selected_field"
           placeholder="Select a column"
           class="my-2"
@@ -157,7 +158,7 @@
 
           <hr v-if="resource.filters.length > 0" />
 
-          <input type="number" :value="resource.limit" placeholder="Limit" class="number-input" @input="$event => $emit('on-limit', $event.target.value)"/>
+          <input type="number" v-model="limit" placeholder="Limit" class="number-input" @input="$event => onLimit($event.target.value)"/>
 
           <hr>
 
@@ -213,6 +214,7 @@
         },
         data() {
             return {
+                limit: this.resource.limit,
                 show_editor: false,
                 show_fields: false,
                 active_filter: undefined,
@@ -275,6 +277,22 @@
             }
         },
         methods: {
+            showFields(){
+                
+                this.$nextTick(() => this.show_fields = true)
+             
+            },
+            onLimit(value){
+
+                if (value >= 0){
+                    this.limit = value
+                    this.$emit('on-limit', this.limit)
+                }
+                else{
+                    this.limit = 0
+                }
+
+            },
             setFilter(filter) {
 
                 if (filter !== null && (this.active_filter?.id === filter.id)) {

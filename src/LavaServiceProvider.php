@@ -50,13 +50,14 @@ class LavaServiceProvider extends ServiceProvider
 
         $this->registerRoutes();
         $this->registerViews();
+        $this->registerConfig();
         $this->registerMigrations();
 
     }
 
     protected function registerPublishing()
     {
-
+        
         $this->publishes( [
             __DIR__ . '/Console/stubs/LavaServiceProvider.stub' => app_path( 'Providers/LavaServiceProvider.php' ),
         ], 'lava-provider' );
@@ -93,8 +94,6 @@ class LavaServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom( __DIR__ . '/../resources/views', 'lava' );
 
-        $this->addMiddleware();
-
     }
 
     /**
@@ -106,8 +105,6 @@ class LavaServiceProvider extends ServiceProvider
     {
 
         $this->loadMigrationsFrom( __DIR__ . '/../database/migrations', 'lava' );
-
-        $this->addMiddleware();
 
     }
 
@@ -123,6 +120,18 @@ class LavaServiceProvider extends ServiceProvider
         $this->loadRoutesFrom( __DIR__ . '/../routes/api.php' );
 
         $this->addMiddleware();
+
+    }
+
+    /**
+     * Register the package routes.
+     *
+     * @return void
+     */
+    protected function registerConfig()
+    {
+
+        $this->mergeConfigFrom( __DIR__ . '/../config/lava.php', 'lava');
 
     }
 

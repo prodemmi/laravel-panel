@@ -5,7 +5,7 @@
       <slot name="title"></slot>
     </lava-button>
 
-    <div v-show="visibility" class="resource-option__window" :class="{'right-0' : right}">
+    <div v-if="visibility" class="resource-option__window" :class="{'right-0' : right}">
       <slot name="body"></slot>
     </div>
 
@@ -34,7 +34,8 @@ export default {
 
     },
     hide() {
-      this.visibility = false
+      if(this.visibility)
+        this.visibility = false
     }
   },
 };

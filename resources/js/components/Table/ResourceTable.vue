@@ -34,7 +34,15 @@
 
         </lava-dialog>
 
-        <div v-if="(relation && data.all > 1) || !relation" class="flex-center mb-1">Total: {{ data.total || _.size(data.rows) }}</div>
+        <div v-if="(relation && data.all > 1) || !relation" class="flex-center mb-1">
+            Total
+            :
+            {{ data.total || _.size(data.rows) }}  
+
+            <span v-if="query.limit > 0" class="mx-2">
+            (Limit {{ query.limit }})
+            </span>
+        </div>
 
         <!-- Options -->
 
@@ -53,7 +61,7 @@
 
             </div>
 
-            <actions-option class="mx-1" :selected="selected" :actions="resource.actions" @handle-action="(action, rows) => {temp_selected_rows = rows; handleAction(action, rows)}"/>
+            <actions-option class="mx-1" :selected="selected" :actions="resource.actions" @handle-action="(action, rows) => {temp_selected_rows = rows;handleAction(action, rows)}"/>
 
         </div>
 
@@ -91,7 +99,6 @@
 
                                 <th :key="index"
                                     v-if="shows[index].show"
-                                    :style="{width: index == 0 ? '64px' : '120px'}"
                                     class="resource-table__th">
 
                                     <div class="flex items-center">
@@ -124,7 +131,7 @@
 
                             </template>
 
-                            <th v-if="resource.actions.length > 0 && showActions" class="resource-table__th">
+                            <th v-if="resource.actions.length > 0 && showActions" class="resource-table__th" :style="{width: resource.actions.length * 30 + 'px'}">
                                 Actions
                             </th>
 
@@ -139,7 +146,7 @@
                             class="border-solid border-b-1 border-gray-200"
                             :class="_.includes(selected, row.rows) ? 'bg-white' : ''">
 
-                            <td class="resource-table__td">
+                            <td class="resource-table__td" style="width: 16px">
 
                                 <input v-if="resource.selectable && !relation"
                                        type="checkbox"
@@ -150,9 +157,10 @@
                             </td>
 
                             <template v-for="(header, i) in data.headers">
-
+                            
                                 <td v-if="shows[i].show"
                                     :key="i"
+                                    :style="{width: resource.actions.length && i < data.headers.length - 1 ? 0 : null}"
                                     class="resource-table__td">
 
                                     <component v-if="getField(getOriginalResource, header.column)"
@@ -377,6 +385,7 @@ export default {
 
                     Lava.showLoading(false)
 
+                    this.selected = []
                     this.temp_selected_rows     = null
                     this.selected_action_dialog = null
 
@@ -434,19 +443,17 @@ export default {
                     })
                     .then((res) => {
 
+                        this.data = res.data
+
+                        this.$emit('get-data', this.data)
+
                         if (!this.shows) {
                             this.shows = res.data.headers;
                         }
 
-                        this.data = res.data
-
                         this.checkIndeterminate();
 
                         this.setLoading(false);
-
-                        if(!this.relation && !this.loading && this.data.all === 0){
-                            this.$emit('on-no-data', true)
-                        }
 
                     })
 

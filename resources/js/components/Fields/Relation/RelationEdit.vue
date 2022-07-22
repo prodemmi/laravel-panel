@@ -15,7 +15,7 @@
             @on-change="changed"
             uri="api/select-search"/>
             
-            <lava-button class="px-2" @click="openPop">Attach</lava-button>
+            <lava-button v-if="showAttach" class="px-2" @click="openPop">Attach</lava-button>
     </div>
 
 </template>
@@ -33,7 +33,10 @@
             value: null,
             env: String,
             resource: String,
-            disabled: Boolean
+            disabled: Boolean,
+            showAttach: {
+                default: true
+            }
         },
         data() {
             return {

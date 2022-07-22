@@ -31,6 +31,7 @@ foreach ( Lava::getPanels() as $panel ) {
         Route::post( 'metric/get-metric-data', 'MetricsController@getMetricData' );
 
         Route::post( 'global-search', 'DashboardController@globalSearch' );
+        Route::post( 'options', 'DashboardController@getOptions' );
         
         Route::post( 'check-license', 'ResourceController@checkLicense' );
 

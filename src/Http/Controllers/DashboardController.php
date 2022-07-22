@@ -215,4 +215,27 @@ class DashboardController extends Controller
 
     }
 
+    public function getOptions()
+    {
+
+        $options = $limitRecord = DB::table('lava_options')->get();
+        
+        return $options->map(function($row){
+    
+            $array = explode('.', $row->key);
+            $grp   = last($array);
+    
+            array_pop($array);
+    
+            return [
+                "key"   => Str::of(implode(' ', $array))->headline(),
+                "value" => $row->value,
+                "group" => $grp
+            ];
+    
+        })->groupBy("group");
+
+        
+    }
+
 }

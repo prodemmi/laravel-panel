@@ -258,7 +258,7 @@ abstract class Resource extends Tool
             'creatable'  => $this->creatableWhen(),
             'editable'   => $this->editableWhen(),
             'deletable'  => $this->deletableWhen(),
-            'limit'      => DB::table('lava_options')->where('key', basename(str_replace('\\', '/', get_class($this))) . '.limit')->first()?->value ?? 0
+            'limit'      => DB::table('lava_options')->where('key', basename(str_replace('\\', '/', get_class($this))) . '.limit')->first()?->value ?? null
         ] );
     }
 
