@@ -5,12 +5,11 @@ namespace Prodemmi\Lava\Fields;
 use Illuminate\Support\Str;
 use Prodemmi\Lava\Element;
 use Prodemmi\Lava\Fieldable;
-use Prodemmi\Lava\Resolvable;
 
 class Field extends Element
 {
 
-    use Resolvable, Fieldable;
+    use Fieldable;
 
     public $column;
 
@@ -42,11 +41,14 @@ class Field extends Element
 
     protected $is_export = TRUE;
 
+    public $showIfCallback = null;
+
     public function __construct($name, $column = NULL)
     {
 
         $this->name   = $name;
         $this->column = $column ?? Str::of( $this->name )->title()->snake();
+        
     }
 
     public static function create($name, $column = NULL)
@@ -77,6 +79,7 @@ class Field extends Element
         $this->nullable = $this->callableValue( $nullable );
 
         return $this;
+
     }
 
     public function required($required = TRUE)
@@ -85,6 +88,7 @@ class Field extends Element
         if ( $this->callableValue( $required ) ) {
 
             $this->rules( 'required' );
+
         }
 
         return $this;
@@ -94,14 +98,6 @@ class Field extends Element
     {
 
         $this->readonly = $this->callableValue( $readonly );
-
-        return $this;
-    }
-
-    public function resolveValue($callback)
-    {
-
-        array_unshift( $this->resolveCallbacks, $callback );
 
         return $this;
     }
@@ -161,6 +157,16 @@ class Field extends Element
         $this->help = $this->callableValue($text);
 
         return $this;
+    }
+
+    public function showIf($showIfCallback){
+
+        // This will get $row, $env
+
+        $this->showIfCallback = $showIfCallback;
+
+        return $this;
+
     }
 
     public function toArray()

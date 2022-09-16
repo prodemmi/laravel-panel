@@ -12,7 +12,7 @@
     --sidebar-width       : 260px;
     --loading-bar-height  : 2px;
     --header-height       : 54px;
-    --min-element-size    : 32px;
+    --min-element-size    : 34px;
 
     /* Colors */
 
@@ -77,10 +77,6 @@ body {
 
 .success {
     @apply bg-success text-black !important;
-}
-
-.w-sidebar {
-    width: var(--sidebar-width) !important;
 }
 
 .w-element {
@@ -163,7 +159,7 @@ body {
 /* Header */
 
 .header {
-    @apply flex flex-col items-start relative h-header;
+    @apply relative flex flex-col items-start h-header;
 }
 
 /* Breadcrumbs */
@@ -187,14 +183,17 @@ body {
 /* Header */
 
 .content {
-    @apply overflow-x-hidden bg-main px-4 py-2 w-full h-full;
+    @apply bg-main px-4 py-2 overflow-x-hidden overflow-y-auto h-full;
 }
 
 /* Sidebar */
 
 .side-bar {
+    width: var(--sidebar-width) !important;
+    min-width: var(--sidebar-width) !important;
+    max-width: var(--sidebar-width) !important;
     height: 100vh;
-    @apply flex flex-col place-content-between bg-primary w-sidebar transition-all duration-200 ease-in-out;
+    @apply flex flex-col select-none place-content-between bg-primary transition-all duration-200 ease-in-out;
 }
 
 .side-bar__group {
@@ -247,6 +246,12 @@ body {
 
 .side-bar-collapse--body {}
 
+/* Tab */
+
+.tab-container {
+    @apply bg-white rounded-md overflow-visible;
+}
+
 /* Card */
 
 .card{
@@ -257,7 +262,7 @@ body {
 
 .card__header{
 
-    @apply text-gray-200 leading-9 font-bold px-1;
+    @apply select-none text-gray-200 leading-9 font-bold px-1;
 
 }
 
@@ -278,13 +283,13 @@ body {
 .badge {
     min-width: 80px;
     max-width: 100px;
-    @apply text-white uppercase text-center shadow rounded px-1;
+    @apply select-none text-white uppercase text-center shadow rounded px-1;
 }
 
 /* Button */
 
 .button {
-    @apply shadow text-white text-center transition-all duration-150 ease-in-out border-none cursor-pointer p-1 m-0 min-w-element h-element outline-none rounded hover:opacity-90 hover:shadow-md;
+    @apply shadow select-none text-white text-center transition-all duration-150 ease-in-out border-none cursor-pointer p-1 m-0 min-w-element h-element outline-none rounded hover:opacity-90 hover:shadow-md;
 }
 
 .button--disabled {
@@ -298,7 +303,7 @@ body {
 /* Dropdown */
 
 .dropdown{
-    @apply relative;
+    @apply relative select-none;
 }
 
 .dropdown--list{
@@ -403,6 +408,11 @@ body {
 
 /* Resource Page */
 
+
+.resource-page {
+    @apply select-none;
+}
+
 .resource-header {
     @apply font-bold m-0;
 }
@@ -418,7 +428,7 @@ body {
 /* Resource Table */
 
 .resource-table{
-    @apply rounded-lg min-w-full border-collapse ltr:text-left rtl:text-right;
+    @apply rounded-lg min-w-full pb-2 border-collapse select-text ltr:text-left rtl:text-right;
 }
 
 .resource-table__th{
@@ -449,6 +459,13 @@ body {
     @apply text-sm py-1 px-2 cursor-pointer mx-1 bg-gray-100 rounded hover:bg-gray-200;
 }
 
+.black-overlay {
+    opacity: 0.4;
+    /* filter: blur(2px); */
+    transition: opacity .6s;
+    pointer-events: none;
+}
+
 .resource-option__button {}
 
 .resource-option__window {
@@ -456,10 +473,20 @@ body {
     @apply absolute z-100 rounded bg-white shadow-md mt-2 p-2;
 }
 
+.ck.ck-sticky-panel__content {
+    margin-left: 0.25rem !important;
+    margin-right: 0.25rem !important;
+    @apply rounded-tl rounded-tr p-0 !important;
+}
+
+.ck.ck-editor__main > div, .ck.ck-editor__main > div.ck-focused {
+    @apply form-element !important;
+}
+
 /* Form */
 
 .form-element{
-    @apply transition ease-in-out shadow mx-1 p-1 bg-white border-solid border-2 border-gray-300 text-gray-800 rounded outline-none leading-tight block focus:border-primary focus:shadow-md;
+    @apply transition ease-in-out shadow mx-1 p-1 bg-white border-solid border-2 border-gray-300 rounded outline-none leading-tight block focus:border-primary focus:shadow-md;
 }
 
 .select {
@@ -538,17 +565,24 @@ input[type=number] {
 
 /* Select */
 
-.v-select, .v-select > * , v-select input {
+.v-select{
     @apply hover:cursor-pointer !important;
 }
 
 .vs__dropdown-toggle {
-  height: 100%;
-  @apply bg-transparent !important;
+  border-bottom-color: rgba(60,60,60,0.26) !important;
+}
+
+.vs__dropdown-menu {
+    @apply top-10 border-2 border-slate-200 p-0 rounded-lg overflow-hidden shadow-xl overflow-y-auto !important;
+}
+
+.vs__dropdown-option {
+    @apply m-0 p-0 !important;
 }
 
 .vs__search {
-    @apply m-0 !important;
+    @apply m-0  hover:cursor-pointer !important;
 }
 
 .vs--searchable {

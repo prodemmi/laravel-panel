@@ -19,11 +19,11 @@ const HelperMixin = {
                 var ascicode = Math.floor((
                     Math.random() * 42
                 ) + 48);
-                if ( ascicode < 58 || ascicode > 64 ) {
+                if (ascicode < 58 || ascicode > 64) {
 
                     idstr += String.fromCharCode(ascicode);
                 }
-            } while ( idstr.length < 32 );
+            } while (idstr.length < 32);
 
             return (
                 idstr
@@ -55,17 +55,17 @@ const HelperMixin = {
 
             return this.$http.post('api/media/upload', formData, {
                 onUploadProgress: progressEvent => Lava.showLoading(progressEvent.loaded),
-                'Content-Type'  : 'multipart/form-data'
+                'Content-Type': 'multipart/form-data'
             })
 
         },
         openPopup(url, title, w = null, h = null) {
 
-            if(w === null){
+            if (w === null) {
                 w = screen.width - (screen.width / 4)
             }
 
-            if(h === null){
+            if (h === null) {
                 h = screen.width - (screen.width / 1.8)
             }
 
@@ -81,15 +81,25 @@ const HelperMixin = {
         },
         log(data, clear = false, table = false) {
 
-            if ( window.debug ) {
+            if (window.debug) {
 
-                if ( clear ) {
+                if (clear) {
                     console.clear()
                 }
 
-                if ( table ) console.table(JSON.parse(JSON.stringify(data, true, 2))); else console.log(data)
+                if (table) console.table(JSON.parse(JSON.stringify(data, true, 2))); else console.log(data)
 
             }
+
+        },
+        dd(data) {
+
+            Lava.confirm('Dump', _.isObject(data) ? JSON.stringify(data, 5, 10) : data, false, {
+                showCancelButton: false,
+                confirmButtonText: 'Ok',
+                cancelButtonText: null,
+                allowOutsideClick: true,
+            })
 
         },
         toggleSidebar() {
@@ -97,8 +107,8 @@ const HelperMixin = {
         },
         updateConfig(then = null, optional = false) {
 
-            if ( optional ) {
-                if ( typeof then === 'function' ) {
+            if (optional) {
+                if (typeof then === 'function') {
 
                     then()
 
@@ -109,7 +119,7 @@ const HelperMixin = {
             return this.$http.post('api/get-config').then(response => {
 
                 this.$store.commit('setConfig', response.data)
-                if ( typeof then === 'function' ) {
+                if (typeof then === 'function') {
 
                     then()
 
@@ -122,12 +132,12 @@ const HelperMixin = {
 
             var path = this.$route.fullPath
 
-            if ( !path || path.length <= 1 ) {
+            if (!path || path.length <= 1) {
                 path = window.location.fullPath
             }
 
             let name = path?.replace("/", "")?.split("/")[1];
-            if ( name ) return _.find(this.$store.getters.getConfig.resources, { route: name });
+            if (name) return _.find(this.$store.getters.getConfig.resources, { route: name });
 
         },
         getResource(resource) {
@@ -146,10 +156,38 @@ const HelperMixin = {
             }, function (err) {
             });
         },
+        previewImage(url) {
+
+            var body = `Url: <a href='${url}'>${url}</a>`
+
+            Lava.confirm('', body, false, {
+                imageUrl: url,
+                imageHeight: '60vh',
+                showCancelButton: false,
+                showConfirmButton: true,
+                confirmButtonText: 'Copy Link',
+                allowOutsideClick: true,
+            }).then((res) => {
+
+                if (res.isConfirmed) {
+                    this.copyToClipboard(url)
+                }
+
+            })
+
+        },
+        humanReadableSize(bytes) {
+            let size = parseInt(data)
+            for (let unit of ['B', 'KB', 'MB', 'GB', 'TB']) {
+                if (size < 1024)
+                    return `${size.toFixed(2)} ${unit}`
+                size /= 1024.0
+            }
+        },
         resourceValue(data, field, value = false) {
             value = value ? "value" : "display";
 
-            if ( field.column.includes(".") ) {
+            if (field.column.includes(".")) {
 
                 const split = _.split(field.column, ".").splice(1, 0, value).join(".");
 
@@ -170,8 +208,8 @@ const HelperMixin = {
         flattenFields(fields) {
             fields = _.cloneDeep(fields);
 
-            for ( let i = 0; i < fields.length; i++ ) {
-                if ( fields[i].forDesign ) {
+            for (let i = 0; i < fields.length; i++) {
+                if (fields[i].forDesign) {
                     fields[i] = this.flattenFields(fields[i].fields);
                 }
             }
@@ -180,7 +218,7 @@ const HelperMixin = {
         },
         icon(icon, ...options) {
 
-            if ( icon ) return this.$store.getters.getConfig.config.icon_template.replace('$name', icon).replace('$options', options.join(' '));
+            if (icon) return this.$store.getters.getConfig.config.icon_template.replace('$name', icon).replace('$options', options.join(' '));
 
             return ''
 
@@ -297,19 +335,19 @@ const FormMixin = {
             let isEvent = value instanceof Event
             let val = this.model
 
-            if ( !isEvent ) {
+            if (!isEvent) {
 
                 val = value
 
             }
             console.log({
                 column: this.data?.column,
-                value : val
+                value: val
             })
 
             this.$emit("on-change", {
                 column: this.data?.column,
-                value : val
+                value: val
             });
 
         }, 200),

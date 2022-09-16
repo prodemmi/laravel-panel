@@ -15,18 +15,22 @@ class Boolean extends Field
     {
         parent::__construct( $name, $column );
 
-        $this->display( function ($value) {
+        $this->display( function ($value, $env, $export) {
 
             if ( $value === $this->trueValue ) {
 
-                return TRUE;
+                $value = TRUE;
 
             }
 
             if ( $value === $this->falseValue ) {
 
-                return FALSE;
+                $value = FALSE;
 
+            }
+
+            if($export){
+                return $value ? 'True' : 'False' ;
             }
 
             return $value;

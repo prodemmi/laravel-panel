@@ -2,10 +2,6 @@
 
 namespace Prodemmi\Lava\Fields;
 
-
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-
 class Badge extends Field
 {
 
@@ -29,7 +25,6 @@ class Badge extends Field
             return $this->options[$value];
         });
 
-        $this->exceptOnForms();
     }
 
     public function map(array $map)

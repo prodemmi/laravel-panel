@@ -5,6 +5,8 @@ namespace Prodemmi\Lava;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Prodemmi\Lava\Fields\DateTime;
+use Prodemmi\Lava\Fields\Field;
 
 abstract class Resource extends Tool
 {
@@ -14,8 +16,8 @@ abstract class Resource extends Tool
     public $model;
     public $primaryKey = 'id';
     public $selectable = TRUE;
-    public $searches   = [ '*' ];
-    public $perPages   = [ 25, 50, 100 ];
+    public $searches   = ['*'];
+    public $perPages   = [25, 50, 100];
     public $sort       = 'id desc';
     public $subtitle;
     public $route;
@@ -32,10 +34,10 @@ abstract class Resource extends Tool
 
     public abstract function deletableWhen(): bool;
 
-    public function __construct(){
+    public function __construct()
+    {
 
         $this->tool = false;
-
     }
 
     public function getPrimaryKey()
@@ -52,15 +54,14 @@ abstract class Resource extends Tool
     public function selects()
     {
 
-        return $this->getFieldsOfForDesign()->flatten( 1 )->filter( function ($field) {
+        return $this->getFieldsOfForDesign()->flatten(1)->filter(function ($field) {
 
-            if ( !$field->select ) {
+            if (!$field->select) {
 
                 return FALSE;
-
             }
 
-            switch ( $field->relation ?? '' ) {
+            switch ($field->relation ?? '') {
                 case 'hasMany':
                     return FALSE;
                 case 'morphToMany':
@@ -71,11 +72,10 @@ abstract class Resource extends Tool
                     break;
             }
 
-            $show = ( $field->showOnIndex ?? FALSE ) || ( $field->showOnDetail ?? FALSE ) || ( $field->showOnFormss ?? FALSE );
+            $show = ($field->showOnIndex ?? FALSE) || ($field->showOnDetail ?? FALSE) || ($field->showOnFormss ?? FALSE);
 
-            return $show && !str_contains( $field->column ?? '', '.' );
-
-        } )->pluck( 'column' )->filter()->toArray();
+            return $show && !str_contains($field->column ?? '', '.');
+        })->pluck('column')->filter()->toArray();
     }
 
     public function headers()
@@ -83,62 +83,57 @@ abstract class Resource extends Tool
 
         $fields = $this->getFieldsOfForDesign();
 
-        return $fields->filter( function ($field) {
+        return $fields->filter(function ($field) {
 
-            return ( $field->stack ?? FALSE ) || $field->showOnIndex === TRUE;
-
-        } )->map( function ($field, $key) {
+            return ($field->stack ?? FALSE) || $field->showOnIndex === TRUE;
+        })->map(function ($field, $key) {
 
             return [
                 'name'      => $field->name ?? $field->title,
                 'column'    => $field->column ?? NULL,
                 'stack'     => $field->stack ?? FALSE,
                 'sortable'  => $field->sortable ?? FALSE,
-                'show'      => $key <=2 ? true : !$field->hide,
+                'show'      => $key <= 2 ? true : !$field->hide,
                 'headers'   => $field->fields ?? [],
                 'direction' => $field->direction ?? NULL
             ];
-        } )->toArray();
+        })->toArray();
     }
 
     public function findField($column)
     {
 
-        return $this->getFieldsOfForDesign()->first( function ($field, $key) use ($column) {
+        return $this->getFieldsOfForDesign()->first(function ($field, $key) use ($column) {
 
-            return isset( $field->column ) && $field->column == $column;
-        } );
-
+            return isset($field->column) && $field->column == $column;
+        });
     }
 
     public function hasAvatar()
     {
 
-        return $this->getFieldsOfForDesign()->first( function ($field, $key) {
+        return $this->getFieldsOfForDesign()->first(function ($field, $key) {
 
-            return isset( $field->avatar ) && $field->avatar;
-        } );
-
+            return isset($field->avatar) && $field->avatar;
+        });
     }
 
     public function getWith()
     {
 
-        return $this->getFieldsOfForDesign()->filter( function ($field) {
+        return $this->getFieldsOfForDesign()->filter(function ($field) {
 
-            return str_contains( $field->column, '.' ) || ( $field->relationType ?? FALSE );
+            return str_contains($field->column, '.') || ($field->relationType ?? FALSE);
+        })->map(function ($field) {
 
-        } )->map( function ($field) {
-
-            return Arr::first( explode( '.', $field->column ?? [] ) );
-
-        } )->values()->toArray();
+            return Arr::first(explode('.', $field->column ?? []));
+        })->values()->toArray();
     }
 
     public function getSearches()
     {
 
-        if ( count( $this->searches ) === 1 && head( $this->searches ) === '*' ) {
+        if (count($this->searches) === 1 && head($this->searches) === '*') {
 
             return Schema::getColumnListing($this->getModelInstance()->getTable());
         }
@@ -149,31 +144,29 @@ abstract class Resource extends Tool
     public function getActions()
     {
 
-        $actions = collect( $this->actions() )->unique()->push( ShowAction::class );
+        $actions = collect($this->actions())->unique()->push(ShowAction::class);
 
-        if ( $this->editableWhen() ) {
-            $actions->push( EditAction::class );
+        if ($this->editableWhen()) {
+            $actions->push(EditAction::class);
         }
 
-        if ( $this->deletableWhen() ) {
-            $actions->push( DeleteAction::class );
+        if ($this->deletableWhen()) {
+            $actions->push(DeleteAction::class);
         }
 
-        return $actions->map( function ($action) {
+        return $actions->map(function ($action) {
 
-            if ( is_string( $action ) ) {
+            if (is_string($action)) {
 
-                $ac = resolve( $action )->toArray();
-            } else{
+                $ac = resolve($action)->toArray();
+            } else {
                 $ac = $action->toArray();
             }
 
             $ac['resource'] = get_class($this);
 
             return $ac;
-
-        } )->toArray();
-
+        })->toArray();
     }
 
     public function getFieldsOfForDesign($fields = NULL)
@@ -183,20 +176,18 @@ abstract class Resource extends Tool
 
         $f = [];
 
-        foreach ( $fields as $field ) {
+        foreach ($fields as $field) {
 
-            if ( $field->forDesign ) {
+            if ($field->forDesign) {
 
-                $f [] = $this->getFieldsOfForDesign( $field->fields );
+                $f[] = $this->getFieldsOfForDesign($field->fields);
+            } else {
 
-            }else{
-
-                $f [] = $field;
+                $f[] = $field;
             }
-
         }
 
-        return collect( $f )->flatten();
+        return collect($f)->flatten();
     }
 
     public function getRules()
@@ -205,11 +196,11 @@ abstract class Resource extends Tool
         $fields = $this->getFieldsOfForDesign();
         $rules  = [];
 
-        collect( $fields )->each( function ($field) use (&$rules) {
+        collect($fields)->each(function ($field) use (&$rules) {
 
-            if ( isset( $field->column ) )
-                $rules[(string)$field->column] = implode( '|', $field->rules ?? [] );
-        } );
+            if (isset($field->column))
+                $rules[(string)$field->column] = implode('|', $field->rules ?? []);
+        });
 
         return $rules;
     }
@@ -217,31 +208,33 @@ abstract class Resource extends Tool
     public function getFilters()
     {
 
-        return DB::table( 'lava_filters' )->where( 'resource', get_class($this) )->get()->map( function ($filter) {
+        return DB::table('lava_filters')->where('resource', get_class($this))->get()->map(function ($filter) {
 
-            $filter->filters = json_decode( $filter->filters, TRUE );
+            $filter->filters = json_decode($filter->filters, TRUE);
 
             return $filter;
-
-        } );
-
+        });
     }
 
     public function getSort()
     {
 
-        $sort    = explode( ' ', $this->sort );
-        $sort[1] = strtoupper( $sort[1] );
+        $sort    = explode(' ', $this->sort);
+        $sort[1] = strtoupper($sort[1]);
 
         return $sort;
     }
 
-
+    public function getSlugField(){
+        return $this->getFieldsOfForDesign()->first(function ($field, $key){
+            return class_basename($field) === 'Slug';
+        });
+    }
 
     public function toArray()
     {
 
-        return array_merge( parent::toArray(), [
+        return array_merge(parent::toArray(), [
             'resource'   => get_class($this),
             'model'      => $this->model,
             'selectable' => $this->selectable,
@@ -259,7 +252,6 @@ abstract class Resource extends Tool
             'editable'   => $this->editableWhen(),
             'deletable'  => $this->deletableWhen(),
             'limit'      => DB::table('lava_options')->where('key', basename(str_replace('\\', '/', get_class($this))) . '.limit')->first()?->value ?? null
-        ] );
+        ]);
     }
-
 }

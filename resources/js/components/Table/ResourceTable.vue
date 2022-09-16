@@ -2,7 +2,9 @@
 
     <div v-if="relation && data.all === 0 && env !== 'edit'">None</div>
 
-    <div class="flex flex-col items-start justify-start" v-else-if="data.all > 0">
+    <no-data v-else-if="!relation && !loading && data.all === 0" :resource="resource"/>
+
+    <div v-else-if="data.all" class="flex flex-col items-start justify-start" >
 
         <lava-dialog :show="selected_action_dialog"
                      :disabled="canDoAction"
@@ -75,67 +77,25 @@
 
                     <transition name="fade">
 
-                        <div v-if="loading" class="resource-table__loading"></div>
+                        <div v-show="false" class="resource-table__loading"></div>
 
                     </transition>
 
-                    <table class="resource-table">
+                    <table class="resource-table" :class="{'black-overlay': loading}">
 
-                        <thead class="bg-primary">
+                        <thead class="bg-primary select-none">
 
-                        <tr>
+                            <table-head :headers="data.headers" :resource="resource" :show-actions="showActions" :query="query" :shows="shows" :relation="relation" @on-sort="column => setSort(column)"> 
+                                <th class="resource-table__th">
 
-                            <th class="resource-table__th">
-
-                                <input v-if="resource.selectable && !relation"
-                                       ref="selectAllCheckbox"
-                                       type="checkbox"
-                                       class="checkbox"
-                                       v-model="selectAll"/>
-
-                            </th>
-
-                            <template v-for="(header, index) in data.headers">
-
-                                <th :key="index"
-                                    v-if="shows[index].show"
-                                    class="resource-table__th">
-
-                                    <div class="flex items-center">
-
-                                        <span>{{ header.name }}</span>
-
-                                        <span v-if="header.sortable"
-                                              @click="setSort(header.column)"
-                                              class="cursor-pointer ltr:ml-2 rtl:mr-2">
-
-                                                <template v-if="query.sort.column === header.column">
-
-                                                    <i v-if="query.sort.direction === 'DESC'"
-                                                       class="ri-arrow-up-line">
-                                                    </i>
-
-                                                    <i v-else-if="query.sort.direction === 'ASC'"
-                                                       class="ri-arrow-down-line">
-                                                    </i>
-
-                                                </template>
-
-                                                <i v-else class="ri-arrow-drop-down-line"></i>
-
-                                            </span>
-
-                                    </div>
+                                    <input v-if="resource.selectable && !relation"
+                                        ref="selectAllCheckbox"
+                                        type="checkbox"
+                                        class="checkbox"
+                                        v-model="selectAll"/>
 
                                 </th>
-
-                            </template>
-
-                            <th v-if="resource.actions.length > 0 && showActions" class="resource-table__th" :style="{width: resource.actions.length * 30 + 'px'}">
-                                Actions
-                            </th>
-
-                        </tr>
+                            </table-head>
 
                         </thead>
 
@@ -149,32 +109,16 @@
                             <td class="resource-table__td" style="width: 16px">
 
                                 <input v-if="resource.selectable && !relation"
-                                       type="checkbox"
-                                       class="checkbox"
-                                       v-model="selected"
-                                       :value="row.rows"/>
+                                    type="checkbox"
+                                    class="checkbox"
+                                    v-model="selected"
+                                    :value="row.rows"/>
 
                             </td>
 
-                            <template v-for="(header, i) in data.headers">
-                            
-                                <td v-if="shows[i].show"
-                                    :key="i"
-                                    :style="{width: resource.actions.length && i < data.headers.length - 1 ? 0 : null}"
-                                    class="resource-table__td">
+                            <table-row v-for="(header, i) in data.headers" :key="header.column" :index="i" :show="shows[i].show" :resource="resource" :original-resource="getOriginalResource" :data="data" :header="header" :row="row"/>
 
-                                    <component v-if="getField(getOriginalResource, header.column)"
-                                               :is="getField(getOriginalResource, header.column).component + (getField(getOriginalResource, header.column).component === 'div' ? '' : '-index')"
-                                               :data="getField(getOriginalResource, header.column)"
-                                               :value="resourceValue(row.rows, header)">
-                                        <div v-if="getField(getOriginalResource, header.column).component === 'div'" v-html="resourceValue(row.rows, header)"></div>
-                                    </component>
-
-                                </td>
-
-                            </template>
-
-                            <table-actions v-if="showActions" :class="{'opacity-50 pointer-events-none': selected.length}" :row="row" :actions="getOriginalResource.actions" @handle-action="(action, row) => {temp_selected_rows = row ; handleAction(action, row)}" />
+                            <table-actions v-if="showActions" :class="{'opacity-50 pointer-events-none': selected.length}" :row="row" :relation="relation" :actions="getOriginalResource.actions" @handle-action="(action, row) => {temp_selected_rows = row ; handleAction(action, row)}" />
 
                         </tr>
 
@@ -196,8 +140,6 @@
 
     </div>
 
-    <no-data v-else-if="!relation && !loading" :resource="resource"></no-data>
-
 </template>
 
 <script>
@@ -209,6 +151,8 @@ import ColumnsOption from "../Table/ColumnsOption";
 import ActionsOption from "../Table/ActionsOption";
 import ExportOption  from "../Table/ExportOption";
 import TableActions  from "../Table/TableActions";
+import TableHead  from "../Table/TableHead";
+import TableRow  from "../Table/TableRow";
 import NoData        from "../Table/NoData";
 import Fields        from "../Pages/Fields";
 
@@ -221,6 +165,8 @@ export default {
         ActionsOption,
         ExportOption,
         TableActions,
+        TableHead,
+        TableRow,
         NoData,
         Fields
     },
@@ -268,7 +214,7 @@ export default {
                 }
             },
             show_visibility: false,
-            loading: false,
+            loading: true,
             primaryKey: this.resource.primaryKey,
             selected_action_dialog: null,
             temp_selected_rows: null,
@@ -310,8 +256,9 @@ export default {
             }
         },
         canDoAction() {
+            console.log('asdasd')
 
-            if (_.isEmpty(this.selected_action_dialog?.fields)) {
+            if (!this.selected_action_dialog) {
 
                 return false
 
@@ -453,7 +400,7 @@ export default {
 
                         this.checkIndeterminate();
 
-                        this.setLoading(false);
+                        this.setLoading(false)
 
                     })
 
@@ -504,24 +451,25 @@ export default {
         },
         changeActionField(val) {
 
-            let data = _.cloneDeep(this.selected_action_dialog)
+            let values = this.selected_action_dialog?.values || []
 
-            if (_.isEmpty(data.values)) {
-                data.values = []
-            }
-
-            let f = _.find(data.values, {column: val.column})
+            let f = _.find(values, {column: val.column})
 
             if (f) {
+
                 f.value = val.value
+
             } else {
-                data.values.push({
-                    column: val.column,
-                    value: val.value
-                })
+                values.unshift(val)
             }
 
-            this.selected_action_dialog = data
+            if(val.value === null){
+                values = _.without(values, {column: val.column})
+            }
+
+            // this.selected_action_dialog = data
+            this.$set(this.selected_action_dialog, 'values', values)
+            console.log(this.selected_action_dialog)
 
         },
         doFilter(filter) {

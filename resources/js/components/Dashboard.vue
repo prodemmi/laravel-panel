@@ -9,19 +9,19 @@
 
   </div>
 
-  <div class="flex overflow-hidden" style="width: 100vw;height: 100vh;" v-else>
+  <div class="flex overflow-hidden w-screen h-screen" v-else>
 
     <SideBar v-if="!fullscreen"/>
 
-    <div class="flex flex-col overflow-auto w-full h-full">
+    <div class="flex flex-col overflow-y-auto overflow-x-hidden w-full">
 
       <Header v-if="!fullscreen"/>
 
-      <main class="content w-auto h-full" :class="isTool ? 'overflow-hidden' : 'overflow-y-auto'">
+      <main class="content">
         <transition name="fade" mode="in-out">
-          <div class="w-full h-full">
+          <div>
             <lava-breadcrumb v-if="!fullscreen" class="mb-2"/>
-            <div class="w-full h-full"><router-view :key="$route.fullPath"></router-view></div>
+            <div><router-view :key="$route.fullPath"></router-view></div>
           </div>
         </transition>
       </main>

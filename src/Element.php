@@ -18,18 +18,18 @@ class Element implements JsonSerializable, Arrayable
 
     public function authorized(Request $request)
     {
-
         return $this->authenticated($request);
     }
 
-    protected function attributes($key, $value, $seperator = ';')
+    protected function attributes($key, $value, $separator = ';')
     {
 
-        $data = data_get($this->attributes, $key) . $seperator . $this->callableValue($value);
+        $data = data_get($this->attributes, $key) . $separator . $value;
 
-        data_set($this->attributes, $key, trim($data, $seperator));
+        data_set($this->attributes, $key, trim($data, $separator));
 
         return $this;
+
     }
 
 

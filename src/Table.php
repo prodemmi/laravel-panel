@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Schema;
 
 trait Table {
 
+    use ResolveData;
+
     public $total, $total_pages;
 
     public function search ()
@@ -124,7 +126,6 @@ trait Table {
         if($this->limit){
 
             $records = $records->take($this->limit);
-            
 
         }
         
@@ -174,115 +175,6 @@ trait Table {
 
     }
 
-    public function resolveValue ($records, $display = TRUE, $value = TRUE, $resource = NULL, $export = FALSE, $selects = [], $createActions = TRUE)
-    {
-
-        $res = $resource ?? $this->resource();
-
-        $fields = $res->getFieldsOfForDesign();
-
-        $empty = config('lava.table.empty');
-
-        return $records->map(function ($row) use ($fields, $display, $value, $export, $selects, $res, $createActions, $empty) {
-
-            $rowToSend = is_array($row) ? $row : $row->toArray();
-            $row = array_map(function ($value) {
-
-                return [ 'value' => $value, 'display' => $value ];
-
-            }, $rowToSend);
-
-            foreach ( $fields as $field ) {
-
-                if ( filled($selects) && !in_array($field->column, $selects) ) {
-
-                    continue;
-
-                }
-
-                if ( $export && !$field->inExport() ) {
-
-                    continue;
-
-                }
-
-                $val = data_get($row, $field->column . ".value");
-
-                if ( filled($field->displayCallbacks) && $display ) {
-
-                    foreach ( $field->displayCallbacks as $displayCallback ) {
-
-                        if ( !is_null($displayCallback) ) {
-
-                            if ( $field->custom ?? FALSE )
-                                $val = call_user_func($displayCallback, $rowToSend, $this->env, $export);
-                            else
-                                $val = call_user_func($displayCallback, $val, $rowToSend, $this->env, $export);
-
-                        }
-
-                    }
-
-                    data_set($row, $field->column . ".display", filled($val) ? $val : $empty);
-
-                }
-
-                $val = data_get($row, $field->column . ".value");
-
-                if ( filled($field->resolveCallbacks) && $value && ( !$field->custom ?? FALSE ) ) {
-
-                    foreach ( $field->resolveCallbacks as $resolveCallback ) {
-
-                        if ( isset($resolveCallback) ) {
-
-                            $val = call_user_func($resolveCallback, $val, $rowToSend, $this->env, $export);
-
-                        }
-
-                    }
-
-                    data_set($row, $field->column . ".value", $val);
-
-                }
-
-                if ( ( $field->searchable ?? FALSE ) && filled($field->searchCallback) ) {
-
-                    $val = data_get($row, $field->column . ".value");
-                    $display = data_get($row, $field->column . ".display");
-
-                    if ( filled($val) ) {
-
-                        $options = call_user_func($field->searchCallback, $display);
-
-                        $val = optional($options->first(function ($option) use ($val) {
-                            return $option['value'] === $val;
-                        }));
-
-                    }
-
-                    data_set($row, $field->column . ".display", filled($val) ? $val->label : $empty);
-
-                }
-
-            }
-
-            if ( $createActions ) {
-
-                return [ 'rows' => $row, 'actions' => array_map(function ($action) use ($row, $res) {
-
-                    return [ 'name' => $action['class'], 'show' => resolve($action['class'])->showOn($this->removeDisplay($row), $res) ];
-
-
-                }, $res->getActions()) ];
-
-            }
-
-            return $row;
-
-        });
-
-    }
-
     protected function resource ()
     {
 
@@ -297,32 +189,32 @@ trait Table {
 
     }
 
-    protected function removeDisplay ($row)
-    {
+    // protected function removeDisplay($row)
+    // {
 
-        return array_map(function ($rts) {
-            return $rts['value'] ?? $rts;
-        }, $row);
+    //     return array_map(function ($rts) {
+    //         return $rts['value'] ?? $rts;
+    //     }, $row);
 
-    }
+    // }
 
-    protected function removeValue ($rows)
-    {
-        foreach ( $rows as &$row ) {
+    // protected function removeValue($rows)
+    // {
+    //     foreach ( $rows as &$row ) {
 
-            $row = array_map(function ($rts) {
+    //         $row = array_map(function ($rts) {
 
-                return $rts['display'];
+    //             return $rts['display'];
 
-            }, $row);
+    //         }, $row);
 
-        }
+    //     }
 
-        return $rows;
+    //     return $rows;
 
-    }
+    // }
 
-    public function getLast ($resource)
+    public function getLast($resource)
     {
 
         $model = $resource->getModelInstance();

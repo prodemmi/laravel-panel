@@ -1,16 +1,17 @@
 <template>
 
-    <div v-if="data && !data.asHtml">
-        <img class="inline-block shadow h-7 w-7 object-cover ring-2 ring-white"
+    <div class="cursor-pointer">
+        <img v-if="data && !data.asHtml"
+             class="inline-block shadow h-14 w-14 object-cover ring-2 ring-white"
              v-bind="data.attributes"
+             @click="previewImage(value)"
              v-lazy="value" alt="">
-    </div>
-    <div v-else >
-        <img class="inline-block shadow h-7 w-7 object-cover ring-2 ring-white"
+        <img v-else class="inline-block shadow h-14 w-14 object-cover ring-2 ring-white"
              v-bind="data.attributes"
+             @click="previewImage(getValue)"
              v-bind.prop="getValue" alt="">
     </div>
-
+  
 </template>
 
 <script>

@@ -7,7 +7,6 @@ import Edit from '../components/Pages/Edit'
 import Create from '../components/Pages/Create'
 
 import Tools from '../components/Pages/Tools'
-import Resources from '../components/Pages/Resources'
 
 routes.push({
     path: '/',
@@ -21,11 +20,11 @@ routes.push({
     component: Tools
 })
 
-routes.push({
-    path: '/resources',
-    name: 'resources',
-    component: Resources
-})
+// routes.push({
+//     path: '/resources',
+//     name: 'resources',
+//     component: Resources
+// })
 
 routes.push({
     path: '/resources/:resource',

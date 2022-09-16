@@ -77,7 +77,7 @@
                         primary_key: this.resource.primaryKey,
                     })
                     .then((res) => {
-                        this.data = res.data.rows;
+                        this.data = res.data;
                         Lava.showLoading(false)
                 }), 500)
 
@@ -100,6 +100,8 @@
                         data: this.newData,
                         primary_key: this.resource.primaryKey,
                         search: decodeURIComponent(this.$route.params.primaryKey),
+                    }, {
+                        'Content-Type': 'multipart/form-data'
                     })
                     .then((res) => {
                         if (res) {

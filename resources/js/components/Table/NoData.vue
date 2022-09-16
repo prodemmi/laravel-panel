@@ -1,6 +1,6 @@
 <template>
 
-    <div class="flex flex-col justify-center items-center w-full h-full m-auto">
+    <div class="flex flex-col justify-center items-center w-full m-auto" style="height: 70vh">
 
         <div class="flex flex-col justify-center items-center border-solid border-2 border-black p-8 rounded-md"
              style="min-width: 280px;">

@@ -13,6 +13,7 @@
       "
       :push-tags="multiple"
       :reduce="(option) => option"
+      :searchable="searchable"
       label="label"
       class="w-full"
     >
@@ -27,7 +28,7 @@
 
           <template #spinner="{ loading }">
 
-            <lava-spinner style="width: 60px" v-if="loading" color="primary">
+            <lava-spinner style="width: 60px" v-if="loading" color="primary"> -->
 
           </lava-spinner>
               
@@ -60,6 +61,9 @@ export default {
       },
       nullable: {
         default: true
+      },
+      searchable: {
+        default: false
       }
   },
   mixins: [FormMixin],

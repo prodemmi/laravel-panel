@@ -1,6 +1,7 @@
 <template>
 
-    <VueSelect v-model="model"
+    <div class="flex w-full">
+        <VueSelect v-model="model"
                @input="change"
                @search="fetchOptions"
                @search:focus="fetchOptions"
@@ -13,38 +14,54 @@
                :disabled="disabled"
                :clearable="false"
                :loading="loading"
+               ref="search"
+               class="w-full"
+               :class="{'opacity-70': disabled}"
                label="label">
 
-        <template #open-indicator><span></span></template>
+            <template #open-indicator><span></span></template>
 
-        <template #option="{ label, subtitle, header, avatar }">
+            <template #selected-option="x">
+                <span v-if="multiple && openable" class="w-6 cursor-pointer" @click="open(x)"><i class="ri-external-link-line"></i></span>
+                <span>{{ x.label }}</span>
+            </template>
 
-            <div v-if="header" class="p-1 bg-gray-200 text-black hover:bg-primary hover:text-white">
-                <b>{{ label }}</b>
-            </div>
+            <template #option="{ label, subtitle, header, avatar }">
 
-            <div class="flex items-start justify-start w-full" v-else>
-
-                <img v-if="avatar" class="p-1 rounded-full shadow-md h-7 w-7 object-cover ring-2 ring-gray" :src="avatar" alt="">
-                
-                <div class="flex flex-col w-full px-2">
-                    <span class="text-lg truncate" v-html="label"></span>
-                    <span v-if="subtitle" class="text-sm truncate" v-html="subtitle"></span>
+                <div v-if="header" class="p-1 bg-gray-200 text-black hover:bg-primary hover:text-white">
+                    <b>{{ label }}</b>
                 </div>
 
-            </div>
+                <div class="flex items-center justify-start w-full" v-else>
 
-        </template>
+                    <img v-if="avatar"
+                        class="m-2 rounded-full shadow-md h-8 w-8 object-cover"
+                        v-lazy="avatar" alt="avatar">
+                    
+                    <div class="flex flex-col w-full px-2">
+                        <span class="text-lg truncate" v-html="label"></span>
+                        <span v-if="subtitle" class="text-sm truncate" v-html="subtitle"></span>
+                    </div>
 
-        <template #spinner="{ loading }">
+                </div>
 
-            <div style="width: 28px;height:100%">
-                <lava-spinner v-if="loading" color="primary"></lava-spinner>
-            </div>
-            
-        </template>
+            </template>
 
-    </VueSelect>
+            <template #spinner="{ loading }">
+
+                <div style="width: 36px;height:100%">
+                    <lava-spinner v-if="loading" color="primary"></lava-spinner>
+                </div>
+                
+            </template>
+
+        </VueSelect>
+
+        <lava-button v-if="!multiple && openable" class="px-2" @click="open(null)">
+            <i class="ri-external-link-line"></i>
+        </lava-button>
+
+    </div>
 
 </template>
 
@@ -71,10 +88,6 @@
                 default: null,
                 required: false
             },
-            placeholder: {
-                default: null,
-                required: false
-            },
             resource: {
                 default: null,
                 required: false
@@ -91,6 +104,9 @@
             },
             clearable: {
                 default: true
+            },
+            openable: {
+                default: false
             }
         },
         components: {
@@ -126,6 +142,14 @@
         methods: {
             clear(){
                 this.model = null
+            },
+            open(data){
+
+                var val = data ? data.value : _.first(this.$refs.search.selectedValue).value
+
+                this.goToUrl(`/${this.activePanel()}/resources/${this.resource.route}/${val}/detail`, true)
+                this.$refs.search.closeSearchOptions()
+                this.$refs.search.mutableLoading = false
             },
             append(value) {
 

@@ -5,9 +5,13 @@
       <slot name="title"></slot>
     </lava-button>
 
-    <div v-if="visibility" class="resource-option__window" :class="{'right-0' : right}">
-      <slot name="body"></slot>
-    </div>
+    <transition name="fade">
+
+      <div v-if="visibility" class="resource-option__window" :class="{'right-0' : right}">
+        <slot name="body"></slot>
+      </div>
+
+    </transition>
 
   </div>
 </template>

@@ -2,7 +2,6 @@
 
 namespace Prodemmi\Lava;
 
-
 class ShowAction extends Action
 {
     public $name = 'Show';

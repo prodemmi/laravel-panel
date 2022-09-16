@@ -2,8 +2,6 @@
 
 namespace Prodemmi\Lava\Fields;
 
-use Illuminate\Contracts\Support\Arrayable;
-
 class Select extends Field
 {
 
@@ -32,7 +30,6 @@ class Select extends Field
 
     public function options($options, $searchable = FALSE)
     {
-
 
         if ( $searchable ) {
 

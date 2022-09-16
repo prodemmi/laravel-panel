@@ -1,5 +1,5 @@
 import axios from 'axios'
-import {RouteMixin} from '../mixins'
+import { RouteMixin } from '../mixins'
 // import router from '@/router'
 
 const instance = axios.create()
@@ -13,13 +13,17 @@ instance.interceptors.response.use(
 
         window.Lava.showLoading(false)
 
-        showDumpError(response.data)
+        if (_.isString(response.data) && response.data?.includes('Sfdump')) {
+
+            showDumpError(response.data)
+
+        }
 
         return response
 
     },
     error => {
-        const {status} = error.response
+        const { status } = error.response
 
         window.Lava.showLoading(false)
 
@@ -42,19 +46,19 @@ instance.interceptors.response.use(
 
             })
 
-        }else if (status === 500){
-        
-            if(window.debug){
+        } else if (status === 500) {
+
+            if (window.debug) {
 
                 var message = error.response.data.message;
 
-                if(_.isString(error.response.data) && error.response.data?.includes('Sfdump')){
-    
+                if (_.isString(error.response.data) && error.response.data?.includes('Sfdump')) {
+
                     message = error.response.data
-    
+
                 }
 
-                if(error.response.data?.file){
+                if (error.response.data?.file) {
 
                     message = ''
                     message += 'Exception: <b>' + error.response.data?.exception + '</b> <br/>'
@@ -74,18 +78,14 @@ instance.interceptors.response.use(
     }
 )
 
-function showDumpError(data){
+function showDumpError(data) {
 
-    if(window.debug && _.isString(data) && data?.includes('Sfdump')){
-        window.Lava.confirm('Dump', data, false, {
-            showCancelButton: false,
-            confirmButtonText: 'Ok',
-            cancelButtonText: null,
-            allowOutsideClick: true,
-        })
-        return true
-    }
-
+    Lava.confirm('Dump', _.isObject(data) ? JSON.stringify(data, 5, 10) : data, false, {
+        showCancelButton: false,
+        confirmButtonText: 'Ok',
+        cancelButtonText: null,
+        allowOutsideClick: true,
+    })
     return false
 
 }

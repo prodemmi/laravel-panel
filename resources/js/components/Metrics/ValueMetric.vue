@@ -3,7 +3,7 @@
         
         <div class="flex items-center justify-between">
             <b>{{metric.title}}</b>
-            <lava-select style="min-width: 160px;width: fit-content" :nullable="false" :value="metric.defaultRange" :options="metric.ranges" @on-change="value => getData(value)"></lava-select>
+            <lava-select style="min-width: 160px;width: fit-content" :searchable="false" :nullable="false" :value="metric.defaultRange" :options="metric.ranges" @on-change="value => getData(value)"></lava-select>
         </div>
 
         <div class="flex items-center justify-center w-full h-full">

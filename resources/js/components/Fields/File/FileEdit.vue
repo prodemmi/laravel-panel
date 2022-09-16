@@ -2,22 +2,18 @@
 
     <div class="flex flex-col">
         
-        <div v-if="model.length < data.maxFiles" class="flex flex-col mb-5">
+        <div v-if="model.length < data.maxFiles" class="flex w-full justify-between mb-5">
 
-            <lava-button v-if="max > 0 && !loading" small rounded style="max-width: 120px">
-                <FileInput placeholder="Add file"
+            <lava-button v-if="max > 0 && !loading" rounded style="width: 90px" :loading="uploading">
+                <FileInput placeholder="Add File"
                             @on-change="change"
                             :accept="data.acceptTypes"
                             :multiple="data.multiple"/>
             </lava-button>
 
-            <div>
+            <div v-if="data.maxFiles > 1 && data.maxFiles <= Number.MAX_SAFE_INTEGER">
 
-                <div v-if="data.maxFiles > 1 && data.maxFiles <= Number.MAX_SAFE_INTEGER">
-
-                    Limit: {{data.maxFiles - model.length}}
-
-                </div>
+                Max: {{data.maxFiles - model.length}}
 
             </div>
 
@@ -38,7 +34,8 @@
         data() {
             return {
                 model: this.value === null || this.value === undefined ? [] : _.isArray(this.value) ? this.value: [this.value],
-                loading: false
+                loading: false,
+                uploading: false,
             }
         },
         components: {
@@ -55,6 +52,7 @@
             change(e) {
 
                 this.loading = true
+                this.uploading = true
 
                 var files = _.takeRight(e.target.files, this.max);
 
@@ -81,11 +79,13 @@
                         file: true,
                         multiple: this.data?.multiple || false
                     })
+                    this.uploading = false
 
                 }).catch((error) => {
 
                     this.model = []
                     this.loading = false
+                    this.uploading = false
 
                 })
 
@@ -93,9 +93,8 @@
             removeFile(url) {
                 
                 this.$delete(this.model, _.findIndex(this.model, (m) => m === url))
-                Lava.showLoading(false)
                 this.$emit('on-change', {
-                    value: _.isEmpty(this.model) ? null : this.model, 
+                    value: this.model, 
                     column: this.data.column,
                     all: this.value === null || this.value === undefined ? [] : _.isArray(this.value) ? this.value: [this.value],
                     file: true,
@@ -109,7 +108,6 @@
                 this.$nextTick(() => {
 
                     this.model = []
-                    Lava.showLoading(false)
                     this.$emit('on-change', {
                         value: null, 
                         column: this.data.column,

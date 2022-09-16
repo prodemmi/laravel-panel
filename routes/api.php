@@ -35,6 +35,22 @@ foreach ( Lava::getPanels() as $panel ) {
         
         Route::post( 'check-license', 'ResourceController@checkLicense' );
 
+        Route::post( 'media/upload', 'UploadController@upload' );
+        
+        // Filemanager Tool
+        Route::post( 'media/delete-media', 'FileManagerToolController@deleteMedia' );
+        Route::post( 'media/search-media', 'FileManagerToolController@searchMedia' );
+        Route::post( 'media/paste-media', 'FileManagerToolController@pasteMedia' );
+        Route::post( 'media/rename-media', 'FileManagerToolController@renameMedia' );
+        Route::post( 'media/compress-media', 'FileManagerToolController@compressMedia' );
+        Route::post( 'media/extract-media', 'FileManagerToolController@extractMedia' );
+        Route::post( 'media/new-file', 'FileManagerToolController@newFile' );
+        Route::post( 'media/new-folder', 'FileManagerToolController@newFolder' );
+        Route::post( 'media/get-media', 'FileManagerToolController@getMedia' );
+        Route::post( 'media/get-content', 'FileManagerToolController@getContent' );
+        Route::post( 'media/edit-content', 'FileManagerToolController@editContent' );
+        Route::post( 'media/get-statics', 'FileManagerToolController@getStatics' );
+
     } );
 
 }

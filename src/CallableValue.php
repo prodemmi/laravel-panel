@@ -7,7 +7,6 @@ trait CallableValue
 
     protected function callableValue($value)
     {
-
         return value( $value );
     }
 

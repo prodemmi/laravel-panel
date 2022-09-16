@@ -2,7 +2,7 @@
   <td class="resource-table__td">
     <div class="flex items-center justify-start text-lg">
 
-      <lava-tooltip v-for="action in actions" :text="disabled(action) ? action.name : null" :key="action.name" >
+      <lava-tooltip v-for="action in actions" :text="disabled(action) ? action.name : null" :key="ukey()" v-if="!(!!relation && _.endsWith(action.class, 'DeleteAction'))">
         <div
           v-html="icon(action.icon)"
           @click="$emit('handle-action', action, [row.rows])"
@@ -11,6 +11,7 @@
           class="cursor-pointer pr-1 hover:text-gray-400"
         ></div>
       </lava-tooltip>
+
     </div>
   </td>
 </template>
@@ -25,6 +26,10 @@ export default {
     row: {
       type: Object,
       default: () => []
+    },
+    relation: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {

@@ -1,24 +1,19 @@
 <template>
     <div class="flex flex-col">
 
-        <div class="flex items-center justify-between">
+        <i v-show="!fullscreen"
+            @click="goToBack()" class="cursor-pointer text-lg w-fit"
+            :class="$store.getters.getConfig.rtl ? 'ri-arrow-right-line': 'ri-arrow-left-line'"></i>
 
-            <i v-if="!fullscreen" 
-               @click="goToBack()" class="cursor-pointer text-lg w-fit"
-               :class="$store.getters.getConfig.rtl ? 'ri-arrow-right-line': 'ri-arrow-left-line'"></i>
-
-            <div v-if="fullscreen"></div>
-
-            <div class="flex justify-end">
-                <lava-button :loading="loadingCreateAndBack" v-if="!fullscreen" class="ltr:mr-1 rtl:ml-1 px-4" @click="store(true)" :disabled="!canCreate">Create and back</lava-button>
-                <lava-button :loading="loadingCreate" class="px-4" @click="store()" :disabled="!canCreate">Create</lava-button>
-            </div>
-
-        </div>
-
-        <div class="p-2 text-lg bg-white shadow rounded-md my-2">
+        <div class="p-2 text-lg bg-white shadow rounded-md mt-2 mb-4">
             <fields :data="[]" :fields="resource.fields" :errors="errors" env="create" @on-change="changed"/>
         </div>
+
+        <div class="flex justify-end">
+            <lava-button :loading="loadingCreateAndBack" v-if="!fullscreen" class="ltr:mr-1 rtl:ml-1 px-4" @click="store(true)" :disabled="!canCreate">Create and back</lava-button>
+            <lava-button :loading="loadingCreate" class="px-4" @click="store()" :disabled="!canCreate">Create</lava-button>
+        </div>
+
     </div>
 </template>
 
@@ -84,7 +79,6 @@
                         if (res) {
                             Lava.toast(res.data.message, "success");
                             this.canCreate = false;
-                            this.newData = []
 
                             this.loadingCreateAndBack = false
                             this.loadingCreate = false
@@ -107,14 +101,17 @@
 
                             }
 
-                             if(back){
+                            if(back){
                                 setTimeout(() => this.goToBack(), 400);
+                                return
                             }
+
+                            this.newData = []
 
                         }
                     })
                     .catch((error) => {
-                        this.errors = error.response.data.errors || [];
+                        this.errors = error.response?.data.errors || [];
                         this.canCreate = false;
                         this.loadingCreate = false;
                         this.loadingCreateAndBack = false;

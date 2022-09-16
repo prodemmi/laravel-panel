@@ -1,0 +1,1 @@
+<div id="file-manager-tool">Media Tool</div>

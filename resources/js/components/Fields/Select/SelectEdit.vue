@@ -22,8 +22,8 @@
     <template #option="{ label, subtitle }">
 
         <div class="flex flex-col px-2 py-1">
-            <span class="text-lg">{{ label }}</span>
-            <span v-if="subtitle" class="text-sm">{{ subtitle }}</span>
+            <span class="text-lg" v-html="label"></span>
+            <span v-if="subtitle" class="text-sm" v-html="subtitle"></span>
         </div>
 
     </template>
@@ -71,6 +71,10 @@ export default {
 
       if (this.data.searchable && !this.data.attributes.multiple) {
         value = this.model?.value || null;
+      }
+
+      if(e === null){
+        value = null
       }
 
       this.$emit("on-change", {

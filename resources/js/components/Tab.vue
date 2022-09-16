@@ -1,10 +1,10 @@
 <template>
-    <div>
-        <ul class="inline-flex list-none p-0">
+    <div class="tab-container">
+        <ul class="flex list-none mt-0 p-0 overflow-x-auto">
             <template v-for="tab in tabs">
                 <li v-if="tab.show" :key="tab.index">
                     <div style="min-width: 100px"
-                        class="transition-all duration-350 box-border text-center py-2 px-4 m-1 cursor-pointer hover:bg-gray-300"
+                        class="transition-all duration-350 box-border text-center py-2 px-4 mb-1 cursor-pointer hover:bg-gray-300"
                         :class="tab.index === activeTab ? 'color-primary' : ''"
                         :style="{boxShadow: tab.index === activeTab ? 'inset 0 -4px 0 -2px var(--primary)' : null }"
                         @click="activeTab = tab.index"
@@ -14,7 +14,7 @@
             </template>
         </ul>
 
-        <div class="flex flex-col bg-gray-100 rounded shadow-lg p-2 m-1 h-full">
+        <div class="flex flex-col p-2 m-1 h-full">
             <template v-for="(node, index) in tabs">
                 <div v-show="node.index === activeTab"
                      v-if="node.show"

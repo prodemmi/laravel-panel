@@ -4,8 +4,6 @@ namespace Prodemmi\Lava\Fields;
 
 
 use Brick\Money\Money;
-use NumberFormatter;
-use Symfony\Component\Intl\Currencies;
 
 class Currency extends Number
 {

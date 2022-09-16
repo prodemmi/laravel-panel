@@ -17,11 +17,13 @@ class File extends Field
 
     public $onDelete;
 
-    public $maxFiles = PHP_INT_MAX;
+    public $maxFiles = 1;
 
     public $acceptTypes = [];
 
     public $file = True;
+
+    protected $fileType = 'document';
 
     public function __construct($name, $column = NULL)
     {
@@ -106,17 +108,27 @@ class File extends Field
 
     public function image(){
 
+        $this->fileType = 'image';
+
+        $this->classes('rounded-full');
+
         return $this->acceptTypes('image/bmp', 'image/jpg', 'image/jpeg', 'image/png', 'image/webp');
 
     }
 
     public function video(){
 
+        $this->fileType = 'video';
+        $this->exceptOnIndex();
+
         return $this->acceptTypes('video/mp4');
 
     }
 
     public function audio(){
+
+        $this->fileType = 'audio';
+        $this->exceptOnIndex();
 
         return $this->acceptTypes('audio/mp3');
 
@@ -130,6 +142,7 @@ class File extends Field
             'multiple'    => $this->maxFiles > 1,
             'disk'        => $this->disk,
             'file'        => $this->file,
+            'fileType'    => $this->fileType,
             'acceptTypes' => implode( ',', $this->acceptTypes ),
         ] );
 

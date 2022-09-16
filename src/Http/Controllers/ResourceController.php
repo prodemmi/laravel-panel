@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Prodemmi\Lava\Facades\Lava;
+use Prodemmi\Lava\Fields\Slug;
 use Prodemmi\Lava\Table;
 
 class ResourceController extends Controller
@@ -269,8 +270,9 @@ class ResourceController extends Controller
 
             foreach ($rows as &$row) {
 
-                $row = $this->removeDisplay($row);
+                $row = $this->mapValue($row);
             }
+
         } else {
 
             $this->records = $resource->getModelInstance();
@@ -308,10 +310,10 @@ class ResourceController extends Controller
     public function detail(Request $request)
     {
 
-        $this->env = 'detail';
+        $this->env = __FUNCTION__;
 
         $this->resource = $request->input('resource');
-        $search         = $request->input('search');
+        $search         = urldecode($request->input('search'));
         $primaryKey     = $request->input('primary_key');
         $resource       = $this->resource();
         $model          = $resource->getModelInstance();
@@ -321,11 +323,11 @@ class ResourceController extends Controller
         $record = $model->where($primaryKey, $search);
 
         if (filled($with)) {
-
             $record = $record->with($with);
         }
 
-        $record = $this->resolveValue($record->get(), TRUE, FALSE);
+        $record = $this->resolveValue($record->get());
+
         return response()->json($record->first());
     }
 
@@ -335,7 +337,7 @@ class ResourceController extends Controller
         $this->env = 'edit';
 
         $this->resource = $request->input('resource');
-        $search         = $request->input('search');
+        $search         = urldecode($request->input('search'));
         $primaryKey     = $request->input('primary_key');
         $resource       = $this->resource();
         $model          = $resource->getModelInstance();
@@ -349,7 +351,7 @@ class ResourceController extends Controller
             $record = $record->with($with);
         }
 
-        $record = $this->resolveValue($record->get(), FALSE);
+        $record = $this->resolveValue($record->get(), FALSE, TRUE, $resource, FALSE, [], FALSE);
 
         return response()->json($record->first());
     }
@@ -358,7 +360,7 @@ class ResourceController extends Controller
     {
 
         $resource   = resolve($request->input('resource'));
-        $search     = $request->input('search');
+        $search     = urldecode($request->input('search'));
         $init       = $request->input('init', FALSE);
         $subtitle   = $request->input('subtitle');
 
@@ -432,13 +434,13 @@ class ResourceController extends Controller
         try {
             $resource   = resolve($request->input('resource'));
             $primaryKey = $request->primary_key;
-            $search     = $request->search;
+            $search     = urldecode($request->search);
 
             $row = $resource->getModelInstance()->where($primaryKey, $search)->first();
 
             $active_actions = collect($resource->getActions())->map(function ($action) use ($row, $resource) {
 
-                if (resolve($action['class'])->showOn($row, $resource))
+                if (resolve($action['class'])->showOn(optional($row)->toArray(), $resource))
                     return ($action);
 
                 return null;
@@ -460,9 +462,12 @@ class ResourceController extends Controller
         $rules      = $resource->getRules();
 
         $newData = [];
+
         collect($data)->each(function ($d) use (&$newData) {
 
-            $newData[$d['column']] = $d['value'] ?? null;
+            if(!($d['file'] ?? true))
+                $newData[$d['column']] = $d['value'] ?? null;
+
         });
 
         $validator = Validator::make($newData, array_intersect_key($rules, array_flip(array_keys($newData))));
@@ -482,11 +487,11 @@ class ResourceController extends Controller
 
                 $field = $resource->findField($row['column']);
                 if($row['file'] ?? false){
-
+                    $v = $row['value'] ?? [];
                     if(isset($row['all']) && !empty($row['all']) && empty($row['value']) && isset($field->onDelete)){
-                        call_user_func($field->onDelete, $model);
+                        call_user_func($field->onDelete, $field->maxFiles > 1 ? $v : Arr::first($v), $model);
                     }elseif(isset($field->onUpdate) && $field->onUpdate){
-                        call_user_func($field->onUpdate, $model, $row['value'] ?? []);
+                        call_user_func($field->onUpdate, $field->maxFiles > 1 ? $v : Arr::first($v), $model);
                     }
 
                 }
@@ -519,6 +524,14 @@ class ResourceController extends Controller
                     $toUpdate[$row['column']] = $row['value'];
                     
                 }
+            }
+
+            $slug = $resource->getSlugField();
+
+            if($slug && isset($toUpdate[$slug->createFrom])){
+
+                $toUpdate[(string)$slug->column] = Slug::createSlug($toUpdate[$slug->createFrom]);
+
             }
 
             $model->update($toUpdate);
@@ -567,7 +580,8 @@ class ResourceController extends Controller
 
         collect($data)->each(function ($d) use (&$newData) {
 
-            $newData[$d['column']] = $d['value'] ?? null;
+            if(!($d['file'] ?? true))
+                $newData[$d['column']] = $d['value'] ?? null;
             
         });
 
@@ -584,7 +598,8 @@ class ResourceController extends Controller
             $model = $resource->getModelInstance();
 
             $toUpdate = [];
-            foreach (array_filter($data, fn ($d) => isset($d['update_column']) || !isset($d['relationType'])) as $row) {
+            foreach (array_filter($data, fn ($d) => (isset($d['update_column']) && ($d['update_column'])) || !isset($d['relationType'])) as $row) {
+                
                 if (isset($row['relationModel'])) {
 
                     $toSave = $this->toSave($row);
@@ -596,9 +611,15 @@ class ResourceController extends Controller
                     $toUpdate[$row['column']] = $row['value'];
 
                 }
-
             }
 
+            $slug = $resource->getSlugField();
+
+            if($slug && isset($toUpdate[$slug->createFrom])){
+
+                $toUpdate[(string)$slug->column] = Slug::createSlug($toUpdate[$slug->createFrom]);
+
+            }
 
             $model = $model->create($toUpdate);
 
@@ -653,6 +674,7 @@ class ResourceController extends Controller
         if (blank($value)) {
 
             $value = NULL;
+
         }
 
         $relationModel = resolve($relationModel);

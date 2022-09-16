@@ -8,7 +8,7 @@
 
     <template v-slot:body>
 
-      <div v-show="show_editor" style="min-width: 420px">
+      <div v-show="show_editor" :style="{'min-width' : filters.length ? '52vw' : '300px'}">
 
         <div v-for="(filter, i) in filters" class="flex justify-start text-lg p-1" :key="i">
           
@@ -18,6 +18,7 @@
 
             <component
               class="w-full ltr:mr-1 rtl:ml-1"
+              :class="{'opacity-60 pointer-events-none': filter.where.where === 'NULL'}"
               :key="filter.column"
               :is="filter.component + '-edit'"
               :value="filter.value"
@@ -96,15 +97,15 @@
 
         <lava-button v-show="!show_fields" class="my-1" @click="showFields()" block>+</lava-button>
 
-        <VueSelect
+        <lava-select
           v-show="show_fields"
-          v-model="selected_field"
+          :value="selected_field"
           placeholder="Select a column"
           class="my-2"
-          @input="addQuery"
+          @on-change="addQuery"
           :options="getOptions"
           :reduce="(option) => option">
-        </VueSelect>
+        </lava-select>
 
         <div class="flex justify-end w-full mt-2">
           
@@ -474,7 +475,7 @@
             },
             addQuery(value) {
                 
-                const filter = _.find(this.flattenFields(this.resource.fields), {column: value.value})
+                const filter = _.find(this.flattenFields(this.resource.fields), {column: value})
 
                 filter.column += '__' + Math.ceil(Math.random()*1000)
 

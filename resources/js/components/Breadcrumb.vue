@@ -1,7 +1,6 @@
 <template>
   <ul class="breadcrumb" v-if="crumbs.length">
-    <template v-for="(item, i) in crumbs">
-      <li :key="i">
+      <li v-for="(item, i) in crumbs" :key="ukey()">
         <a
           :class="[
             crumbs.length - 1 === i
@@ -14,7 +13,7 @@
 
           <transition name="fade" mode="out-in">
             <span
-              :key="item.to"
+              :key="ukey()"
               v-if="!item.is_root"
               v-text="item.label"
             ></span>
@@ -25,7 +24,6 @@
           {{ divider }}
         </span>
       </li>
-    </template>
   </ul>
 </template>
 
@@ -53,7 +51,7 @@ export default {
 
       var hasPath = this.path !== undefined
 
-      var path = (hasPath ? this.path || '' : this.$route.matched[0]?.path).replaceAll("/detail", '').replaceAll("/create", '').replaceAll("/edit", '')
+      var path = helper.str_replace_array(hasPath ? this.path || '' : this.$route.matched[0]?.path, ["/detail", "/create", "/edit", "/resources", "/tools"], '')
 
       const routes = (path && path.length && !_.startsWith(path, '/') ? '/' + path : path)?.split("/");
       let breadcrumbs = [];
@@ -61,12 +59,13 @@ export default {
       for (const route of routes) {
         temp += route + "/";
         const index = routes.indexOf(route)
-        const route_object = _.find(this.$router?.options.routes, { path: _.trimEnd(temp, "/") || '/' })
-        const label = this.$route?.params[route.replaceAll(':', '').replaceAll('/', '')]
+        const route_object = _.find(this.$router?.options.routes, ({path}) => _.endsWith(path, _.trimEnd(temp, "/") || '/'))
+        const label = this.$route?.params[helper.str_replace_array(route, [':', '/'], '')]
         
         breadcrumbs.push({
           label: _.startCase(label || route),
           goTo: () => hasPath ? this.$emit('on-change', route) : this.goToRoute(route_object.name, this.$route?.params),
+          name: route_object?.name || route,
           is_root: index === 0,
           icon: index === 0 ? '<i class="ri-home-2-line"></i>' : this.icon(_.find(this.$store.getters.getConfig.resources, { route : label })?.icon)
         })

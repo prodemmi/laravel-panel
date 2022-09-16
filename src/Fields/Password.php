@@ -11,7 +11,9 @@ class Password extends Field
     {
         parent::__construct( $name, $column );
 
-        $this->exceptOnIndex()->hideFromExport();
+        $this->exceptOnIndex()->hideFromExport()->display(function($row){
+            return null;
+        });
 
     }
 

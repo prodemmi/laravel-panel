@@ -1,6 +1,7 @@
 <template>
 
     <div class="inline-flex">
+        
         <lava-search 
             class="w-full ltr:mr-1 rtl:ml-1"
             ref="search"
@@ -10,12 +11,13 @@
             :resource="findResource"
             :placeholder="getlabel"
             :first-search="env !== 'create'"
-            :disabled="disabled"
+            :disabled="off || disabled"
             :clearable="!dialog"
             @on-change="changed"
             uri="api/select-search"/>
             
-            <lava-button v-if="showAttach" class="px-2" @click="openPop">Attach</lava-button>
+            <lava-button v-if="showAttach && !dialog" class="px-2" @click="openPop">Create</lava-button>
+
     </div>
 
 </template>
@@ -40,7 +42,8 @@
         },
         data() {
             return {
-                dialog: false
+                dialog: false,
+                off: false
             }
         },
         computed: {
@@ -81,6 +84,7 @@
                     delete relation.class
 
                     this.$refs.search.append(relation)
+                    this.off    = true
                     this.dialog = true
 
                 }
@@ -94,7 +98,7 @@
                     relationType: this.data.relationType,
                     relationModel: this.findResource.model,
                     relationPrimaryKey: this.findResource.primaryKey,
-                    update_column: this.data.update_column,
+                    update_column: _.startsWith(this.data.relationType, 'Morph') ? null : this.data.update_column,
                     column,
                     value
                 })
@@ -104,18 +108,17 @@
 
                 var relation = null
 
-                if(this.env === 'edit' && !this.data.relationType.includes('To')){
+                if(this.env === 'edit'){
 
                     var activeTool = this.activeTool()
 
-                    var vv = _.get(this.$parent.$parent.data, activeTool.primaryKey + '.value')
-                    var sb = activeTool.subtitle ? _.get(this.$parent.$parent.data, activeTool.subtitle + '.value') : null
+                    var vv = _.get(this.$parent.data, activeTool.primaryKey + '.value')
+                    var sb = activeTool.subtitle ? _.get(this.$parent.data, activeTool.subtitle + '.value') : null
 
                     var value = {
                         label: sb ? vv + ' - ' + sb : vv,
                         value: vv
                     }
-                    console.log(value)
 
                     relation = new URLSearchParams({
                         class: activeTool.class,

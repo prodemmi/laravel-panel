@@ -8,7 +8,7 @@
       <div
         v-for="(column, index) in headers"
         :key="index"
-        class="flex flex-wrap justify-between w-full"
+        class="flex flex-wrap justify-between w-full select-none"
       >
         <span style="min-width: 140px">{{ column.name }}</span>
         <input
